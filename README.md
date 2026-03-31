@@ -17,7 +17,7 @@ DropLogic solves this by using state-driven mathematics to perfectly simulate th
 
 Under the hood, DropLogic abandons standard binomial probability. Instead, it uses custom **Markov Chain transition matrices**. 
 
-By building a simulated "state space" of your inventory, the calculator can track conditional probabilities. It routes complex scenarios through three specialized engines:
+By building a simulated "state space" of your chosen items, the calculator can track conditional probabilities. It routes complex scenarios through three specialized engines:
 
 1. **The Master Matrix:** Handles standard boss tables and mutually exclusive drops.
 2. **The Barrows Matrix:** A hypergeometric engine that compounds probabilities to account for multiple brothers dying in a single run.
