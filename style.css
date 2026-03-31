@@ -1,0 +1,332 @@
+/**
+ * @file styles.css
+ * Styling engine for DropLogic.
+ * Built with a mobile-first responsive grid and a dark, high-contrast visual theme.
+ */
+
+:root {
+    /* Centralized theme variables. Modifying these propagates across the entire UI. */
+    --bg: #0c0a09;
+    --card: rgba(28, 25, 23, 0.95);
+    --border: #44403c;
+    --accent-green: #84cc16;
+    --accent-orange: #f97316;
+    --text: #f5f5f4;
+    --text-dim: #a8a29e;
+    --glow-green: rgba(132, 204, 22, 0.2);
+}
+
+body {
+    background-color: var(--bg);
+    background-image:
+        radial-gradient(circle at 10% 10%, rgba(132, 204, 22, 0.07) 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(249, 115, 22, 0.07) 0%, transparent 50%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 60px 20px;
+    min-height: 100vh;
+}
+
+.container { 
+    width: 100%; 
+    max-width: 850px; 
+}
+
+header { 
+    margin-bottom: 40px; 
+    border-bottom: 1px solid var(--border); 
+    padding-bottom: 20px; 
+}
+
+h1 { 
+    margin: 0; 
+    font-size: 2.5rem; 
+    font-weight: 900; 
+    letter-spacing: -0.05em; 
+    text-transform: uppercase; 
+    color: var(--accent-green); 
+}
+
+.subtitle { 
+    color: var(--accent-orange); 
+    font-size: 0.8rem; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    letter-spacing: 0.2em; 
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+.hidden { 
+    display: none !important; 
+}
+
+.input-row { 
+    display: grid; 
+    grid-template-columns: 1.2fr 1fr; 
+    gap: 24px; 
+    margin-bottom: 24px; 
+}
+
+label { 
+    font-size: 11px; 
+    font-weight: 800; 
+    color: var(--text-dim); 
+    text-transform: uppercase; 
+    letter-spacing: 0.1em; 
+    margin-bottom: 10px; 
+    display: block; 
+}
+
+select, input {
+    width: 100%; 
+    padding: 14px; 
+    background: #110f0e; 
+    border: 1px solid var(--border);
+    border-radius: 8px; 
+    color: white; 
+    font-size: 15px; 
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box; 
+    transition: 0.2s;
+}
+
+/* * Hide default browser number spinners. 
+ * The custom +1/+10 UI buttons replace this functionality for faster OSRS KC entry.
+ */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+    text-align: center;
+    /* Force monospace-like character widths so rapid number updates don't cause layout jitter */
+    font-feature-settings: "tnum"; 
+}
+
+button#calculate-btn {
+    width: 100%; 
+    padding: 20px; 
+    background: var(--accent-orange); 
+    color: #fff; 
+    border: none;
+    border-radius: 8px; 
+    font-weight: 900; 
+    font-size: 1.1rem; 
+    cursor: pointer; 
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s;
+}
+
+button#calculate-btn:hover { 
+    background: #ea580c; 
+}
+
+.kc-controls { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 6px; 
+    margin-top: 10px; 
+}
+
+.kc-btn {
+    flex: 1; 
+    min-width: 42px; 
+    background: #1c1917; 
+    border: 1px solid var(--border);
+    color: var(--text-dim); 
+    padding: 8px 0; 
+    font-size: 10px; 
+    font-family: 'Inter', sans-serif;
+    font-weight: 700; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    transition: 0.2s;
+    font-feature-settings: "tnum";
+}
+
+.kc-btn:hover { 
+    background: var(--border); 
+    color: var(--text); 
+}
+
+.kc-btn.reset { 
+    color: #ef4444; 
+    border-color: rgba(239, 68, 68, 0.3); 
+}
+
+.header-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 20px; 
+}
+
+.header-row h3 { 
+    margin: 0; 
+    color: var(--accent-orange); 
+    text-transform: uppercase; 
+    font-size: 0.9rem; 
+}
+
+.controls { 
+    display: flex; 
+    gap: 10px; 
+}
+
+.btn-sm { 
+    background: var(--border); 
+    color: var(--text); 
+    border: none; 
+    padding: 8px 16px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    text-transform: uppercase; 
+    font-family: 'Inter', sans-serif;
+}
+
+.btn-sm:hover { 
+    background: #57534e; 
+}
+
+/* Auto-fill creates responsive rows without requiring media queries for the grid */
+.item-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); 
+    gap: 10px; 
+}
+
+.item-box {
+    aspect-ratio: 1; 
+    background: #110f0e; 
+    border: 1px solid var(--border); 
+    border-radius: 6px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    padding: 8px;
+    transition: transform 0.1s, border-color 0.2s;
+}
+
+.item-box:hover { 
+    transform: scale(1.05); 
+}
+
+/* pointer-events: none prevents the image from swallowing click events intended for the parent .item-box */
+.item-box img { 
+    width: 32px; 
+    height: 32px; 
+    object-fit: contain; 
+    pointer-events: none; 
+}
+
+.item-box.selected { 
+    border-color: var(--accent-green); 
+    background: var(--glow-green); 
+}
+
+/* * Chart.js requires a relative-positioned parent with explicit dimensions 
+ * to calculate responsive canvas redraws accurately without infinite loop scaling.
+ */
+.chart-wrapper {
+    width: 100%; 
+    height: 500px; 
+    margin: 20px 0;
+    background: rgba(17, 15, 14, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 12px; 
+    padding: 20px; 
+    box-sizing: border-box;
+    backdrop-filter: blur(4px);
+}
+
+.result-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 30px; 
+}
+
+#stat-chance { 
+    font-size: 3.5rem; 
+    font-weight: 900; 
+    color: var(--accent-green); 
+    font-family: 'Inter', sans-serif; 
+    font-feature-settings: "tnum"; 
+    line-height: 1; 
+}
+
+.prob-label { 
+    font-size: 10px; 
+    color: var(--accent-orange); 
+    font-weight: 800; 
+    text-align: right; 
+    text-transform: uppercase; 
+}
+
+.stats-list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+}
+
+.stat-item { 
+    padding: 15px; 
+    background: rgba(255,255,255,0.02); 
+    border-radius: 8px; 
+    border-left: 5px solid var(--border); 
+    color: var(--text-dim); 
+    font-size: 14px; 
+}
+
+.stat-item b { 
+    color: var(--accent-green); 
+    font-family: 'Inter', sans-serif; 
+    font-feature-settings: "tnum"; 
+}
+
+#phrase-mode { border-left-color: #ef4444; }
+#phrase-median { border-left-color: #3b82f6; }
+#phrase-mean { border-left-color: #f97316; }
+#phrase-user { border-left-color: #22c55e; }
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 650px) {
+    .input-row { 
+        /* Force single-column layout on restricted viewports */
+        grid-template-columns: 1fr; 
+        gap: 16px; 
+    }
+    .chart-wrapper { 
+        height: 350px; 
+        padding: 10px;
+    }
+    #stat-chance { 
+        font-size: 2.5rem; 
+    }
+    .card { 
+        padding: 20px; 
+    }
+    body { 
+        padding: 20px 10px; 
+    }
+}
