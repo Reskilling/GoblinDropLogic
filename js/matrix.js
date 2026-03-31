@@ -67,25 +67,56 @@ export function createBarrowsMatrix(targetCount) {
 export function createMasterMatrix(selectedItems, rollCount = 1) {
     const groups = [];
     
-    // Items requiring multiple pieces (like DT2 vestiges) must occupy their own 
-    // dimension in the state space to track sequential progress.
-    // Standard items with identical rates are merged into "Coupon Collector" buckets.
-    selectedItems.forEach(item => {
+selectedItems.forEach(item => {
         const piecesNeeded = item.pieces || 1;
         
-        if (piecesNeeded > 1) {
-            groups.push({ type: item.type, rate: item.rate, target: piecesNeeded, isSequential: true });
+        if (item.pool) {
+            // 1. SHARED SEQUENTIAL POOL (e.g., Abyssal Bludgeon)
+            // Items sharing a pool ID are treated as a single sequential track.
+            // Each unique item added to the pool increases the total pieces needed 
+            // from that specific drop table entry.
+            const found = groups.find(g => g.pool === item.pool);
+            if (found) {
+                found.target++;
+            } else {
+                groups.push({ 
+                    pool: item.pool, 
+                    type: item.type, 
+                    rate: item.rate, 
+                    target: 1, 
+                    isSequential: true 
+                });
+            }
+        } else if (piecesNeeded > 1) {
+            // 2. INDEPENDENT SEQUENTIAL PROGRESS (e.g., DT2 Vestiges)
+            // Items requiring multiple invisible rolls must occupy their own 
+            // dimension in the state space to track individual step-by-step progress.
+            groups.push({ 
+                type: item.type, 
+                rate: item.rate, 
+                target: piecesNeeded, 
+                isSequential: true 
+            });
         } else {
+            // 3. COUPON COLLECTOR BUCKETS (Standard Drops)
+            // Items with identical rates are merged. They are treated as a 
+            // "shrinking pool" where hitting the rate grants any one remaining 
+            // item in this category.
             let found = false;
             for (const g of groups) {
-                if (!g.isSequential && g.type === item.type && g.rate === item.rate) {
+                if (!g.isSequential && !g.pool && g.type === item.type && g.rate === item.rate) {
                     g.target++;
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                groups.push({ type: item.type, rate: item.rate, target: 1, isSequential: false });
+                groups.push({ 
+                    type: item.type, 
+                    rate: item.rate, 
+                    target: 1, 
+                    isSequential: false 
+                });
             }
         }
     });
