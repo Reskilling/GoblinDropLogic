@@ -29,7 +29,7 @@ DropLogic is built entirely in vanilla web technologies (HTML, CSS, JavaScript).
 
 ```bash
 # Clone the repository
-git clone [https://github.com/yourusername/droplogic.git](https://github.com/Reskilling/GoblinDropLogic)
+git clone https://github.com/Reskilling/GoblinDropLogic
 
 # Navigate into the directory
 cd droplogic
