@@ -43,6 +43,7 @@ function initApp() {
     setupChartDefaults();
     populateBossSelect();
     bindEvents();
+    initGoalTracking();
 }
 
 function setupChartDefaults() {
@@ -156,6 +157,46 @@ function bindEvents() {
             // D. Cleanup
             if (mobileMenu) mobileMenu.classList.add('hidden');
             window.scrollTo(0, 0);
+        });
+    });
+}
+
+// --- Goal Tracking Logic ---
+function initGoalTracking() {
+    const goalCards = document.querySelectorAll('#ironman-goals .card');
+
+    goalCards.forEach(card => {
+        const checkAllBox = card.querySelector('.check-all-box');
+        const goalCheckboxes = card.querySelectorAll('.goal-item input[type="checkbox"]');
+
+        if (!checkAllBox || goalCheckboxes.length === 0) return;
+
+        // 1. Toggle all items when "Check All" is clicked
+        checkAllBox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            goalCheckboxes.forEach(cb => {
+                cb.checked = isChecked;
+            });
+        });
+
+        // 2. Update "Check All" state when individual items are clicked
+        goalCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const total = goalCheckboxes.length;
+                const checkedCount = card.querySelectorAll('.goal-item input[type="checkbox"]:checked').length;
+
+                if (checkedCount === 0) {
+                    checkAllBox.checked = false;
+                    checkAllBox.indeterminate = false;
+                } else if (checkedCount === total) {
+                    checkAllBox.checked = true;
+                    checkAllBox.indeterminate = false;
+                } else {
+                    // Partially complete: unchecks the box but adds a visual dash (-)
+                    checkAllBox.checked = false; 
+                    checkAllBox.indeterminate = true; 
+                }
+            });
         });
     });
 }

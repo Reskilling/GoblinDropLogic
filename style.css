@@ -799,6 +799,73 @@ a:hover {
 /* ==========================================
    GOAL CHECKLIST COMPONENT
    ========================================== */
+.check-all-wrapper {
+    display: inline-flex;  
+    align-items: center;
+    justify-content: center;
+    
+    background: #1c1917;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+    
+    color: var(--text-dim);
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    
+    /* Prevents text highlighting on rapid clicks */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Hide the default HTML checkbox entirely */
+.check-all-wrapper input[type="checkbox"] {
+    display: none;
+}
+
+/* Hover State */
+@media (hover: hover) {
+    .check-all-wrapper:hover {
+        color: #fff;
+        background: #23201d;
+        border-top-color: var(--accent-green);
+        transform: translateY(-2px);
+        box-shadow: 0 0 12px var(--glow-green), 0 8px 15px rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* Click/Tap Physics */
+.check-all-wrapper:active {
+    transform: translateY(2px);
+    transition: 0.05s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* * DYNAMIC STATES 
+ * Using the :has() selector to read the state of the hidden input inside the label
+ */
+
+/* Indeterminate (Partially Checked) State -> Glows Orange */
+.check-all-wrapper:has(input:indeterminate) {
+    color: var(--accent-orange);
+    border-top-color: var(--accent-orange);
+}
+
+/* Fully Checked State -> Glows Green with faint background */
+.check-all-wrapper:has(input:checked) {
+    color: var(--accent-green);
+    border-top-color: var(--accent-green);
+    background: rgba(132, 204, 22, 0.08); /* Faint green tint */
+}
+
 .goals-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
