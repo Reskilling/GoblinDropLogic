@@ -8,7 +8,8 @@ const DEFAULT_SORT_ORDER = 99;
 const SPECIAL_MECHANICS = {
     "zulrah": { rolls: 2 },
     "barrows_chests": { rolls: 6 },
-    "phantom_muspah": { rolls: 2 }
+    "phantom_muspah": { rolls: 2 },
+    "grotesque_guardians": { rolls: 2 }
 };
 
 // Maps in-game names to Wiki file names for items with disambiguation tags.
