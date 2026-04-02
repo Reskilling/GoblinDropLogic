@@ -12,10 +12,6 @@
     --card: rgba(28, 25, 23, 0.95);
     --border: #44403c;
     
-    /* * We extract the raw RGB values of our primary accents here. 
-     * This allows us to dynamically apply opacities using `rgba(var(--name), X)` 
-     * across the app without hardcoding hex codes or making dozens of transparency variables. 
-     */
     --accent-green-rgb: 132, 204, 22;
     --accent-green: rgb(var(--accent-green-rgb));
     
@@ -49,10 +45,11 @@
     padding: 0;
 }
 
-/* * By default, form elements (buttons, inputs) do not inherit fonts. 
- * Forcing inheritance here allows us to strip `font-family: var(--font-primary)`
- * from dozens of individual component classes below, making the file much DRYer.
- */
+/* FIX: Prevents double-tap zooming and removes click delay on mobile */
+html, body {
+    touch-action: manipulation;
+}
+
 button, input, select, textarea {
     font-family: inherit;
     color: inherit;
@@ -208,7 +205,7 @@ ol, p {
 }
 
 /* Tactical Intelligence V2 Buttons */
-.premium-btn, .premium-btn-sm {
+.premium-btn, .premium-btn-sm, .kc-btn, .btn-sm {
     text-decoration: none; 
     display: inline-flex;  
     align-items: center;
@@ -231,6 +228,11 @@ ol, p {
     cursor: pointer;
     transition: all 0.2s ease-out;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+
+    /* FIX: Prevents highlighting and double-tap zoom on buttons */
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
 }
 
 .premium-btn-sm { 
@@ -251,17 +253,6 @@ ol, p {
 .premium-btn:active, .premium-btn-sm:active {
     transform: translateY(2px);
     transition: 0.05s;
-}
-
-.btn-sm { 
-    background: var(--border); 
-    border: none; 
-    padding: 8px 16px; 
-    border-radius: 4px; 
-    font-size: 11px; 
-    font-weight: 700; 
-    cursor: pointer; 
-    text-transform: uppercase; 
 }
 
 .food-row a {
@@ -332,7 +323,6 @@ ol, p {
 /* ==========================================
    MAIN LAYOUT COMPONENTS
    ========================================== */
-/* CAGE BREAKER: Forces main to stretch past the active-view center align */
 main {
     width: 100%; 
 }
@@ -348,7 +338,6 @@ main {
 }
 
 .container.is-100 { 
-    /* 95vw is best practice here to prevent the text from physically hitting your monitor bezels */
     max-width: 95vw;
 }
 
@@ -409,10 +398,6 @@ select, input {
     transition: 0.2s;
 }
 
-/* * font-feature-settings: "tnum" explicitly tells the font engine to use Tabular Numbers.
- * This ensures all numbers take up the exact same horizontal width, preventing the UI 
- * from jittering left/right when a "1" turns into a "0". 
- */
 input[type=number] {
     text-align: center;
     font-feature-settings: "tnum"; 
@@ -428,23 +413,6 @@ input[type=number]::-webkit-inner-spin-button {
 
 .kc-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 
-.kc-btn {
-    flex: 1; 
-    min-width: 42px; 
-    background: #1c1917; 
-    border: 1px solid var(--border);
-    color: var(--text-dim); 
-    padding: 8px 0; 
-    font-size: 10px; 
-    font-family: var(--font-mono);
-    font-weight: 700; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    transition: 0.2s; 
-    font-feature-settings: "tnum";
-}
-
-.kc-btn:hover { background: var(--border); color: var(--text); }
 .kc-btn.reset { color: #ef4444; border-color: rgba(var(--stat-mode-rgb), 0.3); }
 
 /* The Big Submit Button */
@@ -464,6 +432,7 @@ button#calculate-btn {
     box-shadow: 0 6px 0 #9a3412, 0 12px 25px rgba(0, 0, 0, 0.5);
     position: relative;
     transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    touch-action: manipulation;
 }
 
 button#calculate-btn:hover { 
@@ -508,9 +477,12 @@ button#calculate-btn::after {
     cursor: pointer; 
     padding: 8px;
     transition: transform 0.1s, border-color 0.2s;
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none;     /* IE 10 and 11 */
-    user-select: none;         /* Standard syntax */
+
+    /* FIX: Prevents highlighting and double-tap zoom on icons */
+    -webkit-user-select: none; 
+    -ms-user-select: none;     
+    user-select: none;         
+    touch-action: manipulation; 
 }
 
 .item-box:hover { transform: scale(1.05); }
@@ -597,7 +569,6 @@ button#calculate-btn::after {
     border-left: 3px solid var(--accent-green);
 }
 
-/* Plugin Directory Layout */
 .plugin-directory {
     display: flex;
     flex-direction: column; 
@@ -637,7 +608,6 @@ button#calculate-btn::after {
     font-weight: 500;
 }
 
-/* High-Density Plugin List */
 .compact-plugin-list {
     list-style: none;
     margin-top: 10px;
@@ -652,7 +622,6 @@ button#calculate-btn::after {
     position: relative;
 }
 
-/* Custom bullet point */
 .compact-plugin-list li::before {
     content: "■";
     color: var(--accent-orange);
@@ -834,10 +803,6 @@ a:hover {
     background: rgba(var(--accent-green-rgb), 0.05);
 }
 
-/* * Custom Checkbox Hack: We hide the default HTML checkbox and style a sibling 
- * <div> to act as the visual box. When the hidden input is :checked, we target 
- * the sibling box using the '+' combinator to change its color and add the checkmark.
- */
 .goal-item input[type="checkbox"] {
     display: none;
 }
@@ -887,15 +852,11 @@ a:hover {
 }
 
 /* ==========================================
-   MOBILE DROPDOWN SYSTEM
+   MEDIA QUERIES (Unified Fixes & Layout)
    ========================================== */
 
-/* Utility visibility classes */
-.mobile-only { display: none; }
-.desktop-only { display: flex; }
-
-/* THE DESKTOP CLICK-THROUGH FIX: 
-   Prevents invisible mobile wrappers from blocking your desktop buttons */
+/* 1. THE DESKTOP CLICK-THROUGH FIX
+   Ensures invisible mobile wrappers don't block desktop buttons */
 @media (min-width: 769px) {
     .mobile-only {
         display: none !important;
@@ -903,38 +864,46 @@ a:hover {
     }
 }
 
+@media (max-width: 900px) {
+    .container.is-75 { max-width: 100%; }
+}
+
 @media (max-width: 768px) {
     .mobile-only { display: block; }
     .desktop-only { display: none !important; }
 
+    .showcase-logo { height: 40vh; }
+    .hero-titles h1 { font-size: 2.2rem; }
+
+    /* --- HEADER BUTTON SYMMETRY --- */
     .content-header {
         padding: 12px 15px;
         display: flex !important;
-        flex-direction: row !important; /* Forces Return and Sections to stay side-by-side */
+        flex-direction: row !important; 
         justify-content: space-between;
         align-items: center;
         width: 100%;
         gap: 12px;
+        height: 70px; 
     }
 
-    /* FORCED SYMMETRY: 
-       Ensures both header elements share the width equally */
     .content-header #btn-home,
     .content-header .mobile-menu-wrapper {
         flex: 1; 
         width: auto !important;
-        max-width: 160px; /* Prevents buttons from becoming too wide on tablets */
+        max-width: 160px;
     }
 
     .content-header .premium-btn-sm {
         width: 100% !important; 
-        height: 42px;
+        height: 42px; 
         padding: 0 10px;
         font-size: 10px;
         white-space: nowrap;
         display: flex;
         justify-content: center;
         align-items: center;
+        pointer-events: auto;
     }
 
     .mobile-menu-wrapper {
@@ -959,10 +928,7 @@ a:hover {
         animation: fadeIn 0.2s ease forwards;
     }
 
-    /* Ensures the menu actually disappears when the 'hidden' class is applied */
-    .mobile-dropdown.hidden {
-        display: none !important;
-    }
+    .mobile-dropdown.hidden { display: none !important; }
 
     .mobile-nav-item {
         background: transparent;
@@ -978,6 +944,7 @@ a:hover {
         letter-spacing: 0.1em;
         cursor: pointer;
         transition: background 0.2s;
+        touch-action: manipulation;
     }
 
     .mobile-nav-item:last-child {
@@ -988,55 +955,6 @@ a:hover {
         color: var(--accent-green);
         background: var(--glow-green);
         border-left: 4px solid var(--accent-green);
-    }
-}
-
-/* ==========================================
-   MEDIA QUERIES (Mobile Fixes & Layout)
-   ========================================== */
-
-/* 1. THE DESKTOP CLICK-THROUGH FIX
-   Ensures invisible mobile wrappers don't block desktop buttons */
-@media (min-width: 769px) {
-    .mobile-only {
-        display: none !important;
-        pointer-events: none; 
-    }
-}
-
-@media (max-width: 900px) {
-    .container.is-75 { max-width: 100%; }
-}
-
-@media (max-width: 768px) {
-    .showcase-logo { height: 40vh; }
-    .hero-titles h1 { font-size: 2.2rem; }
-
-    /* --- HEADER BUTTON SYMMETRY --- */
-    .content-header {
-        flex-direction: row !important; 
-        justify-content: space-between;
-        padding: 12px 15px;
-        gap: 12px;
-        height: 70px; 
-    }
-
-    .content-header #btn-home,
-    .content-header .mobile-menu-wrapper {
-        flex: 1; 
-        width: auto !important;
-        max-width: 160px;
-    }
-
-    .content-header .premium-btn-sm {
-        width: 100% !important; 
-        height: 42px; 
-        padding: 0 5px;
-        font-size: 10px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        pointer-events: auto;
     }
 
     /* --- MAIN NAV GRID (Home Page) --- */
@@ -1067,7 +985,6 @@ a:hover {
     .chart-wrapper { height: 320px; padding: 10px; }
     
     /* --- COLLECTION LOG STACKING --- */
-    /* Forces 'Collection Log' text and buttons to stack vertically */
     #boss-preview .header-row {
         flex-direction: column;
         align-items: flex-start;
@@ -1075,14 +992,12 @@ a:hover {
         margin-bottom: 20px;
     }
 
-    /* Makes the buttons container fill the full card width */
     #boss-preview .controls {
         width: 100%;
         display: flex;
         gap: 10px;
     }
 
-    /* Gives buttons a 50/50 split and larger tap area */
     #boss-preview .controls .btn-sm {
         flex: 1;
         padding: 12px;
