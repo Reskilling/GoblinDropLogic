@@ -204,7 +204,6 @@ ol, p {
     z-index: 10;
 }
 
-/* Tactical Intelligence V2 Buttons */
 .premium-btn, .premium-btn-sm, .kc-btn, .btn-sm {
     text-decoration: none; 
     display: inline-flex;  
@@ -230,9 +229,11 @@ ol, p {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
 
     /* FIX: Prevents highlighting and double-tap zoom on buttons */
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
+    -webkit-user-select: none;   /* Stops text selection highlight */
+    user-select: none;           
+    -webkit-touch-callout: none; /* Stops the long-press "copy" menu */
+    touch-action: manipulation;  /* Stops the double-tap zoom delay */
+    -webkit-tap-highlight-color: transparent; /* Removes the grey flicker when tapped */
 }
 
 .premium-btn-sm { 
