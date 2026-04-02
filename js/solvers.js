@@ -1,3 +1,46 @@
+// ==========================================
+// OSRS DROP RATE CALCULATOR - SIMULATION
+// ==========================================
+
+// Centralizing our performance and display thresholds
+const SIM_CONFIG = {
+    MAX_ITERATIONS: 1000000,     // Prevents main-thread lockup on impossible matrices
+    PRUNE_THRESHOLD: 1e-12,      // Bypasses underflow calculations on dead states
+    COMPLETION_THRESHOLD: 0.99999, // Our effective "100% completion" mark
+    TAIL_MULTIPLIER: 1.5,        // How far past the mean we want to draw the chart tail
+    MAX_CHART_POINTS: 2500       // Max canvas coordinates before Chart.js stutters
+};
+
+/**
+ * Helper to compress thousands of simulation iterations into a digestible format for Chart.js.
+ * We extract this to keep the main simulation loop focused purely on the math.
+ */
+function buildChartData(historyPMF, historyCDF, finalK, targetKC, modeKC, median) {
+    const curveData = [];
+    const stepSize = Math.max(1, Math.floor(finalK / SIM_CONFIG.MAX_CHART_POINTS));
+
+    // Downsample the bulk of the curve based on our step limit
+    for (let k = 1; k <= finalK; k += stepSize) {
+        curveData.push({ x: k, pmf: historyPMF[k], cdf: historyCDF[k] });
+    }
+
+    // Ensure critical milestones are explicitly included in the dataset 
+    // so annotation lines and tooltips have exact data coordinates to snap to.
+    const milestones = [targetKC, modeKC, median].filter(m => m > 0 && m <= finalK);
+    
+    milestones.forEach(m => {
+        // Only inject if it wasn't already caught by our uniform step jump
+        if (m % stepSize !== 0) {
+            curveData.push({ x: m, pmf: historyPMF[m], cdf: historyCDF[m] });
+        }
+    });
+
+    // Re-sort because injected milestones may be out of order relative to the step sequence.
+    curveData.sort((a, b) => a.x - b.x);
+
+    return curveData;
+}
+
 /**
  * Executes the Markov chain simulation to determine drop probability distributions.
  * Iteratively multiplies the state vector against the transition matrix to simulate KC progression.
@@ -7,12 +50,12 @@
  */
 export function runSimulation(matrix, targetKC) {
     const size = matrix.length;
-    let v = new Float64Array(size);
+    const absorbingState = size - 1; // The final state where all items are collected
     
-    // All simulations begin at State 0 (0 items collected) at 0 KC.
-    v[0] = 1.0; 
+    let stateVector = new Float64Array(size);
+    stateVector[0] = 1.0; // All simulations begin at State 0 (0 items collected) at 0 KC.
 
-    let prevP = 0, mean = 0, median = 0, modeKC = 0, maxPMF = 0, targetP = 0;
+    let prevCDF = 0, mean = 0, median = 0, modeKC = 0, maxPMF = 0, targetP = 0;
 
     // Store history in flat arrays rather than pushing object maps on every iteration.
     // This prevents severe memory bloat and garbage collection pauses during long grinds.
@@ -20,83 +63,61 @@ export function runSimulation(matrix, targetKC) {
     const historyPMF = [0];
     let finalK = 0;
 
-    // Hard cap prevents main-thread lockup if a mathematically impossible matrix is passed.
-    for (let k = 1; k < 1000000; k++) {
-        let nextV = new Float64Array(size);
+    for (let k = 1; k < SIM_CONFIG.MAX_ITERATIONS; k++) {
+        let nextStateVector = new Float64Array(size);
         let activeTransientStates = 0;
 
         // Iterate only through transient (incomplete) states. 
-        // The final state is absorbing; calculating transitions OUT of it wastes cycles.
-        for (let i = 0; i < size - 1; i++) {
-            // Prune microscopic probabilities to bypass floating-point underflow 
-            // and significantly accelerate vector multiplication over thousands of kills.
-            if (v[i] < 1e-12) continue; 
+        // Calculating transitions OUT of the completed state wastes cycles.
+        for (let i = 0; i < absorbingState; i++) {
+            
+            // Prune microscopic probabilities to accelerate vector multiplication
+            if (stateVector[i] < SIM_CONFIG.PRUNE_THRESHOLD) continue; 
             
             activeTransientStates++;
 
             for (let j = i; j < size; j++) {
                 if (matrix[i][j] === 0) continue;
-                nextV[j] += v[i] * matrix[i][j]; 
+                nextStateVector[j] += stateVector[i] * matrix[i][j]; 
             }
         }
 
-        // Manually carry forward the probability mass of the absorbing (completed) state.
-        nextV[size - 1] += v[size - 1]; 
-        v = nextV;
+        // Manually carry forward the probability mass of the absorbing state.
+        nextStateVector[absorbingState] += stateVector[absorbingState]; 
+        stateVector = nextStateVector;
         
-        const currP = v[size - 1];
-        const pmf = currP - prevP;
+        const currCDF = stateVector[absorbingState];
+        const currPMF = currCDF - prevCDF;
         
-        historyCDF.push(currP);
-        historyPMF.push(pmf);
+        historyCDF.push(currCDF);
+        historyPMF.push(currPMF);
 
-        mean += k * pmf;
+        mean += k * currPMF;
 
-        if (pmf > maxPMF) {
-            maxPMF = pmf;
+        if (currPMF > maxPMF) {
+            maxPMF = currPMF;
             modeKC = k;
         }
 
-        if (!median && currP >= 0.5) {
+        if (!median && currCDF >= 0.5) {
             median = k;
         }
 
         if (k === targetKC) {
-            targetP = currP;
+            targetP = currCDF;
         }
 
-        prevP = currP;
+        prevCDF = currCDF;
         finalK = k;
         
         // Auto-crop: Terminate early if the player has effectively a 100% chance of completion
-        // AND we have processed enough KC past the mean to capture the right-skewed tail for the chart.
-        if ((currP > 0.99999 && k > mean * 1.5) || activeTransientStates === 0) {
+        // AND we have processed enough KC past the mean to capture the right-skewed tail.
+        if ((currCDF > SIM_CONFIG.COMPLETION_THRESHOLD && k > mean * SIM_CONFIG.TAIL_MULTIPLIER) || activeTransientStates === 0) {
             break;
         }
     }
 
-    const curveData = [];
-    
-    // Downsample the result to a maximum of 2500 coordinates. 
-    // Passing 50,000+ exact coordinates to Chart.js will cause the browser canvas to freeze.
-    const numPoints = 2500; 
-    const stepSize = Math.max(1, Math.floor(finalK / numPoints));
-
-    for (let k = 1; k <= finalK; k += stepSize) {
-        curveData.push({ x: k, pmf: historyPMF[k], cdf: historyCDF[k] });
-    }
-
-    // Ensure critical milestones are explicitly included in the downsampled dataset 
-    // so annotation lines and tooltips have exact data coordinates to snap to.
-    const milestones = [targetKC, modeKC, median].filter(m => m > 0 && m <= finalK);
-    milestones.forEach(m => {
-        if (m % stepSize !== 0) {
-            curveData.push({ x: m, pmf: historyPMF[m], cdf: historyCDF[m] });
-        }
-    });
-
-    // Re-sort because injected milestones may be out of order relative to the uniform step sequence.
-    curveData.sort((a, b) => a.x - b.x);
+    const curveData = buildChartData(historyPMF, historyCDF, finalK, targetKC, modeKC, median);
 
     return { targetP, mean, median: median || 0, modeKC, maxPMF, curveData };
 }

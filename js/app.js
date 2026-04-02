@@ -7,47 +7,67 @@ import { createMasterMatrix, createBarrowsMatrix, createMoonsMatrix } from './ma
 import { BOSS_CONFIG, getWikiUrl, formatBossName } from './data.js';
 import { runSimulation } from './solvers.js';
 
-// --- Configuration & State ---
-const CHART_FONT = "'Inter', sans-serif";
-const CHART_TEXT_COLOR = '#a8a29e';
-const COLORS = {
-    mode: '#ef4444',
-    progress: '#3b82f6',
-    mean: '#f97316',
-    user: '#22c55e'
+// --- Configuration & Constants ---
+const APP_CONFIG = {
+    CHART_FONT: "'Inter', sans-serif",
+    CHART_TEXT_COLOR: '#a8a29e',
+    // Power transformation for Chart.js X-axis to visualize OSRS drop rates realistically.
+    X_AXIS_POWER: 0.4,
+    // Adds a 10% padding to the right side of the chart so the user's KC line isn't cut off
+    CHART_PADDING_FACTOR: 1.1,
+    COLORS: {
+        mode: '#ef4444',
+        progress: '#3b82f6',
+        mean: '#f97316',
+        user: '#22c55e'
+    }
 };
-
-// Power transformation constant for Chart.js X-axis scaling to visualize OSRS drop rates realistically.
-const X_AXIS_POWER = 0.4;
 
 let activeBossKey = "";
 let chartInstance = null;
-
-// --- DOM Elements ---
-const DOM = {
-    bossSelect: document.getElementById("boss-select"),
-    itemGrid: document.getElementById("item-grid"),
-    kcInput: document.getElementById("target-kc"),
-    bossPreview: document.getElementById("boss-preview"),
-    resultsSection: document.getElementById("results"),
-    statChance: document.getElementById("stat-chance"),
-    phraseMode: document.getElementById("phrase-mode"),
-    phraseMedian: document.getElementById("phrase-median"),
-    phraseMean: document.getElementById("phrase-mean"),
-    phraseUser: document.getElementById("phrase-user"),
-    chartCanvas: document.getElementById('distributionChart')
-};
+let DOM = {}; // Make this mutable so we can assign it safely later
 
 // --- Initialization ---
+
+// Bulletproof execution: wait for HTML to finish parsing if it hasn't already
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", initApp);
+} else {
+    initApp();
+}
+
 function initApp() {
-    setupChartDefaults();
+    // 1. Cache elements ONLY after we know the DOM exists
+    DOM = {
+        bossSelect: document.getElementById("boss-select"),
+        itemGrid: document.getElementById("item-grid"),
+        kcInput: document.getElementById("target-kc"),
+        bossPreview: document.getElementById("boss-preview"),
+        resultsSection: document.getElementById("results"),
+        statChance: document.getElementById("stat-chance"),
+        phraseMode: document.getElementById("phrase-mode"),
+        phraseMedian: document.getElementById("phrase-median"),
+        phraseMean: document.getElementById("phrase-mean"),
+        phraseUser: document.getElementById("phrase-user"),
+        chartCanvas: document.getElementById('distributionChart')
+    };
+
+    // 2. Build the UI *before* touching the external Chart.js library
     populateBossSelect();
     bindEvents();
+    
+    // 3. Attempt to format the chart
+    setupChartDefaults();
 }
 
 function setupChartDefaults() {
-    Chart.defaults.font.family = CHART_FONT;
-    Chart.defaults.color = CHART_TEXT_COLOR;
+    // Safe-check: Only apply defaults if the CDN script successfully loaded
+    if (typeof Chart !== 'undefined') {
+        Chart.defaults.font.family = APP_CONFIG.CHART_FONT;
+        Chart.defaults.color = APP_CONFIG.CHART_TEXT_COLOR;
+    } else {
+        console.warn("Chart.js not ready. It may be blocked or loading slowly.");
+    }
 }
 
 function populateBossSelect() {
@@ -66,7 +86,7 @@ function bindEvents() {
     
     // KC Input Modifiers
     document.querySelectorAll(".kc-btn[data-add]").forEach(btn => {
-        btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add)));
+        btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
     });
     document.getElementById("kc-reset").addEventListener('click', () => { DOM.kcInput.value = 0; });
 
@@ -78,6 +98,18 @@ function bindEvents() {
     // Simulation Trigger
     document.getElementById("calculate-btn").addEventListener('click', handleCalculation);
 }
+
+// --- Utility Helpers ---
+const getCurrentKC = () => parseInt(DOM.kcInput.value, 10) || 0;
+
+/**
+ * Finds the nearest exact data point in our downsampled array for chart annotations.
+ */
+const getClosestPoint = (data, targetX) => {
+    return data.reduce((prev, curr) => 
+        Math.abs(curr.x - targetX) < Math.abs(prev.x - targetX) ? curr : prev
+    );
+};
 
 // --- Event Handlers ---
 function handleBossSelection(e) {
@@ -93,8 +125,7 @@ function handleBossSelection(e) {
 }
 
 function updateKC(amount) {
-    const currentVal = parseInt(DOM.kcInput.value) || 0;
-    DOM.kcInput.value = currentVal + amount;
+    DOM.kcInput.value = getCurrentKC() + amount;
 }
 
 function toggleItemSelection(e) {
@@ -115,7 +146,7 @@ function handleCalculation() {
         return;
     }
 
-    const currentKC = parseInt(DOM.kcInput.value) || 0;
+    const currentKC = getCurrentKC();
     const results = executeSimulation(selectedItems, currentKC);
 
     displayResults(results, currentKC);
@@ -143,7 +174,7 @@ function getSelectedItems() {
         name: b.title,
         rate: parseFloat(b.dataset.rate),
         type: b.dataset.type,
-        pieces: parseInt(b.dataset.pieces) || 1,
+        pieces: parseInt(b.dataset.pieces, 10) || 1,
         pool: b.dataset.pool 
     }));
 }
@@ -153,7 +184,6 @@ function executeSimulation(selectedItems, currentKC) {
     const bossData = BOSS_CONFIG[activeBossKey];
     const rolls = bossData.rolls || 1;
 
-    // Route to the appropriate matrix engine based on boss-specific mechanics
     if (activeBossKey === 'moons_of_peril') {
         matrix = createMoonsMatrix(selectedItems);
     } else if (activeBossKey === 'barrows_chests' && selectedItems.length > 5) {
@@ -166,20 +196,27 @@ function executeSimulation(selectedItems, currentKC) {
 }
 
 // --- UI Rendering ---
+
+/**
+ * Enforces a strict typographical hierarchy for our stat cards.
+ * We keep the styles inline here to guarantee zero visual/CSS structure breakages.
+ */
+function generateStatHTML(color, label, description, value) {
+    return `
+        <span style="color:${color}; font-family: var(--font-mono); font-weight: 800; font-size: 1.05em; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px;">${label}</span>
+        <span style="color: var(--text); font-size: 1em; font-weight: 700;">${description}</span>
+        <b style="color: ${color}; font-size: 1.05em; margin-left: 4px;">${value} <span style="font-size: 0.85em; opacity: 0.9;">KC</span></b>
+    `;
+}
+
 function displayResults(results, currentKC) {
     DOM.resultsSection.classList.remove("hidden");
     DOM.statChance.textContent = `${(results.targetP * 100).toFixed(2)}%`;
     
-    // Helper to enforce a strict typographical hierarchy for our stats
-    const formatStat = (color, label, description, value) => 
-        `<span style="color:${color}; font-family: var(--font-mono); font-weight: 800; font-size: 1.05em; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px;">${label}</span>
-         <span style="color: var(--text); font-size: 1em; font-weight: 700;">${description}</span>
-         <b style="color: ${color}; font-size: 1.05em; margin-left: 4px;">${value} <span style="font-size: 0.85em; opacity: 0.9;">KC</span></b>`;
-
-    DOM.phraseMode.innerHTML = formatStat(COLORS.mode, "Mode", "Luckiest players finish as early as", results.modeKC.toLocaleString());
-    DOM.phraseMedian.innerHTML = formatStat(COLORS.progress, "Median", "Half of players complete at or before", results.median.toLocaleString());
-    DOM.phraseMean.innerHTML = formatStat(COLORS.mean, "Mean", "Average player completes at", Math.round(results.mean).toLocaleString());
-    DOM.phraseUser.innerHTML = formatStat(COLORS.user, "Current", "Your current progress in the log", currentKC.toLocaleString());
+    DOM.phraseMode.innerHTML = generateStatHTML(APP_CONFIG.COLORS.mode, "Mode", "Luckiest players finish as early as", results.modeKC.toLocaleString());
+    DOM.phraseMedian.innerHTML = generateStatHTML(APP_CONFIG.COLORS.progress, "Median", "Half of players complete at or before", results.median.toLocaleString());
+    DOM.phraseMean.innerHTML = generateStatHTML(APP_CONFIG.COLORS.mean, "Mean", "Average player completes at", Math.round(results.mean).toLocaleString());
+    DOM.phraseUser.innerHTML = generateStatHTML(APP_CONFIG.COLORS.user, "Current", "Your current progress in the log", currentKC.toLocaleString());
     
     renderChart(results.curveData, results, currentKC);
     DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
@@ -190,28 +227,19 @@ function renderChart(data, stats, userKC) {
     
     if (chartInstance) chartInstance.destroy();
 
-    // Data transformations for Chart.js
-    const transformX = (x) => Math.pow(x, X_AXIS_POWER);
-    const reverseX = (y) => Math.pow(y, 1 / X_AXIS_POWER);
-    
-    const xMaxRaw = Math.max(data[data.length - 1].x, userKC * 1.1);
+    const transformX = (x) => Math.pow(x, APP_CONFIG.X_AXIS_POWER);
+    const reverseX = (y) => Math.pow(y, 1 / APP_CONFIG.X_AXIS_POWER);
+    const xMaxRaw = Math.max(data[data.length - 1].x, userKC * APP_CONFIG.CHART_PADDING_FACTOR);
 
-    // Helper to find the nearest data point for annotations
-    const getClosestPoint = (targetX) => {
-        return data.reduce((prev, curr) => 
-            Math.abs(curr.x - targetX) < Math.abs(prev.x - targetX) ? curr : prev
-        );
-    };
-
-    const modeY = getClosestPoint(stats.modeKC).pmf;
-    const medianY = getClosestPoint(stats.median).cdf;
+    const modeY = getClosestPoint(data, stats.modeKC).pmf;
+    const medianY = getClosestPoint(data, stats.median).cdf;
 
     chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [
-                createDataset('Luck (PMF)', data, transformX, 'pmf', COLORS.mode, 'yPMF'),
-                createDataset('Progress (CDF)', data, transformX, 'cdf', COLORS.progress, 'yCDF', 2)
+                createDataset('Luck (PMF)', data, transformX, 'pmf', APP_CONFIG.COLORS.mode, 'yPMF'),
+                createDataset('Progress (CDF)', data, transformX, 'cdf', APP_CONFIG.COLORS.progress, 'yCDF', 2)
             ]
         },
         options: getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, medianY)
@@ -230,6 +258,24 @@ function createDataset(label, data, transformX, yKey, color, yAxisID, borderWidt
         tension: 0.4,
         fill: false
     };
+}
+
+/**
+ * Snaps graph ticks to clean, readable intervals based on the magnitude of the KC.
+ */
+function formatXAxisTick(val, reverseX) {
+    let realKC = reverseX(val);
+    if (realKC < 1) return null; 
+    
+    if (realKC > 1000) {
+        realKC = Math.round(realKC / 100) * 100;
+    } else if (realKC > 100) {
+        realKC = Math.round(realKC / 10) * 10;
+    } else {
+        realKC = Math.round(realKC);
+    }
+    
+    return realKC.toLocaleString();
 }
 
 function getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, medianY) {
@@ -251,23 +297,16 @@ function getChartScales(transformX, reverseX, xMaxRaw) {
             max: transformX(xMaxRaw),
             grid: { color: 'rgba(68, 64, 60, 0.2)', drawTicks: false },
             ticks: {
-                color: CHART_TEXT_COLOR,
+                color: APP_CONFIG.CHART_TEXT_COLOR,
                 font: { size: 10, weight: 700 },
                 maxTicksLimit: 8,
-                callback: function(val) {
-                    let realKC = reverseX(val);
-                    if (realKC < 1) return null; 
-                    if (realKC > 1000) realKC = Math.round(realKC / 100) * 100;
-                    else if (realKC > 100) realKC = Math.round(realKC / 10) * 10;
-                    else realKC = Math.round(realKC);
-                    return realKC.toLocaleString();
-                }
+                callback: function(val) { return formatXAxisTick(val, reverseX); }
             }
         },
         yPMF: { display: false }, 
         yCDF: {
             display: true, position: 'right', min: 0, max: 1, grid: { display: false },
-            ticks: { callback: v => (v * 100).toFixed(0) + '%', color: COLORS.progress, font: { size: 10, weight: 700 } }
+            ticks: { callback: v => (v * 100).toFixed(0) + '%', color: APP_CONFIG.COLORS.progress, font: { size: 10, weight: 700 } }
         }
     };
 }
@@ -281,21 +320,22 @@ function getChartPlugins(transformX, stats, userKC, modeY, medianY) {
             bodyFont: { weight: 600, size: 12 },
             callbacks: {
                 title: items => `KC: ${items[0].raw.rawX.toLocaleString()}`,
-                label: c => {
-                    if (c.datasetIndex === 0) {
-                        const prob = c.raw.y;
+                label: context => {
+                    // datasetIndex 0 is the PMF (Luck) line, 1 is the CDF (Progress) line.
+                    if (context.datasetIndex === 0) {
+                        const prob = context.raw.y;
                         const odds = prob > 0 ? Math.round(1 / prob).toLocaleString() : "0";
                         return ` Luck Chance: ~1/${odds}`;
                     } else {
-                        return ` Chance For Completion: ${(c.raw.y * 100).toFixed(2)}%`;
+                        return ` Chance For Completion: ${(context.raw.y * 100).toFixed(2)}%`;
                     }
                 }
             }
         },
         annotation: {
             annotations: {
-                modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: COLORS.mode, borderColor: '#fff', borderWidth: 2, radius: 5 },
-                medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: COLORS.progress, borderColor: '#fff', borderWidth: 2, radius: 5 },
+                modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: APP_CONFIG.COLORS.mode, borderColor: '#fff', borderWidth: 2, radius: 5 },
+                medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: APP_CONFIG.COLORS.progress, borderColor: '#fff', borderWidth: 2, radius: 5 },
                 mean: {
                     type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean),
                     borderColor: 'rgba(249, 115, 22, 0.8)', borderWidth: 2, borderDash: [5,5],
@@ -303,12 +343,9 @@ function getChartPlugins(transformX, stats, userKC, modeY, medianY) {
                 },
                 user: {
                     type: 'line', xMin: transformX(userKC), xMax: transformX(userKC),
-                    borderColor: COLORS.user, borderWidth: 2, borderDash: [6, 4], shadowBlur: 10, shadowColor: COLORS.user
+                    borderColor: APP_CONFIG.COLORS.user, borderWidth: 2, borderDash: [6, 4], shadowBlur: 10, shadowColor: APP_CONFIG.COLORS.user
                 }
             }
         }
     };
 }
-
-// Bootstrap the application
-initApp();

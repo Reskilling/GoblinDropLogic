@@ -23,7 +23,7 @@
         </div>
 
         <div class="logo-pedestal">
-            <img src="WiseGoblin.png"  alt="Wise Goblin Logo" class="showcase-logo">
+            <img src="WiseGoblin.png" alt="Wise Goblin Logo" class="showcase-logo">
         </div>
         
         <div class="hero-titles">
@@ -36,6 +36,7 @@
             <button class="premium-btn" data-target="guides">Guides & Tools</button>
             <button class="premium-btn" data-target="plugins">Plugin Help</button>
             <button class="premium-btn" data-target="ironman-faq">Ironman FAQ</button>
+            <button class="premium-btn" data-target="ironman-goals">Zugrot's Checklist</button>
         </nav>
     </div>
 
@@ -48,485 +49,1211 @@
                 <button class="tab-link" data-tab="guides">Guides</button>
                 <button class="tab-link" data-tab="plugins">Plugins</button>
                 <button class="tab-link" data-tab="ironman-faq">FAQ</button>
+                <button class="tab-link" data-tab="ironman-goals">Checklist</button>
             </nav>
         </header>
 
-        <main class="container">
+        <main>
             
             <section id="droplogic" class="tab-panel active-panel">
-                <header>
-                    <h1>DropLogic</h1>
-                    <p class="subtitle">Clan Intelligence // Bandosian Division</p>
-                </header>
+                <div class="container is-75">
+                    <header>
+                        <h1>DropLogic</h1>
+                        <p class="subtitle">Clan Intelligence // Bandosian Division</p>
+                    </header>
 
-                <section class="card">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label for="boss-select">Assigned Boss</label>
-                            <div class="select-wrapper">
-                                <select id="boss-select">
-                                    <option value="">Select Boss Intel...</option>
+                    <section class="card">
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="boss-select">Assigned Boss</label>
+                                <div class="select-wrapper">
+                                    <select id="boss-select">
+                                        <option value="">Select Boss Intel...</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="target-kc">Current KC</label>
+                                <input type="number" id="target-kc" value="0" min="0">
+                                
+                                <div class="kc-controls">
+                                    <button class="kc-btn" data-add="1">+1</button>
+                                    <button class="kc-btn" data-add="10">+10</button>
+                                    <button class="kc-btn" data-add="100">+100</button>
+                                    <button class="kc-btn" data-add="1000">+1k</button>
+                                    <button class="kc-btn reset" id="kc-reset">0</button>
+                                </div>
                             </div>
                         </div>
+                        <button id="calculate-btn">Submit Forecast</button>
+                    </section>
 
-                        <div class="input-group">
-                            <label for="target-kc">Current KC</label>
-                            <input type="number" id="target-kc" value="0" min="0">
-                            
-                            <div class="kc-controls">
-                                <button class="kc-btn" data-add="1">+1</button>
-                                <button class="kc-btn" data-add="10">+10</button>
-                                <button class="kc-btn" data-add="100">+100</button>
-                                <button class="kc-btn" data-add="1000">+1k</button>
-                                <button class="kc-btn reset" id="kc-reset">0</button>
+                    <section id="boss-preview" class="card hidden">
+                        <div class="header-row">
+                            <h3>Collection Log</h3>
+                            <div class="controls">
+                                <button class="btn-sm" id="select-all">Select All</button>
+                                <button class="btn-sm" id="select-none">Reset</button>
                             </div>
                         </div>
-                    </div>
-                    
-                    <button id="calculate-btn">Submit Forecast</button>
-                </section>
+                        <div id="item-grid" class="item-grid"></div>
+                    </section>
 
-                <section id="boss-preview" class="card hidden">
-                    <div class="header-row">
-                        <h3>Collection Log</h3>
-                        <div class="controls">
-                            <button class="btn-sm" id="select-all">Select All</button>
-                            <button class="btn-sm" id="select-none">Reset</button>
+                    <section id="results" class="card hidden">
+                        <div class="result-header">
+                            <h2 id="res-name">Dry Streak Analysis</h2>
+                            <div class="prob-container">
+                                <span id="stat-chance">0%</span>
+                                <div class="prob-label">Green Log Chance</div>
+                            </div>
                         </div>
-                    </div>
-                    <div id="item-grid" class="item-grid">
+                        <div class="chart-wrapper">
+                            <canvas id="distributionChart"></canvas>
                         </div>
-                </section>
-
-                <section id="results" class="card hidden">
-                    <div class="result-header">
-                        <h2 id="res-name">Dry Streak Analysis</h2>
-                        <div class="prob-container">
-                            <span id="stat-chance">0%</span>
-                            <div class="prob-label">Green Log Chance</div>
+                        <div class="stats-list">
+                            <div class="stat-item" id="phrase-mode"></div>
+                            <div class="stat-item" id="phrase-median"></div>
+                            <div class="stat-item" id="phrase-mean"></div>
+                            <div class="stat-item" id="phrase-user"></div>
                         </div>
-                    </div>
-
-                    <div class="chart-wrapper">
-                        <canvas id="distributionChart"></canvas>
-                    </div>
-
-                    <div class="stats-list">
-                        <div class="stat-item" id="phrase-mode"></div>
-                        <div class="stat-item" id="phrase-median"></div>
-                        <div class="stat-item" id="phrase-mean"></div>
-                        <div class="stat-item" id="phrase-user"></div>
-                    </div>
-                </section>
+                    </section>
+                </div>
             </section>
 
             <section id="guides" class="tab-panel">
-                <header>
-                    <h1>Guides & Tools</h1>
-                    <p class="subtitle">External Resources</p>
-                </header>
-                
-                <div class="card">
-                    <div class="header-row"><h3>How to Import Your Bank to Gearscape</h3></div>
+                <div class="container is-75">
+                    <header>
+                        <h1>Guides & Tools</h1>
+                        <p class="subtitle">External Resources</p>
+                    </header>
                     
-                    <div class="import-steps">
-                        <div class="step">
-                            <span class="step-num">01</span>
-                            <div class="step-content">
-                                <p><strong>Install Bank Memory Plugin</strong></p>
-                                <p class="sub-text">Open RuneLite Plugin Hub, search “Bank Memory” & click Install.</p>
+                    <div class="card">
+                        <div class="header-row"><h3>How to Import Your Bank to Gearscape</h3></div>
+                        
+                        <div class="import-steps">
+                            <div class="step">
+                                <span class="step-num">01</span>
+                                <div class="step-content">
+                                    <p><strong>Install Bank Memory Plugin</strong></p>
+                                    <p class="sub-text">Open RuneLite Plugin Hub, search “Bank Memory” & click Install.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">02</span>
+                                <div class="step-content">
+                                    <p><strong>Prepare Your Bank</strong></p>
+                                    <p class="sub-text">Deposit all worn gear. Open your bank, click the <b>Bank Memory icon</b>, go to <b>Saved Banks</b>, and right-click your bank &rarr; <em>Copy item data to clipboard</em>.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">03</span>
+                                <div class="step-content">
+                                    <p><strong>Open Gearscape</strong></p>
+                                    <p class="sub-text">Navigate to <a href="https://gearscape.net" target="_blank" style="color: var(--accent-green);">Gearscape.net</a></p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">04</span>
+                                <div class="step-content">
+                                    <p><strong>Pull Stats</strong></p>
+                                    <p class="sub-text">Go to Best Setups, enter your character name and click the blue Wise Old Man icon.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">05</span>
+                                <div class="step-content">
+                                    <p><strong>Import Bank Data</strong></p>
+                                    <p class="sub-text">Under “Select items to”, choose include and make sure <b>"Only include selected items"</b> is toggled on. Then click the RuneLite icon, select Bank Memory, and paste your clipboard contents.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">06</span>
+                                <div class="step-content">
+                                    <p><strong>Configure Setup</strong></p>
+                                    <p class="sub-text">Add the boss or mob you want to calculate for. Click the <b>cog icon</b> (top-right) to confirm advanced settings.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">07</span>
+                                <div class="step-content">
+                                    <p><strong>Run the Calculator</strong></p>
+                                    <p class="sub-text">Click <b>Best Setup</b>. Gearscape will generate the optimal gear using your specific bank items.</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="step">
-                            <span class="step-num">02</span>
-                            <div class="step-content">
-                                <p><strong>Prepare Your Bank</strong></p>
-                                <p class="sub-text">Deposit all worn gear. Open your bank, click the <b>Bank Memory icon</b> (right side of Runelite), go to <b>Saved Banks</b>, and right-click your bank &rarr; <em>Copy item data to clipboard</em>.</p>
-                            </div>
-                        </div>
-
-                        <div class="step">
-                            <span class="step-num">03</span>
-                            <div class="step-content">
-                                <p><strong>Open Gearscape</strong></p>
-                                <p class="sub-text">Navigate to <a href="https://gearscape.net" target="_blank" style="color: var(--accent-green);">Gearscape.net</a></p>
-                            </div>
-                        </div>
-
-                        <div class="step">
-                            <span class="step-num">04</span>
-                            <div class="step-content">
-                                <p><strong>Pull Stats</strong></p>
-                                <p class="sub-text">Go to Best Setups, enter your character name and click the blue Wise Old Man icon.</p>
-                            </div>
-                        </div>
-
-                        <div class="step">
-                            <span class="step-num">05</span>
-                            <div class="step-content">
-                                <p><strong>Import Bank Data</strong></p>
-                                <p class="sub-text">Under “Select items to”, choose include and make sure <b>"Only include selected items"</b> is toggled on. Then click the RuneLite icon, select Bank Memory, and paste your clipboard contents.</p>
-                            </div>
-                        </div>
-
-                        <div class="step">
-                            <span class="step-num">06</span>
-                            <div class="step-content">
-                                <p><strong>Configure Setup</strong></p>
-                                <p class="sub-text">Add the boss or mob you want to calculate for. Click the <b>cog icon</b> (top-right) to confirm advanced settings.</p>
-                            </div>
-                        </div>
-
-                        <div class="step">
-                            <span class="step-num">07</span>
-                            <div class="step-content">
-                                <p><strong>Run the Calculator</strong></p>
-                                <p class="sub-text">Click <b>Best Setup</b>. Gearscape will generate the optimal gear using your specific bank items.</p>
-                            </div>
+                        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-top: 30px;">
+                            <p style="font-size: 14px; color: var(--text);"><strong>Stuck?</strong> Ensure gear is deposited before copying. If issues persist, ask in Discord for help.</p>
                         </div>
                     </div>
 
-                    <div class="stat-item" style="border-left-color: var(--accent-orange); margin-top: 30px;">
-                        <p style="font-size: 14px; color: var(--text);"><strong>Stuck?</strong> Ensure gear is deposited before copying. If issues persist, ask in Discord for help.</p>
-                    </div>
-                </div>
+                    <div class="card">
+                        <div class="header-row"><h3>Resource Directory</h3></div>
+                        
+                        <h4 class="category-label">Gear and Equipment</h4>
+                        <div class="plugin-directory">
+                            <div class="plugin-entry">
+                                <a href="https://tools.runescape.wiki/osrs-dps/" target="_blank" class="premium-link">Wiki DPS Calc</a>
+                                <p>Official, in-depth DPS calculations for high-level combat.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://oldschool.tools/calculators/equipment-compare" target="_blank" class="premium-link">Equipment Compare</a>
+                                <p>Compare stats across different items and specific equipment slots.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://www.osrsbestinslot.com/best-in-slot-gear/" target="_blank" class="premium-link">OSRS Best in Slot</a>
+                                <p>Displays the current BiS gear for every combat style.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://gearscape.net/" target="_blank" class="premium-link">Gearscape</a>
+                                <p>Recommends gear setups based on NPCs and player-defined preferences.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://scape.fashion/" target="_blank" class="premium-link">Scape Fashion</a>
+                                <p>Search for items based on visual aesthetics and color matching.</p>
+                            </div>
+                        </div>
 
-                <div class="card">
-                    <div class="header-row"><h3>Resource Directory</h3></div>
-                    
-                    <h4 class="category-label">Gear and Equipment</h4>
-                    <div class="plugin-directory">
-                        <div class="plugin-entry">
-                            <a href="https://tools.runescape.wiki/osrs-dps/" target="_blank" class="premium-link">Wiki DPS Calc</a>
-                            <p>Official, in-depth DPS calculations for high-level combat.</p>
+                        <h4 class="category-label">Tools and Utilities</h4>
+                        <div class="plugin-directory">
+                            <div class="plugin-entry">
+                                <a href="https://osrsportal.com/tools" target="_blank" class="premium-link">OSRS Portal Tools</a>
+                                <p>Aggregated utilities for the most common daily OSRS activities.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://07.gg/" target="_blank" class="premium-link">07.GG</a>
+                                <p>Efficient calculators, interactive tools, and shooting star tracking.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://osrs.world/" target="_blank" class="premium-link">OSRS World</a>
+                                <p>Explore the world map across different game versions and eras.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://abextm.github.io/cache2/#/viewer/sprite" target="_blank" class="premium-link">Cache2 Viewer</a>
+                                <p>Direct view of in-game cache assets including sprites and icons.</p>
+                            </div>
                         </div>
-                        <div class="plugin-entry">
-                            <a href="https://oldschool.tools/calculators/equipment-compare" target="_blank" class="premium-link">Equipment Compare</a>
-                            <p>Compare stats across different items and specific equipment slots.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://www.osrsbestinslot.com/best-in-slot-gear/" target="_blank" class="premium-link">OSRS Best in Slot</a>
-                            <p>Displays the current BiS gear for every combat style.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://gearscape.net/" target="_blank" class="premium-link">Gearscape</a>
-                            <p>Recommends gear setups based on NPCs and player-defined preferences.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://scape.fashion/" target="_blank" class="premium-link">Scape Fashion</a>
-                            <p>Search for items based on visual aesthetics and color matching.</p>
-                        </div>
-                    </div>
 
-                    <h4 class="category-label">Tools and Utilities</h4>
-                    <div class="plugin-directory">
-                        <div class="plugin-entry">
-                            <a href="https://osrsportal.com/tools" target="_blank" class="premium-link">OSRS Portal Tools</a>
-                            <p>Aggregated utilities for the most common daily OSRS activities.</p>
+                        <h4 class="category-label">Simulators</h4>
+                        <div class="plugin-directory">
+                            <div class="plugin-entry">
+                                <a href="https://colosim.com/" target="_blank" class="premium-link">Colosim</a>
+                                <p>High-fidelity training for the Colosseum, Inferno, and Verzik.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://downthecrop.github.io/JS-OSRS-Jad-Simulator/" target="_blank" class="premium-link">Jad Simulator</a>
+                                <p>Practice timing and prayer swaps for the TzTok-Jad fight.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://gx.games/games/6f00u8/last-row-sim/" target="_blank" class="premium-link">Warden P4</a>
+                                <p>Specialized simulator for the final ToA Warden "Last Row" phase.</p>
+                            </div>
                         </div>
-                        <div class="plugin-entry">
-                            <a href="https://07.gg/" target="_blank" class="premium-link">07.GG</a>
-                            <p>Efficient calculators, interactive tools, and shooting star tracking.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://osrs.world/" target="_blank" class="premium-link">OSRS World</a>
-                            <p>Explore the world map across different game versions and eras.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://abextm.github.io/cache2/#/viewer/sprite" target="_blank" class="premium-link">Cache2 Viewer</a>
-                            <p>Direct view of in-game cache assets including sprites and icons.</p>
-                        </div>
-                    </div>
 
-                    <h4 class="category-label">Simulators</h4>
-                    <div class="plugin-directory">
-                        <div class="plugin-entry">
-                            <a href="https://colosim.com/" target="_blank" class="premium-link">Colosim</a>
-                            <p>High-fidelity training for the Colosseum, Inferno, and Verzik.</p>
+                        <h4 class="category-label">Ironman-Specific Tools</h4>
+                        <div class="plugin-directory">
+                            <div class="plugin-entry">
+                                <a href="https://www.ladlorchart.com/index.html" target="_blank" class="premium-link">Ladlor’s Chart</a>
+                                <p>Interactive progression planner and visualizer for Ironman accounts.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank" class="premium-link">Slayer Task Summary</a>
+                                <p>Detailed guidance on which Slayer tasks to complete, skip, or block.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://oldschool.runescape.wiki/w/Hunters'_Rumours/Strategies#Recommended_block_lists" target="_blank" class="premium-link">Hunter Block List</a>
+                                <p>Mathematically recommended blocks for optimal Hunters' Rumours.</p>
+                            </div>
                         </div>
-                        <div class="plugin-entry">
-                            <a href="https://downthecrop.github.io/JS-OSRS-Jad-Simulator/" target="_blank" class="premium-link">Jad Simulator</a>
-                            <p>Practice timing and prayer swaps for the TzTok-Jad fight.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://gx.games/games/6f00u8/last-row-sim/" target="_blank" class="premium-link">Warden P4</a>
-                            <p>Specialized simulator for the final ToA Warden "Last Row" phase.</p>
-                        </div>
-                    </div>
 
-                    <h4 class="category-label">Ironman-Specific Tools</h4>
-                    <div class="plugin-directory">
-                        <div class="plugin-entry">
-                            <a href="https://www.ladlorchart.com/index.html" target="_blank" class="premium-link">Ladlor’s Chart</a>
-                            <p>Interactive progression planner and visualizer for Ironman accounts.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank" class="premium-link">Slayer Task Summary</a>
-                            <p>Detailed guidance on which Slayer tasks to complete, skip, or block.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://oldschool.runescape.wiki/w/Hunters'_Rumours/Strategies#Recommended_block_lists" target="_blank" class="premium-link">Hunter Block List</a>
-                            <p>Mathematically recommended blocks for optimal Hunters' Rumours.</p>
-                        </div>
-                    </div>
-
-                    <h4 class="category-label">Efficient Ironman Guides</h4>
-                    <div class="plugin-directory">
-                        <div class="plugin-entry">
-                            <a href="https://umkyzn.github.io/BRUHsailer/" target="_blank" class="premium-link">Bruhsailor’s Guide</a>
-                            <p>The gold standard for efficient Ironman account progression.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://oldschool.runescape.wiki/w/Guide:B0aty_HCIM_Guide_V2" target="_blank" class="premium-link">Boaty's HCIM v2</a>
-                            <p>A comprehensive hardcore path optimized for survival and speed.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://oldschool.runescape.wiki/w/Optimal_quest_guide/Ironman" target="_blank" class="premium-link">Optimal Questing</a>
-                            <p>The most efficient path to the Quest Point Cape for Ironmen.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://oldschool.runescape.wiki/w/Ironman_guide" target="_blank" class="premium-link">Wiki Ironman Guide</a>
-                            <p>The definitive, community-maintained general guide.</p>
-                        </div>
-                        <div class="plugin-entry">
-                            <a href="https://docs.google.com/spreadsheets/d/1Kh0Hdw22tJvZ_93yqSVI7D61pXYJ8KSSPswtYJxUiRc/edit?usp=sharing" target="_blank" class="premium-link">Zugrot's Checklist</a>
-                            <p>A granular checklist for new players to track early-game milestones.</p>
+                        <h4 class="category-label">Efficient Ironman Guides</h4>
+                        <div class="plugin-directory">
+                            <div class="plugin-entry">
+                                <a href="https://umkyzn.github.io/BRUHsailer/" target="_blank" class="premium-link">Bruhsailor’s Guide</a>
+                                <p>The gold standard for efficient Ironman account progression.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://oldschool.runescape.wiki/w/Guide:B0aty_HCIM_Guide_V2" target="_blank" class="premium-link">Boaty's HCIM v2</a>
+                                <p>A comprehensive hardcore path optimized for survival and speed.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://oldschool.runescape.wiki/w/Optimal_quest_guide/Ironman" target="_blank" class="premium-link">Optimal Questing</a>
+                                <p>The most efficient path to the Quest Point Cape for Ironmen.</p>
+                            </div>
+                            <div class="plugin-entry">
+                                <a href="https://oldschool.runescape.wiki/w/Ironman_guide" target="_blank" class="premium-link">Wiki Ironman Guide</a>
+                                <p>The definitive, community-maintained general guide.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-<section id="plugins" class="tab-panel">
-    <header>
-        <h1>Plugin Help</h1>
-        <p class="subtitle">RuneLite Configurations</p>
-    </header>
+            <section id="plugins" class="tab-panel">
+                <div class="container is-75">
+                    <header>
+                        <h1>Plugin Help</h1>
+                        <p class="subtitle">RuneLite Configurations</p>
+                    </header>
 
-    <div class="card">
-        <div class="header-row">
-            <h3>Helpful Plugins Directory</h3>
-        </div>
+                    <div class="card">
+                        <div class="header-row">
+                            <h3>Helpful Plugins Directory</h3>
+                        </div>
 
-        <h4 class="category-label">Combat & Bossing</h4>
-        <ul class="compact-plugin-list">
-            <li><a href="https://runelite.net/plugin-hub/show/better-npc-highlight" target="_blank">Better NPC Highlight</a> - Replaces NPC Indicators with advanced ID tagging.</li>
-            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); margin-top: 6px; padding-left: 12px; line-height: 1.5;">
-        <li><b>Wiki Method:</b> Find any Mob ID by creating an OSRS Wiki account and enabling "Display advanced data in infoboxes" (Preferences &rarr; Gadgets &rarr; Other Gadgets).</li>
-        <li><b>In-Game Method:</b> Use the <a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank" style="font-size: 1em; border: none; padding: 0;">NPC ID</a> plugin to display IDs directly over monsters.</li>
-    </ul>
-            <li><a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank">NPC ID</a> - Displays identification info above NPCs for easy marking.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/menuhp" target="_blank">Monster Menu HP</a> - Displays the hitpoints of monsters in their right-click menu entry</li>
-            <li><a href="https://runelite.net/plugin-hub/show/consumable-cooldowns" target="_blank">Consumable Cooldowns</a> - Displays cooldowns on food & drink items in your inventory</li>
-            <li><a href="https://runelite.net/plugin-hub/show/radius-markers" target="_blank">Radius Markers</a> - Allows you to see NPC radius regions</li>
-            <li><a href="https://runelite.net/plugin-hub/show/target-true-tile" target="_blank">Target True Tile</a> - Dynamically displays the true tile of an NPC.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/attacktimer" target="_blank">Attack Timer</a> - A plugin to countdown until your next attack.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/tile-packs" target="_blank">Tile Packs</a> - Curated community tile markers for most bosses.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/death-inventory" target="_blank">Death Inventory</a> - Captures inventory state on death to re-gear easily.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/poison-moo" target="_blank">Poison Moo</a> - Audible warning when you are poisoned.</li>
-        </ul>
+                        <h4 class="category-label">Combat & Bossing</h4>
+                        <ul class="compact-plugin-list">
+                            <li><a href="https://runelite.net/plugin-hub/show/better-npc-highlight" target="_blank">Better NPC Highlight</a> - Replaces NPC Indicators with advanced ID tagging.</li>
+                            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); margin-top: 6px; padding-left: 12px; line-height: 1.5;">
+                                <li><b>Wiki Method:</b> Find any Mob ID by creating an OSRS Wiki account and enabling "Display advanced data in infoboxes".</li>
+                                <li><b>In-Game Method:</b> Use the <a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank" style="font-size: 1em; border: none; padding: 0;">NPC ID</a> plugin to display IDs directly over monsters.</li>
+                            </ul>
+                            <li><a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank">NPC ID</a> - Displays identification info above NPCs for easy marking.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/menuhp" target="_blank">Monster Menu HP</a> - Displays the hitpoints of monsters in their right-click menu entry</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/consumable-cooldowns" target="_blank">Consumable Cooldowns</a> - Displays cooldowns on food & drink items in your inventory</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/radius-markers" target="_blank">Radius Markers</a> - Allows you to see NPC radius regions</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/target-true-tile" target="_blank">Target True Tile</a> - Dynamically displays the true tile of an NPC.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/attacktimer" target="_blank">Attack Timer</a> - A plugin to countdown until your next attack.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/tile-packs" target="_blank">Tile Packs</a> - Curated community tile markers for most bosses.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/death-inventory" target="_blank">Death Inventory</a> - Captures inventory state on death to re-gear easily.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/poison-moo" target="_blank">Poison Moo</a> - Audible warning when you are poisoned.</li>
+                        </ul>
 
-        <h4 class="category-label">Skilling, Clues & Navigation</h4>
-        <ul class="compact-plugin-list">
-            <li><a href="https://runelite.net/plugin-hub/show/green-thumb" target="_blank">Green Thumb</a> - Displays useful information for farming.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/herblorerecipes" target="_blank">Herblore Recipes</a> - Tooltips for primary and secondary Herblore ingredients.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/emote-clue-items" target="_blank">Emote Clue Items</a> - Displays required clue items and STASH unit status.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/obelisk-reminder" target="_blank">Obelisk Reminder</a> - Shows your current wilderness obelisk redirect.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/easy-pharaoh-sceptre" target="_blank">Easy Teleports</a> - Renames teleport destinations to colloquial/custom locations.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/normal-ancient-teleports" target="_blank">Normal Ancient Teleports</a> - Replaces Ancient spellbook names with logical names.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/better-teleport-menu" target="_blank">Better Teleport Menu</a> - Replaces standard interfaces with hotkeys.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/fairy-rings" target="_blank">Fairy Rings</a> - Enhances the interface with search and favorites.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/wilderness-lines" target="_blank">Wilderness Lines</a> - Clear visual boundary for escaping PKers.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/shortest-path" target="_blank">Shortest Path</a> - Draws the shortest path to a chosen destination on the map.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/shortest-clue" target="_blank">Shortest Clue</a> - Draws the shortest path to a clue.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/herbi-afk" target="_blank">Herbi AFK</a> - Mega simplification for the Herbiboar hunt.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/port-roberts-thieving" target="_blank">Port Roberts Thieving</a> - Turns a solid thieving method into a braindead clicker.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/brimhaven-agility" target="_blank">Brimhaven Agility</a> - Highlights paths and avoids traps automatically.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/tree-count" target="_blank">Tree Count</a> - Essential for Forestry; indicates players hitting a specific tree.</li>
-        </ul>
+                        <h4 class="category-label">Skilling, Clues & Navigation</h4>
+                        <ul class="compact-plugin-list">
+                            <li><a href="https://runelite.net/plugin-hub/show/green-thumb" target="_blank">Green Thumb</a> - Displays useful information for farming.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/herblorerecipes" target="_blank">Herblore Recipes</a> - Tooltips for primary and secondary Herblore ingredients.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/emote-clue-items" target="_blank">Emote Clue Items</a> - Displays required clue items and STASH unit status.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/obelisk-reminder" target="_blank">Obelisk Reminder</a> - Shows your current wilderness obelisk redirect.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/easy-pharaoh-sceptre" target="_blank">Easy Teleports</a> - Renames teleport destinations to colloquial/custom locations.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/normal-ancient-teleports" target="_blank">Normal Ancient Teleports</a> - Replaces Ancient spellbook names with logical names.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/better-teleport-menu" target="_blank">Better Teleport Menu</a> - Replaces standard interfaces with hotkeys.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/fairy-rings" target="_blank">Fairy Rings</a> - Enhances the interface with search and favorites.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/wilderness-lines" target="_blank">Wilderness Lines</a> - Clear visual boundary for escaping PKers.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/shortest-path" target="_blank">Shortest Path</a> - Draws the shortest path to a chosen destination on the map.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/shortest-clue" target="_blank">Shortest Clue</a> - Draws the shortest path to a clue.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/herbi-afk" target="_blank">Herbi AFK</a> - Mega simplification for the Herbiboar hunt.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/port-roberts-thieving" target="_blank">Port Roberts Thieving</a> - Turns a solid thieving method into a braindead clicker.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/brimhaven-agility" target="_blank">Brimhaven Agility</a> - Highlights paths and avoids traps automatically.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/tree-count" target="_blank">Tree Count</a> - Essential for Forestry; indicates players hitting a specific tree.</li>
+                        </ul>
 
-        <h4 class="category-label">UI Enhancements & Utility</h4>
-        <ul class="compact-plugin-list">
-            <li><a href="https://runelite.net/plugin-hub/show/one-tick-flick" target="_blank">1 Tick Flick</a> - Visual tick bar and combo counter to teach prayer flicking.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/visual-metronome" target="_blank">Visual Metronome</a> - Alternative visual tick counter for prayer flicking.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/inventory-count" target="_blank">Inventory Count</a> - Shows a count of open inventory spaces.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/not-enough-runes" target="_blank">Not Enough Runes</a> - Sources and products for every item in the game.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/inventory-setups" target="_blank">Inventory Setups</a> - Save gear setups for specific activities.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/defaulttab" target="_blank">Default Tab</a> - Set and load a specific tab on every login.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/no-examine" target="_blank">No Examine</a> - Removes examine menu options.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/equipment-screenshot" target="_blank">Equipment Screenshot</a> - Takes inventory and equipment screenshots from the equipment tab.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/relative-tile-markers" target="_blank">Relative Tile Markers</a> - Highlights tiles based on your character’s current position.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/alch-blocker" target="_blank">Alch Blocker</a> - Prevents alching untradeables or high-value gear.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/inventory-grid" target="_blank">Inventory Grid</a> - Draws a faint grid over dead space for faster clicking.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/anti-drag" target="_blank">Anti Drag</a> - Prevents accidentally moving items during fast clicks.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/ground-markers" target="_blank">Ground Markers</a> - Essential plugin for marking specific tiles.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/corner-tile-indicators" target="_blank">Corner Tile Indicators</a> - Cleaner alternative to full tile markers.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/annoyance-mute" target="_blank">Annoyance Mute</a> - Mutes annoying game sounds.</li>
-            <li><a href="https://runelite.net/plugin-hub/show/inventory-summary" target="_blank">Inventory Summary</a> - Shows a non-interactive summary of your inventory.</li>   
-        </ul>
+                        <h4 class="category-label">UI Enhancements & Utility</h4>
+                        <ul class="compact-plugin-list">
+                            <li><a href="https://runelite.net/plugin-hub/show/one-tick-flick" target="_blank">1 Tick Flick</a> - Visual tick bar and combo counter to teach prayer flicking.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/visual-metronome" target="_blank">Visual Metronome</a> - Alternative visual tick counter for prayer flicking.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-count" target="_blank">Inventory Count</a> - Shows a count of open inventory spaces.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/not-enough-runes" target="_blank">Not Enough Runes</a> - Sources and products for every item in the game.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-setups" target="_blank">Inventory Setups</a> - Save gear setups for specific activities.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/defaulttab" target="_blank">Default Tab</a> - Set and load a specific tab on every login.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/no-examine" target="_blank">No Examine</a> - Removes examine menu options.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/equipment-screenshot" target="_blank">Equipment Screenshot</a> - Takes inventory and equipment screenshots from the equipment tab.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/relative-tile-markers" target="_blank">Relative Tile Markers</a> - Highlights tiles based on your character’s current position.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/alch-blocker" target="_blank">Alch Blocker</a> - Prevents alching untradeables or high-value gear.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-grid" target="_blank">Inventory Grid</a> - Draws a faint grid over dead space for faster clicking.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/anti-drag" target="_blank">Anti Drag</a> - Prevents accidentally moving items during fast clicks.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/ground-markers" target="_blank">Ground Markers</a> - Essential plugin for marking specific tiles.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/corner-tile-indicators" target="_blank">Corner Tile Indicators</a> - Cleaner alternative to full tile markers.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/annoyance-mute" target="_blank">Annoyance Mute</a> - Mutes annoying game sounds.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-summary" target="_blank">Inventory Summary</a> - Shows a non-interactive summary of your inventory.</li>   
+                        </ul>
 
-        <h4 class="category-label">Social & Profile Tools</h4>
-        <ul class="compact-plugin-list">
-            <li><a href="https://runelite.net/plugin-hub/show/runeprofile" target="_blank">RuneProfile</a> - Share achievements and stats with a custom profile page.</li>
-        </ul>
+                        <h4 class="category-label">Social & Profile Tools</h4>
+                        <ul class="compact-plugin-list">
+                            <li><a href="https://runelite.net/plugin-hub/show/runeprofile" target="_blank">RuneProfile</a> - Share achievements and stats with a custom profile page.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="header-row">
+                            <h3>Radius Marker Imports</h3>
+                        </div>
+
+                        <div class="plugin-info-block">
+                            <p><strong>Zulrah Snakeling Identifier</strong></p>
+                            <p class="sub-text">Identify snakeling attack styles using either radius markers or the Better NPC Highlight plugin.</p>
+                            <ul class="stat-item" style="border-left-color: var(--accent-orange); list-style: none; margin-bottom: 15px;">
+                                <li>• Melee Snakeling: <b>2045</b></li>
+                                <li>• Magic Snakeling: <b>2046</b></li>
+                            </ul>
+                        </div>
+                        <pre><code>[{"id":1745212907997,"name":"Magic Snake","visible":true,"collapsed":false,"z":0,"spawnX":3134,"spawnY":3629,"spawnColour":"#FF00FFFF","spawnVisible":false,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":true,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":true,"aggressionColour":"#FFFF0000","aggressionVisible":true,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":2046,"attackRadius":1,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":false,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":0,"interactionColour":"#FF0000FF","interactionVisible":true},{"id":1745212876543,"name":"Melee Snake","visible":true,"collapsed":false,"z":0,"spawnX":3150,"spawnY":3633,"spawnColour":"#FF00FFFF","spawnVisible":false,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":true,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":true,"aggressionColour":"#FFFF0000","aggressionVisible":true,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":2045,"attackRadius":1,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":false,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":0,"interactionColour":"#FFC80000","interactionVisible":true}]</code></pre>
+
+                        <div class="plugin-info-block" style="margin-top: 30px;">
+                            <p><strong>Akkha Radius Markers</strong></p>
+                            <p class="sub-text">Full mechanical radius markers for all three prayer phases.</p>
+                        </div>
+                        <pre><code>[{"id":1670610425600,"name":"Akkha Ranged","visible":true,"collapsed":false,"z":0,"spawnX":3696,"spawnY":5407,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11791,"attackRadius":2,"attackColour":"#FF60FF00","attackType":"RANGED","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false},{"id":1670610245439,"name":"Akkha mage","visible":true,"collapsed":false,"z":0,"spawnX":3682,"spawnY":5412,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11792,"attackRadius":2,"attackColour":"#FF0013FF","attackType":"MAGIC","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false},{"id":1670610384507,"name":"Akkha melee","visible":true,"collapsed":false,"z":0,"spawnX":3694,"spawnY":5406,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11790,"attackRadius":2,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false}]</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="ironman-goals" class="tab-panel">
+                <div class="container is-100">
+                    <header>
+                        <h1>Ironman Progression</h1>
+                        <p class="subtitle">Account Goal Tracking</p>
+                    </header>
+
+                    <div class="goals-grid">
+                        
+                        <div class="card">
+                            <div class="header-row">
+                                <h3>Easy Goals</h3>
+                            </div>
+                            <ul class="goal-list">
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Graceful Outfit</span>
+                                        <span class="goal-subtext">260 Marks of Grace</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Rogue Equipment</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Magic Secateurs</span>
+                                        <span class="goal-subtext">Fairytale I - Growing Pains</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Fairy Rings</span>
+                                        <span class="goal-subtext">Fairytale II - Cure a Queen</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Ardougne Cloak 1</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Bird House Trapping</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Dorgeshuun Crossbow</span>
+                                        <span class="goal-subtext">The Lost Tribe</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Climbing Boots</span>
+                                        <span class="goal-subtext">Death Plateau</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Elemental Shield</span>
+                                        <span class="goal-subtext">Or Mind Shield</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Ava's Attractor</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Protection Prayers</span>
+                                        <span class="goal-subtext">43 Prayer</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Quests/Free-To-Play</span>
+                                        <span class="goal-subtext">Finish All F2P Quests</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">High Level Alchemy</span>
+                                        <span class="goal-subtext">55 Magic</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Alfred Grimhand's Barcrawl</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Amulet of Strength</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Fremmenik Trials</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Iban's Staff</span>
+                                        <span class="goal-subtext">Underground Pass</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Ardougne Cloak 2</span>
+                                        <span class="goal-subtext">Herb Run Teleport</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Camelot Teleport</span>
+                                        <span class="goal-subtext">Herb Run Teleport</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Explorer's Ring 2</span>
+                                        <span class="goal-subtext">Herb Run Teleport</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Kourend Castle Teleport</span>
+                                        <span class="goal-subtext">Herb Run Teleport</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Ectophial</span>
+                                        <span class="goal-subtext">Herb Run Teleport</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Farming Guild</span>
+                                        <span class="goal-subtext">Herb Run Teleport</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Trollheim Teleport</span>
+                                        <span class="goal-subtext">Herb Run Teleport</span>
+                                    </div>
+                                </label>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <div class="header-row">
+                                <h3>Medium Goals</h3>
+                            </div>
+                            <ul class="goal-list">
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Dragon Scimitar</span>
+                                        <span class="goal-subtext">Monkey Madness I</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Salve Amulet</span>
+                                        <span class="goal-subtext">Haunted Mine</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Fighter Torso</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Prayer Potions</span>
+                                        <span class="goal-subtext">38 Herblore</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Black Mask</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Rune Crossbow</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Proselyte Armour</span>
+                                        <span class="goal-subtext">The Slug Menace</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Magic Shortbow</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Dragon Defender</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Helm of Neitiznot</span>
+                                        <span class="goal-subtext">The Fremennik Isles</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Void Knight Equipment</span>
+                                        <span class="goal-subtext">150 Pest Control Points</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Broad Bolts</span>
+                                        <span class="goal-subtext">300 Slayer Points</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Barrows Gloves</span>
+                                        <span class="goal-subtext">Recipe for Disaster</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Ancient Magicks</span>
+                                        <span class="goal-subtext">Desert Treasure I</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Crystal Saw</span>
+                                        <span class="goal-subtext">Eyes of Glouphrie</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Herb Sack</span>
+                                        <span class="goal-subtext">750 Slayer Points / 250 Tithe Farm</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Amulet of Glory</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Anglers Outfit</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Fish Barrel</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Prospectors Kit</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Lumberjack Outfit</span>
+                                        <span class="goal-subtext">Temple Trekking</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Medium Diaries</span>
+                                        <span class="goal-subtext">Complete All</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Ectoplasmator</span>
+                                        <span class="goal-subtext">250 Soul Wars Points</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Holy Wrench</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Bone Crusher</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Piety</span>
+                                        <span class="goal-subtext">70 Prayer</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Construction</span>
+                                        <span class="goal-subtext">Level 55 / Portal Chambers</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Karambwan Fishing</span>
+                                    </div>
+                                </label>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <div class="header-row">
+                                <h3>Hard Goals</h3>
+                            </div>
+                            <ul class="goal-list">
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Slayer Helm(i)</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Elite Void Equipment</span>
+                                        <span class="goal-subtext">400 Pest Control Points</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Dragon Boots</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Abyssal Whip</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Imbued God Cape</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Lunar Spellbook</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Ranger Boots</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Blessed D'Hide Armour</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Fire Cape</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Super Potions</span>
+                                        <span class="goal-subtext">66 Herblore</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Crystal Shield</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Infinity Boots</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Hard Diaries</span>
+                                        <span class="goal-subtext">Complete All</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Zombie Axe</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Amulet of Fury</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">God Books Completed</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Dagannoth Rings</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Trident of the Seas</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Quest Cape</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Ava's Assembler</span>
+                                    </div>
+                                </label>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <div class="header-row">
+                                <h3>Elite Goals</h3>
+                            </div>
+                            <ul class="goal-list">
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Construction</span>
+                                        <span class="goal-subtext">Level 83 / Max POH</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Toxic Blowpipe</span>
+                                        <span class="goal-subtext">78 Fletching</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Trident of the Swamp</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">GWD Bosses</span>
+                                        <span class="goal-subtext">First Unique</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Dragon Warhammer</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Full Crystal Armour</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Bow of Faerdhinen (c)</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Abyssal Tentacle</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Occult Necklace</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Dragon Crossbow</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Tombs of Amascut</span>
+                                        <span class="goal-subtext">First Unique</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Chambers of Xeric</span>
+                                        <span class="goal-subtext">First Unique</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Theatre of Blood</span>
+                                        <span class="goal-subtext">First Unique</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Elite Diaries</span>
+                                        <span class="goal-subtext">Most Completed</span>
+                                    </div>
+                                </label>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <div class="header-row">
+                                <h3>Master Goals</h3>
+                            </div>
+                            <ul class="goal-list">
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Construction</span>
+                                        <span class="goal-subtext">Level 87 / Max POH</span>
+                                    </div>
+                                </label>
+                                <label class="goal-item">
+                                    <input type="checkbox">
+                                    <div class="custom-checkbox"></div>
+                                    <div class="goal-details">
+                                        <span class="goal-name">Achievment Diary Cape</span>
+                                    </div>
+                                </label>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <section id="ironman-faq" class="tab-panel">
+                <div class="container is-75">
+                    <header>
+                        <h1>Ironman Intelligence</h1>
+                        <p class="subtitle">Standard Operating Procedures</p>
+                    </header>
+
+                    <div class="card">
+                        <div class="header-row"><h3>Skilling</h3></div>
+                        
+                        <ul class="compact-plugin-list" style="margin-bottom: 25px;">
+                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_guide#Skill_training" target="_blank">Skill Training Guides</a> - Detailed guidance on skill training for every Ironman stage.</li>
+                        </ul>
+
+                        <h4 class="category-label">Crafting: Seaweed/Mining Sand Loop</h4>
+                        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 20px;">
+                            <p><strong>Sustainable Loop:</strong> Obtain Spores (Lobstrosities/Spawns) &rarr; Plant Seaweed &rarr; Mine Sandstone &rarr; Superglass Make (Spell/Furnace) &rarr; Blow Glass (Fossil Island Workstation).</p>
+                        </div>
+
+                        <h4 class="category-label">Herblore: Consistent Sustain</h4>
+                        <div class="stat-item" style="border-left-color: var(--accent-green);">
+                            <p><strong>Sustain Sequence:</strong> Farming Contracts &rarr; Grow Herbs & Secondaries &rarr; Boss Seeds (Ice King/Moons) &rarr; Kingdom to Herbs &rarr; Consistent Daily Progression.</p>
+                        </div>
+                        <p class="sub-text" style="margin-top: 10px; padding-left: 15px; color: var(--text-dim); font-size: 13px;">* Note: Herblore is a slow progression skill and should not be neglected.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="header-row"><h3>Combat & Slayer Strategy</h3></div>
+                        
+                        <h4 class="category-label">PvM Progression Path</h4>
+                        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 20px;">
+                            <p><strong>Deployment Sequence:</strong> Morytania Hard Diary &rarr; Medium Combat Achievements &rarr; Barrows (Tank Gear) &rarr; Moons of Peril (Mid-tier sets) &rarr; Royal Titans.</p>
+                        </div>
+                        <ul class="compact-plugin-list" style="margin-top: 15px;">
+                            <li><a href="https://oldschool.runescape.wiki/w/Combat_Achievements/Strategies" target="_blank">Combat Achievement Strategies</a> - Simplified pathing for tier rewards.</li>
+                        </ul>
+                        <h4 class="category-label">Slayer Optimization</h4>
+                        
+                        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 15px;">
+                            <p style="margin-bottom: 12px;"><strong>Strategic Sequence:</strong> Early Point Boosting &rarr; Superior Monsters &rarr; Task Skips/Blocks &rarr; Essential Unlocks &rarr; Long-term Efficiency.</p>
+                            
+                            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px;">
+                                <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;"><b>Prioritize Point Boosting early to secure:</b></p>
+                                <ul style="list-style: none; font-size: 13px; color: var(--text-dim); padding-left: 5px; line-height: 1.5;">
+                                    <li>&bull; Immediate access to <b>Superior Slayer Monsters</b> for unique loot.</li>
+                                    <li>&bull; Capability to skip undesirable or inefficient tasks as they appear.</li>
+                                    <li>&bull; Faster path to essential unlocks (Slayer Helm, Broad Fletching, Slayer Ring).</li>
+                                    <li>&bull; Prevention of wasted time and supply resources on low-efficiency tasks.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <ul class="compact-plugin-list">
+                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank">Ironman Slayer Task Summary</a> - Detailed guidance on tasks to complete, skip, or block.</li>
+                        </ul>
+                    </div> 
+                    
+                    <div class="card">
+                        <div class="header-row"><h3>Item Upgrades</h3></div>
+                        
+                        <h4 class="category-label">Last Man Standing & Mage Training Arena Efficiency Upgrades</h4>
+                        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 25px;">
+                            <p style="margin-bottom: 8px;"><strong>Rune Pouch Acquisition:</strong></p>
+                            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 15px; padding-left: 8px;">
+                                <li>&bull; <span class="val">750</span> Slayer points from any Slayer master.</li>
+                                <li>&bull; <span class="val">75</span> points from Last Man Standing (LMS).</li>
+                                <li>&bull; <span class="val">150</span> Telekinetic, <span class="val">150</span> Graveyard, <span class="val">1500</span> Enchantment, and <span class="val">200</span> Alchemist Pizazz points from MTA.</li>
+                            </ul>
+                            
+                            <p style="padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05);"><strong>Rune Arrows:</strong> Available at <span class="val">x300</span> arrows for <span class="val">3</span> points from LMS. High-value early Ranged ammo for zero GP.</p>
+                        </div>
+
+                        <h4 class="category-label">Item Imbuing (Emir's Arena)</h4>
+                        <div class="stat-item" style="border-left-color: var(--accent-green);">
+                            <ul style="list-style: none; font-size: 14px; color: var(--text-dim); line-height: 1.6; padding-left: 5px;">
+                                <li>&bull; Earn <b>Scrolls of Imbuing</b> via participation (playing or leaving earns points).</li>
+                                <li>&bull; <b>Speed:</b> One scroll typically takes under one hour to obtain.</li>
+                                <li>&bull; <b>Utility:</b> Scrolls are reusable and can be removed/transferred between items.</li>
+                                <li>&bull; <b style="color: var(--text);">Wilderness Meta:</b> Dying in the Wildy with a scroll-imbued item grants <span class="val">650,000</span> NMZ points.</li>
+                            </ul>
+                        </div>
+                    </div> 
+                    
+                    <div class="card">
+                        <div class="header-row"><h3>Surviving The Early Game</h3></div>
+                        
+                        <h4 class="category-label">Early-Game Food Directory</h4>
+                        <div class="food-list">
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Jug_of_wine" target="_blank">Jugs of Wine</a> (Draynor - Fortunato) - <span class="val">1 GP</span></span> <span class="val">11 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cake" target="_blank">Cakes</a> (Ardougne/Kourend Stalls) - <span class="val">3 Bites</span></span> <span class="val">12 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Lobster" target="_blank">Lobsters</a> (Brimhaven - Shrimp and Parrot)</span> <span class="val">12 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Plain_pizza" target="_blank">Plain Pizzas</a> (Warriors Guild) - <span class="val">2 Bites</span></span> <span class="val">14 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Swordfish" target="_blank">Swordfish</a> (Brimhaven - Shrimp and Parrot)</span> <span class="val">14 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Snowy_knight" target="_blank">Snowy Knights</a> (Early Hunter)</span> <span class="val">15 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Potato_with_cheese" target="_blank">Potatoes with Cheese</a> (Warriors Guild)</span> <span class="val">16 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_kyatt" target="_blank">Kyatt Meat</a> (Hunted Early) - <span class="val">9+8 Over Time</span></span> <span class="val">17 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_karambwan" target="_blank">Karambwan</a> (Tai Bwo Wannai / Brimhaven)</span> <span class="val">18 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_pyre_fox" target="_blank">Pyre Fox Meat</a> (Hunted Early) - <span class="val">11+8 Over Time</span></span> <span class="val">19 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Shark" target="_blank">Sharks</a> (Frankie's Emporium / 81 Fishing)</span> <span class="val">20 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_sunlight_antelope" target="_blank">Sunlight Antelope Meat</a> - <span class="val">12+9 Over Time</span></span> <span class="val">21 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Pineapple_pizza" target="_blank">Pineapple Pizzas</a> (Plain + Pineapple) - <span class="val">2 Bites</span></span> <span class="val">22 HP</span></div>
+                        </div>
+
+                        <h4 class="category-label" style="margin-top: 40px;">Early-Game Capital (GP)</h4>
+                        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 15px;">
+                            <ul style="list-style: none; font-size: 14px; color: var(--text-dim); line-height: 1.6; padding-left: 5px;">
+                                <li>&bull; <b>Stronghold of Security:</b> Awards <span class="val">10,000</span> GP (One-time).</li>
+                                <li>&bull; <b>Agility Pyramid:</b> Awards <span class="val">10,000</span> GP for every successful lap.</li>
+                                <li>&bull; <b>Eclipse Red Wine:</b> Averages <span class="val">280,000</span> GP per hour.</li>
+                            </ul>
+                        </div>
+                        <ul class="compact-plugin-list">
+                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_money_making_guide" target="_blank">Money Making Wiki</a> - Detailed guidance on early money making.</li>
+                        </ul>
+                    </div> 
+                    
+                    <div class="card">
+                        <div class="header-row"><h3>Sustainable Supply Gathering</h3></div>
+                        
+                        <h4 class="category-label">Prayer Supplies (Varlamore)</h4>
+                        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 25px;">
+                            <p style="margin-bottom: 8px;"><strong>Method:</strong> Catch <b>Moonlight Moths</b> at 75 Hunter.</p>
+                            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); line-height: 1.6; padding-left: 8px;">
+                                <li>&bull; Base version restores 1 dose of prayer potion.</li>
+                                <li>&bull; Mixed versions (using specific meats) restore 2 doses.</li>
+                                <li>&bull; Provides consistent protection prayer usage without relying on Ranarr drops.</li>
+                            </ul>
+                        </div>
+
+                        <h4 class="category-label">Farm Routes</h4>
+                        <ul class="compact-plugin-list">
+                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Herb_run_sequence" target="_blank">Optimal Herb Run Sequence</a> - Teleports for all herb patches.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Example_combined_tree_run_sequence" target="_blank">Optimal Tree Run Sequence</a> - Teleports for all tree patches.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Hardwood_tree_run_sequence" target="_blank">Optimal Hard Tree Run Sequence</a> - Teleports for hard tree patches.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs" target="_blank">Full Farm Run Data</a> - Detailed info on quests, requirements, and equipment.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
     </div>
 
-    <div class="card">
-        <div class="header-row">
-            <h3>Radius Marker Imports</h3>
-        </div>
-
-        <div class="plugin-info-block">
-            <p><strong>Zulrah Snakeling Identifier</strong></p>
-            <p class="sub-text">Identify snakeling attack styles using either radius markers or the Better NPC Highlight plugin.</p>
-            <ul class="stat-item" style="border-left-color: var(--accent-orange); list-style: none; margin-bottom: 15px;">
-                <li>• Melee Snakeling: <b>2045</b></li>
-                <li>• Magic Snakeling: <b>2046</b></li>
-            </ul>
-        </div>
-        <pre><code>[{"id":1745212907997,"name":"Magic Snake","visible":true,"collapsed":false,"z":0,"spawnX":3134,"spawnY":3629,"spawnColour":"#FF00FFFF","spawnVisible":false,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":true,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":true,"aggressionColour":"#FFFF0000","aggressionVisible":true,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":2046,"attackRadius":1,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":false,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":0,"interactionColour":"#FF0000FF","interactionVisible":true},{"id":1745212876543,"name":"Melee Snake","visible":true,"collapsed":false,"z":0,"spawnX":3150,"spawnY":3633,"spawnColour":"#FF00FFFF","spawnVisible":false,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":true,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":true,"aggressionColour":"#FFFF0000","aggressionVisible":true,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":2045,"attackRadius":1,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":false,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":0,"interactionColour":"#FFC80000","interactionVisible":true}]</code></pre>
-
-        <div class="plugin-info-block" style="margin-top: 30px;">
-            <p><strong>Akkha Radius Markers</strong></p>
-            <p class="sub-text">Full mechanical radius markers for all three prayer phases.</p>
-        </div>
-        <pre><code>[{"id":1670610425600,"name":"Akkha Ranged","visible":true,"collapsed":false,"z":0,"spawnX":3696,"spawnY":5407,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11791,"attackRadius":2,"attackColour":"#FF60FF00","attackType":"RANGED","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false},{"id":1670610245439,"name":"Akkha mage","visible":true,"collapsed":false,"z":0,"spawnX":3682,"spawnY":5412,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11792,"attackRadius":2,"attackColour":"#FF0013FF","attackType":"MAGIC","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false},{"id":1670610384507,"name":"Akkha melee","visible":true,"collapsed":false,"z":0,"spawnX":3694,"spawnY":5406,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11790,"attackRadius":2,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false}]</code></pre>
-    </div>
-</section>
-
-<section id="ironman-faq" class="tab-panel">
-    <header>
-        <h1>Ironman Intelligence</h1>
-        <p class="subtitle">Standard Operating Procedures</p>
-    </header>
-
-    <div class="card">
-        <div class="header-row"><h3>Skilling</h3></div>
-        
-        <ul class="compact-plugin-list" style="margin-bottom: 25px;">
-            <li><a href="https://oldschool.runescape.wiki/w/Ironman_guide#Skill_training" target="_blank">Skill Training Guides</a> - Detailed guidance on skill training for every Ironman stage.</li>
-        </ul>
-
-        <h4 class="category-label">Crafting: Seaweed/Mining Sand Loop</h4>
-        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 20px;">
-            <p><strong>Sustainable Loop:</strong> Obtain Spores (Lobstrosities/Spawns) &rarr; Plant Seaweed &rarr; Mine Sandstone &rarr; Superglass Make (Spell/Furnace) &rarr; Blow Glass (Fossil Island Workstation).</p>
-        </div>
-
-        <h4 class="category-label">Herblore: Consistent Sustain</h4>
-        <div class="stat-item" style="border-left-color: var(--accent-green);">
-            <p><strong>Sustain Sequence:</strong> Farming Contracts &rarr; Grow Herbs & Secondaries &rarr; Boss Seeds (Ice King/Moons) &rarr; Kingdom to Herbs &rarr; Consistent Daily Progression.</p>
-        </div>
-        <p class="sub-text" style="margin-top: 10px; padding-left: 15px; color: var(--text-dim); font-size: 13px;">* Note: Herblore is a slow progression skill and should not be neglected.</p>
-    </div>
-
-    <div class="card">
-        <div class="header-row"><h3>Combat & Slayer Strategy</h3></div>
-        
-        <h4 class="category-label">PvM Progression Path</h4>
-        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 20px;">
-            <p><strong>Deployment Sequence:</strong> Morytania Hard Diary &rarr; Medium Combat Achievements &rarr; Barrows (Tank Gear) &rarr; Moons of Peril (Mid-tier sets) &rarr; Royal Titans.</p>
-        </div>
-        <ul class="compact-plugin-list" style="margin-top: 15px;">
-            <li><a href="https://oldschool.runescape.wiki/w/Combat_Achievements/Strategies" target="_blank">Combat Achievement Strategies</a> - Simplified pathing for tier rewards.</li>
-        </ul>
-<h4 class="category-label">Slayer Optimization</h4>
-        
-        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 15px;">
-            <p style="margin-bottom: 12px;"><strong>Strategic Sequence:</strong> Early Point Boosting &rarr; Superior Monsters &rarr; Task Skips/Blocks &rarr; Essential Unlocks &rarr; Long-term Efficiency.</p>
-            
-            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px;">
-                <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;"><b>Prioritize Point Boosting early to secure:</b></p>
-                <ul style="list-style: none; font-size: 13px; color: var(--text-dim); padding-left: 5px; line-height: 1.5;">
-                    <li>&bull; Immediate access to <b>Superior Slayer Monsters</b> for unique loot.</li>
-                    <li>&bull; Capability to skip undesirable or inefficient tasks as they appear.</li>
-                    <li>&bull; Faster path to essential unlocks (Slayer Helm, Broad Fletching, Slayer Ring).</li>
-                    <li>&bull; Prevention of wasted time and supply resources on low-efficiency tasks.</li>
-                </ul>
-            </div>
-        </div>
-
-        <ul class="compact-plugin-list">
-            <li><a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank">Ironman Slayer Task Summary</a> - Detailed guidance on tasks to complete, skip, or block.</li>
-        </ul>
-    </div> <div class="card">
-        <div class="header-row"><h3>Item Upgrades</h3></div>
-        
-        <h4 class="category-label">Last Man Standing & Mage Training Arena Efficiency Upgrades</h4>
-        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 25px;">
-            <p style="margin-bottom: 8px;"><strong>Rune Pouch Acquisition:</strong></p>
-            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 15px; padding-left: 8px;">
-                <li>&bull; <span class="val">750</span> Slayer points from any Slayer master.</li>
-                <li>&bull; <span class="val">75</span> points from Last Man Standing (LMS).</li>
-                <li>&bull; <span class="val">150</span> Telekinetic, <span class="val">150</span> Graveyard, <span class="val">1500</span> Enchantment, and <span class="val">200</span> Alchemist Pizazz points from MTA.</li>
-            </ul>
-            
-            <p style="padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05);"><strong>Rune Arrows:</strong> Available at <span class="val">x300</span> arrows for <span class="val">3</span> points from LMS. High-value early Ranged ammo for zero GP.</p>
-        </div>
-
-        <h4 class="category-label">Item Imbuing (Emir's Arena)</h4>
-        <div class="stat-item" style="border-left-color: var(--accent-green);">
-            <ul style="list-style: none; font-size: 14px; color: var(--text-dim); line-height: 1.6; padding-left: 5px;">
-                <li>&bull; Earn <b>Scrolls of Imbuing</b> via participation (playing or leaving earns points).</li>
-                <li>&bull; <b>Speed:</b> One scroll typically takes under one hour to obtain.</li>
-                <li>&bull; <b>Utility:</b> Scrolls are reusable and can be removed/transferred between items.</li>
-                <li>&bull; <b style="color: var(--text);">Wilderness Meta:</b> Dying in the Wildy with a scroll-imbued item grants <span class="val">650,000</span> NMZ points.</li>
-            </ul>
-        </div>
-    </div> <div class="card">
-        <div class="header-row"><h3>Surviving The Early Game</h3></div>
-        
-        <h4 class="category-label">Early-Game Food Directory</h4>
-        <div class="food-list">
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Jug_of_wine" target="_blank">Jugs of Wine</a> (Draynor - Fortunato) - <span class="val">1 GP</span></span> <span class="val">11 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cake" target="_blank">Cakes</a> (Ardougne/Kourend Stalls) - <span class="val">3 Bites</span></span> <span class="val">12 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Lobster" target="_blank">Lobsters</a> (Brimhaven - Shrimp and Parrot)</span> <span class="val">12 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Plain_pizza" target="_blank">Plain Pizzas</a> (Warriors Guild) - <span class="val">2 Bites</span></span> <span class="val">14 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Swordfish" target="_blank">Swordfish</a> (Brimhaven - Shrimp and Parrot)</span> <span class="val">14 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Snowy_knight" target="_blank">Snowy Knights</a> (Early Hunter)</span> <span class="val">15 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Potato_with_cheese" target="_blank">Potatoes with Cheese</a> (Warriors Guild)</span> <span class="val">16 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_kyatt" target="_blank">Kyatt Meat</a> (Hunted Early) - <span class="val">9+8 Over Time</span></span> <span class="val">17 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_karambwan" target="_blank">Karambwan</a> (Tai Bwo Wannai / Brimhaven)</span> <span class="val">18 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_pyre_fox" target="_blank">Pyre Fox Meat</a> (Hunted Early) - <span class="val">11+8 Over Time</span></span> <span class="val">19 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Shark" target="_blank">Sharks</a> (Frankie's Emporium / 81 Fishing)</span> <span class="val">20 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_sunlight_antelope" target="_blank">Sunlight Antelope Meat</a> - <span class="val">12+9 Over Time</span></span> <span class="val">21 HP</span></div>
-            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Pineapple_pizza" target="_blank">Pineapple Pizzas</a> (Plain + Pineapple) - <span class="val">2 Bites</span></span> <span class="val">22 HP</span></div>
-        </div>
-
-        <h4 class="category-label" style="margin-top: 40px;">Early-Game Capital (GP)</h4>
-        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 15px;">
-            <ul style="list-style: none; font-size: 14px; color: var(--text-dim); line-height: 1.6; padding-left: 5px;">
-                <li>&bull; <b>Stronghold of Security:</b> Awards <span class="val">10,000</span> GP (One-time).</li>
-                <li>&bull; <b>Agility Pyramid:</b> Awards <span class="val">10,000</span> GP for every successful lap.</li>
-                <li>&bull; <b>Eclipse Red Wine:</b> Averages <span class="val">280,000</span> GP per hour.</li>
-            </ul>
-        </div>
-        <ul class="compact-plugin-list">
-            <li><a href="https://oldschool.runescape.wiki/w/Ironman_money_making_guide" target="_blank">Money Making Wiki</a> - Detailed guidance on early money making.</li>
-        </ul>
-    </div> <div class="card">
-        <div class="header-row"><h3>Sustainable Supply Gathering</h3></div>
-        
-        <h4 class="category-label">Prayer Supplies (Varlamore)</h4>
-        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 25px;">
-            <p style="margin-bottom: 8px;"><strong>Method:</strong> Catch <b>Moonlight Moths</b> at 75 Hunter.</p>
-            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); line-height: 1.6; padding-left: 8px;">
-                <li>&bull; Base version restores 1 dose of prayer potion.</li>
-                <li>&bull; Mixed versions (using specific meats) restore 2 doses.</li>
-                <li>&bull; Provides consistent protection prayer usage without relying on Ranarr drops.</li>
-            </ul>
-        </div>
-
-        <h4 class="category-label">Farm Routes</h4>
-        <ul class="compact-plugin-list">
-            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Herb_run_sequence" target="_blank">Optimal Herb Run Sequence</a> - Teleports for all herb patches.</li>
-            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Example_combined_tree_run_sequence" target="_blank">Optimal Tree Run Sequence</a> - Teleports for all tree patches.</li>
-            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Hardwood_tree_run_sequence" target="_blank">Optimal Hard Tree Run Sequence</a> - Teleports for hard tree patches.</li>
-            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs" target="_blank">Full Farm Run Data</a> - Detailed info on quests, requirements, and equipment.</li>
-        </ul>
-    </div> </section>
     <script>
+        // Centralize magic numbers and configuration
+        const UI_CONFIG = {
+            // Matches the CSS transition duration for .fade-out to prevent layout snapping
+            ANIMATION_DURATION_MS: 300 
+        };
+
         document.addEventListener("DOMContentLoaded", () => {
+            
             // --- DOM Elements ---
             const DOM = {
                 heroView: document.getElementById("hero-view"),
@@ -547,7 +1274,7 @@
                     
                     showEl.classList.remove("hidden-view");
                     showEl.classList.add("active-view");
-                }, 300); 
+                }, UI_CONFIG.ANIMATION_DURATION_MS); 
             };
 
             const switchTab = (targetId) => {
@@ -562,28 +1289,37 @@
                     panel.classList.toggle("active-panel", isActive);
                     panel.classList.toggle("hidden-view", !isActive);
                 });
+
+                // Smoothly scroll to the top of the page so the user doesn't end up halfway down a new tab
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
             // --- Event Listeners ---
-            DOM.heroBtns.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const targetId = btn.getAttribute("data-target");
-                    if (targetId) { // Safeguard against the external link button
-                        switchTab(targetId);
-                        transitionView(DOM.heroView, DOM.mainView);
-                    }
+            function bindEvents() {
+                DOM.heroBtns.forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const targetId = btn.getAttribute("data-target");
+                        if (targetId) { // Safeguard against the external link button
+                            switchTab(targetId);
+                            transitionView(DOM.heroView, DOM.mainView);
+                        }
+                    });
                 });
-            });
 
-            DOM.miniNavBtns.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    switchTab(btn.getAttribute("data-tab"));
+                DOM.miniNavBtns.forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        switchTab(btn.getAttribute("data-tab"));
+                    });
                 });
-            });
 
-            DOM.btnHome.addEventListener("click", () => {
-                transitionView(DOM.mainView, DOM.heroView);
-            });
+                DOM.btnHome.addEventListener("click", () => {
+                    transitionView(DOM.mainView, DOM.heroView);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+
+            // Bootstrap the view controller
+            bindEvents();
         });
     </script>
 
