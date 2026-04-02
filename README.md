@@ -4,13 +4,14 @@ Welcome to the central intelligence hub for the **Wise Goblin** clan. This proje
 
 ## 🗂️ Hub Features
 
-The hub is divided into five primary branches:
+The hub is divided into six primary branches:
 
 * **Rank Calculator:** A dedicated external web app (hosted on Vercel) used to calculate and track official clan ranks within Wise Goblin.
 * **DropLogic App:** A state-of-the-art drop rate forecaster that perfectly simulates complex boss mechanics.
 * **Guides & Tools:** A curated directory of the best external OSRS resources, DPS calculators, high-fidelity boss simulators, and a step-by-step guide for Gearscape bank imports.
 * **Plugin Help:** Recommended RuneLite plugin configurations, including exportable JSON radius markers for precise NPC interactions (e.g., Akkha, Zulrah snakelings).
 * **Ironman FAQ:** Highly optimized progression routes, early-game logistics, sustainable skilling grinds, and PvM pathing tailored specifically for Ironman accounts.
+* **Zugrot's Checklist:** An interactive, tiered progression tracker tailored for Ironman accounts, covering everything from early-game unlocks to master-tier PvM goals.
 
 ---
 
