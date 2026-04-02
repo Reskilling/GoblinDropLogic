@@ -166,10 +166,33 @@ function initGoalTracking() {
     const goalCards = document.querySelectorAll('#ironman-goals .card');
 
     goalCards.forEach(card => {
+        const wrapper = card.querySelector('.check-all-wrapper'); 
         const checkAllBox = card.querySelector('.check-all-box');
         const goalCheckboxes = card.querySelectorAll('.goal-item input[type="checkbox"]');
 
-        if (!checkAllBox || goalCheckboxes.length === 0) return;
+        if (!wrapper || !checkAllBox || goalCheckboxes.length === 0) return;
+
+        // Helper function to explicitly force visual and logical updates
+        const updateMasterVisuals = () => {
+            const total = goalCheckboxes.length;
+            const checkedCount = card.querySelectorAll('.goal-item input[type="checkbox"]:checked').length;
+
+            // Strip existing classes
+            wrapper.classList.remove('is-checked', 'is-indeterminate');
+
+            if (checkedCount === 0) {
+                checkAllBox.checked = false;
+                checkAllBox.indeterminate = false;
+            } else if (checkedCount === total) {
+                checkAllBox.checked = true;
+                checkAllBox.indeterminate = false;
+                wrapper.classList.add('is-checked'); // Force Green Glow
+            } else {
+                checkAllBox.checked = false; 
+                checkAllBox.indeterminate = true; 
+                wrapper.classList.add('is-indeterminate'); // Force Orange Glow
+            }
+        };
 
         // 1. Toggle all items when "Check All" is clicked
         checkAllBox.addEventListener('change', (e) => {
@@ -177,26 +200,12 @@ function initGoalTracking() {
             goalCheckboxes.forEach(cb => {
                 cb.checked = isChecked;
             });
+            updateMasterVisuals();
         });
 
         // 2. Update "Check All" state when individual items are clicked
         goalCheckboxes.forEach(cb => {
-            cb.addEventListener('change', () => {
-                const total = goalCheckboxes.length;
-                const checkedCount = card.querySelectorAll('.goal-item input[type="checkbox"]:checked').length;
-
-                if (checkedCount === 0) {
-                    checkAllBox.checked = false;
-                    checkAllBox.indeterminate = false;
-                } else if (checkedCount === total) {
-                    checkAllBox.checked = true;
-                    checkAllBox.indeterminate = false;
-                } else {
-                    // Partially complete: unchecks the box but adds a visual dash (-)
-                    checkAllBox.checked = false; 
-                    checkAllBox.indeterminate = true; 
-                }
-            });
+            cb.addEventListener('change', updateMasterVisuals);
         });
     });
 }

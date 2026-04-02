@@ -849,21 +849,20 @@ a:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* * DYNAMIC STATES 
- * Using the :has() selector to read the state of the hidden input inside the label
+/* * DYNAMIC STATES (WebView Safe)
+ * We use explicit JS classes instead of :has() to ensure compatibility 
+ * across all in-app browsers (Discord, Reddit, etc.)
  */
 
-/* Indeterminate (Partially Checked) State -> Glows Orange */
-.check-all-wrapper:has(input:indeterminate) {
+.check-all-wrapper.is-indeterminate {
     color: var(--accent-orange);
     border-top-color: var(--accent-orange);
 }
 
-/* Fully Checked State -> Glows Green with faint background */
-.check-all-wrapper:has(input:checked) {
+.check-all-wrapper.is-checked {
     color: var(--accent-green);
     border-top-color: var(--accent-green);
-    background: rgba(132, 204, 22, 0.08); /* Faint green tint */
+    background: rgba(132, 204, 22, 0.08);
 }
 
 .goals-grid {
