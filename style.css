@@ -508,6 +508,9 @@ button#calculate-btn::after {
     cursor: pointer; 
     padding: 8px;
     transition: transform 0.1s, border-color 0.2s;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none;     /* IE 10 and 11 */
+    user-select: none;         /* Standard syntax */
 }
 
 .item-box:hover { transform: scale(1.05); }
@@ -891,6 +894,15 @@ a:hover {
 .mobile-only { display: none; }
 .desktop-only { display: flex; }
 
+/* THE DESKTOP CLICK-THROUGH FIX: 
+   Prevents invisible mobile wrappers from blocking your desktop buttons */
+@media (min-width: 769px) {
+    .mobile-only {
+        display: none !important;
+        pointer-events: none; 
+    }
+}
+
 @media (max-width: 768px) {
     .mobile-only { display: block; }
     .desktop-only { display: none !important; }
@@ -898,25 +910,35 @@ a:hover {
     .content-header {
         padding: 12px 15px;
         display: flex !important;
-        flex-direction: row !important;
+        flex-direction: row !important; /* Forces Return and Sections to stay side-by-side */
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        gap: 10px;
+        gap: 12px;
+    }
+
+    /* FORCED SYMMETRY: 
+       Ensures both header elements share the width equally */
+    .content-header #btn-home,
+    .content-header .mobile-menu-wrapper {
+        flex: 1; 
+        width: auto !important;
+        max-width: 160px; /* Prevents buttons from becoming too wide on tablets */
     }
 
     .content-header .premium-btn-sm {
-        width: auto !important;
-        flex: 1;
-        max-width: 160px;
+        width: 100% !important; 
         height: 42px;
         padding: 0 10px;
         font-size: 10px;
         white-space: nowrap;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .mobile-menu-wrapper {
-        flex: 1;
+        position: relative;
         display: flex;
         justify-content: flex-end;
     }
@@ -937,6 +959,11 @@ a:hover {
         animation: fadeIn 0.2s ease forwards;
     }
 
+    /* Ensures the menu actually disappears when the 'hidden' class is applied */
+    .mobile-dropdown.hidden {
+        display: none !important;
+    }
+
     .mobile-nav-item {
         background: transparent;
         border: none;
@@ -950,6 +977,7 @@ a:hover {
         font-size: 11px;
         letter-spacing: 0.1em;
         cursor: pointer;
+        transition: background 0.2s;
     }
 
     .mobile-nav-item:last-child {
@@ -957,57 +985,61 @@ a:hover {
     }
 
     .mobile-nav-item.active {
-    color: var(--accent-green);
-    background: var(--glow-green);
-    border-left: 4px solid var(--accent-green);
-}
-
+        color: var(--accent-green);
+        background: var(--glow-green);
+        border-left: 4px solid var(--accent-green);
+    }
 }
 
 /* ==========================================
-   MEDIA QUERIES (Mobile Fixes)
+   MEDIA QUERIES (Mobile Fixes & Layout)
    ========================================== */
-@media (max-width: 900px) {
-    /* UX Fix: Stop 75% scaling on smaller screens, stretch to full width! */
-    .container.is-75 { 
-        max-width: 100%; 
+
+/* 1. THE DESKTOP CLICK-THROUGH FIX
+   Ensures invisible mobile wrappers don't block desktop buttons */
+@media (min-width: 769px) {
+    .mobile-only {
+        display: none !important;
+        pointer-events: none; 
     }
+}
+
+@media (max-width: 900px) {
+    .container.is-75 { max-width: 100%; }
 }
 
 @media (max-width: 768px) {
     .showcase-logo { height: 40vh; }
     .hero-titles h1 { font-size: 2.2rem; }
 
-    /* --- HEADER BUTTON SYMMETRY FIX --- */
-    /* Forces the header to stay as a row and push buttons apart */
+    /* --- HEADER BUTTON SYMMETRY --- */
     .content-header {
         flex-direction: row !important; 
         justify-content: space-between;
         padding: 12px 15px;
         gap: 12px;
+        height: 70px; 
     }
 
-    /* Makes Return and Sections share available space equally */
     .content-header #btn-home,
     .content-header .mobile-menu-wrapper {
         flex: 1; 
         width: auto !important;
-        max-width: 160px; /* Prevents buttons from getting too long */
+        max-width: 160px;
     }
 
-    /* Ensures the actual buttons inside fill their half of the header */
     .content-header .premium-btn-sm {
         width: 100% !important; 
-        height: 40px;
+        height: 42px; 
         padding: 0 5px;
         font-size: 10px;
         display: flex;
         justify-content: center;
         align-items: center;
+        pointer-events: auto;
     }
-    /* ---------------------------------- */
 
-    /* Main Navigation Grid (The Landing Page buttons) */
+    /* --- MAIN NAV GRID (Home Page) --- */
     .premium-nav { 
         display: grid;
         grid-template-columns: 1fr 1fr; 
@@ -1016,7 +1048,8 @@ a:hover {
         gap: 12px;
     }
 
-    .premium-btn, .premium-btn-sm { 
+    .premium-nav .premium-btn, 
+    .premium-nav .premium-btn-sm { 
         width: 100%; 
         text-align: center; 
         padding: 14px 10px;
@@ -1024,7 +1057,6 @@ a:hover {
         letter-spacing: 0.1em;
     }
 
-    /* Logic for odd-numbered button counts: makes the last button span both columns */
     .premium-nav a:last-child:nth-child(odd) {
         grid-column: span 2;
     }
@@ -1032,10 +1064,34 @@ a:hover {
 
 @media (max-width: 650px) {
     .input-row { grid-template-columns: 1fr; gap: 16px; }
-    .chart-wrapper { height: 350px; padding: 10px; }
+    .chart-wrapper { height: 320px; padding: 10px; }
     
-    /* FIX: The Return Page (Results Section) 
-       Stacks the percentage and labels vertically so they don't squish. */
+    /* --- COLLECTION LOG STACKING --- */
+    /* Forces 'Collection Log' text and buttons to stack vertically */
+    #boss-preview .header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    /* Makes the buttons container fill the full card width */
+    #boss-preview .controls {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Gives buttons a 50/50 split and larger tap area */
+    #boss-preview .controls .btn-sm {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        justify-content: center;
+        font-size: 11px;
+    }
+
+    /* --- RESULT HEADER STACKING --- */
     .result-header { 
         flex-direction: column; 
         align-items: center; 
@@ -1046,7 +1102,7 @@ a:hover {
     #stat-chance { font-size: 3rem; }
     .prob-label { text-align: center; }
 
-    /* Fix: Button grid for the KC +/- modifiers */
+    /* KC Multiplier Grid */
     .kc-controls { 
         display: grid; 
         grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); 
@@ -1057,15 +1113,19 @@ a:hover {
     .card { padding: 24px 16px; }
     .container { padding: 15px 10px; }
 
-    /* Font scale and inheritance safety */
+    /* Typography Safety */
     .stat-item, .stat-item span, #res-name, .prob-label { font-family: var(--font-primary) !important; }
     .stat-item b, #target-kc, .kc-btn, #stat-chance { font-family: var(--font-mono) !important; }
 }
 
 @media (max-width: 480px) {
-    /* Final breakpoint for very small devices */
+    /* Final breakpoint for small phones */
     .premium-nav { 
-        grid-template-columns: 1fr; /* Single column only when truly out of space */
+        grid-template-columns: 1fr; 
     }
     .hero-titles h1 { font-size: 1.8rem; }
+    
+    /* Ensure header buttons don't get too squished */
+    .content-header { gap: 8px; padding: 12px 10px; }
+    .content-header .premium-btn-sm { font-size: 9px; letter-spacing: 0.05em; }
 }
