@@ -43,15 +43,27 @@
     <div id="main-view" class="view-container hidden-view">
         
         <header class="content-header">
-            <button id="btn-home" class="premium-btn-sm">&larr; Return</button>
-            <nav class="mini-nav">
-                <button class="tab-link active" data-tab="droplogic">DropLogic</button>
-                <button class="tab-link" data-tab="guides">Guides</button>
-                <button class="tab-link" data-tab="plugins">Plugins</button>
-                <button class="tab-link" data-tab="ironman-faq">FAQ</button>
-                <button class="tab-link" data-tab="ironman-goals">Checklist</button>
-            </nav>
-        </header>
+    <button id="btn-home" class="premium-btn-sm">&larr; Return</button>
+
+    <nav class="mini-nav desktop-only">
+        <button class="tab-link active" data-tab="droplogic">DropLogic</button>
+        <button class="tab-link" data-tab="guides">Guides</button>
+        <button class="tab-link" data-tab="plugins">Plugins</button>
+        <button class="tab-link" data-tab="ironman-faq">FAQ</button>
+        <button class="tab-link" data-tab="ironman-goals">Checklist</button>
+    </nav>
+
+    <div class="mobile-menu-wrapper mobile-only">
+        <button id="mobile-sections-btn" class="premium-btn-sm">Sections ▾</button>
+        <div id="mobile-dropdown" class="mobile-dropdown hidden">
+            <button class="mobile-nav-item" data-tab="droplogic">DropLogic</button>
+            <button class="mobile-nav-item" data-tab="guides">Guides</button>
+            <button class="mobile-nav-item" data-tab="plugins">Plugins</button>
+            <button class="mobile-nav-item" data-tab="ironman-faq">FAQ</button>
+            <button class="mobile-nav-item" data-tab="ironman-goals">Checklist</button>
+        </div>
+    </div>
+</header>
 
         <main>
             

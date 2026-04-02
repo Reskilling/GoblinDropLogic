@@ -80,23 +80,72 @@ function populateBossSelect() {
     DOM.bossSelect.innerHTML = defaultOption + bossOptions;
 }
 
-// --- Event Binding ---
 function bindEvents() {
+    // --- 1. CALCULATOR LOGIC ---
     DOM.bossSelect.addEventListener('change', handleBossSelection);
-    
-    // KC Input Modifiers
     document.querySelectorAll(".kc-btn[data-add]").forEach(btn => {
         btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
     });
-    document.getElementById("kc-reset").addEventListener('click', () => { DOM.kcInput.value = 0; });
-
-    // Item Selection
+    const kcReset = document.getElementById("kc-reset");
+    if (kcReset) kcReset.onclick = () => { DOM.kcInput.value = 0; };
     DOM.itemGrid.addEventListener('click', toggleItemSelection);
-    document.getElementById("select-all").addEventListener('click', () => setAllItemsSelection(true));
-    document.getElementById("select-none").addEventListener('click', () => setAllItemsSelection(false));
+    document.getElementById("calculate-btn").onclick = handleCalculation;
 
-    // Simulation Trigger
-    document.getElementById("calculate-btn").addEventListener('click', handleCalculation);
+    // --- 2. HOME / RETURN BUTTON ---
+    const btnHome = document.getElementById("btn-home");
+    if (btnHome) {
+        btnHome.onclick = () => {
+            document.getElementById('main-view').classList.add('hidden-view');
+            document.getElementById('hero-view').classList.remove('hidden-view');
+            window.scrollTo(0, 0);
+        };
+    }
+
+    // --- 3. MOBILE MENU TOGGLE ---
+    const mobileBtn = document.getElementById('mobile-sections-btn');
+    const mobileMenu = document.getElementById('mobile-dropdown');
+
+    if (mobileBtn && mobileMenu) {
+        mobileBtn.onclick = (e) => {
+            e.stopPropagation();
+            mobileMenu.classList.toggle('hidden');
+        };
+        document.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    }
+
+    // --- 4. UNIFIED NAVIGATION (THE FIX) ---
+    const navButtons = document.querySelectorAll('.tab-link, .mobile-nav-item');
+    const allPanels = document.querySelectorAll('.tab-panel'); // Matches your CSS
+
+    navButtons.forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            const targetId = btn.getAttribute('data-tab');
+
+            // A. Hide ALL panels
+            allPanels.forEach(panel => {
+                panel.style.display = 'none';
+                panel.classList.remove('active-panel'); // Matches your CSS
+            });
+
+            // B. Show the specific target panel
+            const targetPanel = document.getElementById(targetId);
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+                targetPanel.classList.add('active-panel'); // Matches your CSS
+            }
+
+            // C. Sync "Active" styling across both menus
+            navButtons.forEach(nb => nb.classList.remove('active'));
+            document.querySelectorAll(`[data-tab="${targetId}"]`).forEach(activeBtn => {
+                activeBtn.classList.add('active');
+            });
+
+            // D. Close mobile menu and scroll to top
+            if (mobileMenu) mobileMenu.classList.add('hidden');
+            window.scrollTo(0, 0);
+        };
+    });
 }
 
 // --- Utility Helpers ---

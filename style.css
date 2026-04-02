@@ -319,8 +319,15 @@ ol, p {
 .tab-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
 .tab-link.active { color: var(--accent-green); background: var(--glow-green); }
 
-.tab-panel { display: none; width: 100%; }
-.tab-panel.active-panel { display: block; animation: fadeIn 0.3s ease forwards; }
+.tab-panel { 
+    display: none; 
+    width: 100%; 
+}
+
+.tab-panel.active-panel { 
+    display: block !important; 
+    animation: fadeIn 0.3s ease forwards; 
+}
 
 /* ==========================================
    MAIN LAYOUT COMPONENTS
@@ -877,6 +884,87 @@ a:hover {
 }
 
 /* ==========================================
+   MOBILE DROPDOWN SYSTEM
+   ========================================== */
+
+/* Utility visibility classes */
+.mobile-only { display: none; }
+.desktop-only { display: flex; }
+
+@media (max-width: 768px) {
+    .mobile-only { display: block; }
+    .desktop-only { display: none !important; }
+
+    .content-header {
+        padding: 12px 15px;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .content-header .premium-btn-sm {
+        width: auto !important;
+        flex: 1;
+        max-width: 160px;
+        height: 42px;
+        padding: 0 10px;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .mobile-menu-wrapper {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .mobile-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background: var(--card);
+        border: 1px solid var(--accent-green);
+        border-radius: 8px;
+        width: 180px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 1000;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+        animation: fadeIn 0.2s ease forwards;
+    }
+
+    .mobile-nav-item {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+        padding: 16px;
+        text-align: left;
+        font-family: var(--font-primary);
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+    }
+
+    .mobile-nav-item:last-child {
+        border-bottom: none;
+    }
+
+    .mobile-nav-item.active {
+    color: var(--accent-green);
+    background: var(--glow-green);
+    border-left: 4px solid var(--accent-green);
+}
+
+}
+
+/* ==========================================
    MEDIA QUERIES (Mobile Fixes)
    ========================================== */
 @media (max-width: 900px) {
@@ -887,20 +975,97 @@ a:hover {
 }
 
 @media (max-width: 768px) {
-    .showcase-logo { height: 45vh; }
-    .hero-titles h1 { font-size: 2.5rem; }
-    .content-header { flex-direction: column; gap: 15px; padding: 15px; }
-    .premium-nav { flex-direction: column; width: 100%; padding: 0 20px; }
+    .showcase-logo { height: 40vh; }
+    .hero-titles h1 { font-size: 2.2rem; }
+
+    /* --- HEADER BUTTON SYMMETRY FIX --- */
+    /* Forces the header to stay as a row and push buttons apart */
+    .content-header {
+        flex-direction: row !important; 
+        justify-content: space-between;
+        padding: 12px 15px;
+        gap: 12px;
+    }
+
+    /* Makes Return and Sections share available space equally */
+    .content-header #btn-home,
+    .content-header .mobile-menu-wrapper {
+        flex: 1; 
+        width: auto !important;
+        max-width: 160px; /* Prevents buttons from getting too long */
+    }
+
+    /* Ensures the actual buttons inside fill their half of the header */
+    .content-header .premium-btn-sm {
+        width: 100% !important; 
+        height: 40px;
+        padding: 0 5px;
+        font-size: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    /* ---------------------------------- */
+
+    /* Main Navigation Grid (The Landing Page buttons) */
+    .premium-nav { 
+        display: grid;
+        grid-template-columns: 1fr 1fr; 
+        width: 100%; 
+        padding: 0 20px; 
+        gap: 12px;
+    }
+
+    .premium-btn, .premium-btn-sm { 
+        width: 100%; 
+        text-align: center; 
+        padding: 14px 10px;
+        font-size: 11px; 
+        letter-spacing: 0.1em;
+    }
+
+    /* Logic for odd-numbered button counts: makes the last button span both columns */
+    .premium-nav a:last-child:nth-child(odd) {
+        grid-column: span 2;
+    }
 }
 
 @media (max-width: 650px) {
     .input-row { grid-template-columns: 1fr; gap: 16px; }
     .chart-wrapper { height: 350px; padding: 10px; }
-    #stat-chance { font-size: 2.5rem; }
-    .card { padding: 20px; }
-    .container { padding: 20px 10px; }
+    
+    /* FIX: The Return Page (Results Section) 
+       Stacks the percentage and labels vertically so they don't squish. */
+    .result-header { 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+        gap: 12px; 
+    }
+    
+    #stat-chance { font-size: 3rem; }
+    .prob-label { text-align: center; }
 
-    /* Force font overrides for small screens where specific styles might break */
+    /* Fix: Button grid for the KC +/- modifiers */
+    .kc-controls { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); 
+        gap: 8px; 
+    }
+    .kc-btn { padding: 12px 0; }
+
+    .card { padding: 24px 16px; }
+    .container { padding: 15px 10px; }
+
+    /* Font scale and inheritance safety */
     .stat-item, .stat-item span, #res-name, .prob-label { font-family: var(--font-primary) !important; }
     .stat-item b, #target-kc, .kc-btn, #stat-chance { font-family: var(--font-mono) !important; }
+}
+
+@media (max-width: 480px) {
+    /* Final breakpoint for very small devices */
+    .premium-nav { 
+        grid-template-columns: 1fr; /* Single column only when truly out of space */
+    }
+    .hero-titles h1 { font-size: 1.8rem; }
 }
