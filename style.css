@@ -159,6 +159,9 @@ ol, p {
     max-height: 600px;
     width: auto;
     object-fit: contain;
+    filter: drop-shadow(0px 0px 2px #000000) 
+            drop-shadow(0px 0px 2px #000000) 
+            drop-shadow(0px 0px 2px #000000);
 }
 
 .hero-titles {
