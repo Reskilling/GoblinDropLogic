@@ -159,7 +159,7 @@ ol, p {
     max-height: 600px;
     width: auto;
     object-fit: contain;
-    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.8));
+    animation: themeSticker 6s ease-in-out infinite; 
 }
 
 .hero-titles {
@@ -753,4 +753,25 @@ a:hover {
     /* Force font overrides for small screens where specific styles might break */
     .stat-item, .stat-item span, #res-name, .prob-label { font-family: var(--font-primary) !important; }
     .stat-item b, #target-kc, .kc-btn, #stat-chance { font-family: var(--font-mono) !important; }
+}
+
+@keyframes themeSticker {
+    0% { 
+        filter: drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 8px var(--accent-green)); 
+    }
+    50% {
+        filter: drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 15px var(--accent-orange)); 
+    }
+    100% {
+        filter: drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 2px #000000) 
+                drop-shadow(0px 0px 8px var(--accent-green)); 
+    }
 }
