@@ -4,7 +4,7 @@ Welcome to the central intelligence hub for the **Wise Goblin** clan. This proje
 
 ## 🗂️ Hub Features
 
-The hub is divided into four primary intelligence branches:
+The hub is divided into four primary branches:
 
 * **Rank Calculator:** A dedicated external web app (hosted on Vercel) used to calculate and track official clan ranks within Wise Goblin.
 * **DropLogic App:** A state-of-the-art drop rate forecaster that perfectly simulates complex boss mechanics.
@@ -33,7 +33,7 @@ The Wise Goblin Hub is built entirely in vanilla web technologies (HTML, CSS, Ja
 
 ```bash
 # Clone the repository
-git clone [https://github.com/Reskilling/GoblinDropLogic](https://github.com/Reskilling/GoblinDropLogic)
+git clone https://github.com/Reskilling/GoblinDropLogic
 
 # Navigate into the directory
 cd GoblinDropLogic
