@@ -249,6 +249,27 @@ ol, p {
     text-transform: uppercase; 
 }
 
+.food-row a {
+    display: inline-block;
+    background: rgba(20, 18, 16, 0.8);
+    color: var(--text);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 0.9em;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+}
+
+.food-row a:hover {
+    background: rgba(132, 204, 22, 0.05); /* Faint Bandos green background */
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    transform: translateY(-1px); /* Slight lift effect */
+    box-shadow: 0 2px 8px rgba(132, 204, 22, 0.15);
+}
+
 /* ==========================================
    CONTENT HEADER & TAB SYSTEM
    ========================================== */
@@ -545,6 +566,45 @@ button#calculate-btn::after {
     font-weight: 500;
 }
 
+/* High-Density Plugin List */
+.compact-plugin-list {
+    list-style: none;
+    margin-top: 10px;
+}
+
+.compact-plugin-list li {
+    font-family: var(--font-primary);
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    line-height: 1.4;
+    padding-left: 15px;
+    position: relative;
+}
+
+/* Custom bullet point */
+.compact-plugin-list li::before {
+    content: "■";
+    color: var(--accent-orange);
+    font-size: 10px;
+    position: absolute;
+    left: 0;
+    top: 3px;
+}
+
+.compact-plugin-list a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 1px dashed var(--border);
+    transition: all 0.2s;
+}
+
+.compact-plugin-list a:hover {
+    color: var(--accent-green);
+    border-bottom-color: var(--accent-green);
+}
+
 .plugin-entry strong { color: var(--accent-green); font-weight: 800; }
 
 .link-grid-modern { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
@@ -655,6 +715,22 @@ pre {
     color: var(--accent-green); 
     font-family: var(--font-mono); 
     border: 1px solid var(--border); 
+}
+
+/* =========================================
+   LINK & BUTTON OVERRIDES
+========================================= */
+
+/* Global Link Reset (Kills the ugly blue/purple everywhere) */
+a {
+    color: var(--accent-green);
+    text-decoration: none;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+a:hover {
+    color: var(--text);
+    text-shadow: 0 0 8px rgba(132, 204, 22, 0.4);
 }
 
 /* ==========================================
