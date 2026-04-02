@@ -251,6 +251,29 @@ ol, p {
         0 12px 20px rgba(0, 0, 0, 0.6);
 }
 
+.btn-sm:hover, 
+.kc-btn:hover {
+    color: #fff !important;
+    background: #23201d;
+    border-top: 1px solid var(--accent-green); /* Adds that tactical green top-line */
+    transform: translateY(-2px); /* Matches the lift effect of the main nav */
+    box-shadow: 
+        0 0 12px var(--glow-green),
+        0 8px 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease-out;
+}
+
+.kc-btn.reset:hover {
+    border-top-color: #ef4444; 
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-sm:active, 
+.kc-btn:active {
+    transform: translateY(1px);
+    transition: 0.05s;
+}
+
 .premium-btn:active, .premium-btn-sm:active {
     transform: translateY(2px);
     transition: 0.05s;
