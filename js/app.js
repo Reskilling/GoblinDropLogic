@@ -314,7 +314,8 @@ function executeSimulation(selectedItems, currentKC) {
     // Route to the appropriate matrix engine based on boss-specific mechanics
     if (activeBossKey === 'moons_of_peril') {
         matrix = createMoonsMatrix(selectedItems);
-    } else if (activeBossKey === 'barrows_chests' && selectedItems.length > 5) {
+    } else if (activeBossKey === 'barrows_chests') { 
+        // REMOVED: '&& selectedItems.length > 5'
         matrix = createBarrowsMatrix(selectedItems.length); 
     } else {
         matrix = createMasterMatrix(selectedItems, rolls);

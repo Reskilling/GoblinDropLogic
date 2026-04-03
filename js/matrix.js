@@ -60,11 +60,12 @@ export function createBarrowsMatrix(targetCount) {
             continue;
         }
         
+        // Chance to hit one of the items we WANT that we don't ALREADY HAVE
         const pNew = BARROWS.UNIQUE_RATE * ((targetCount - i) / BARROWS.TOTAL_ITEMS);
-        const pDupe = BARROWS.UNIQUE_RATE * (i / BARROWS.TOTAL_ITEMS);
-        const pNothing = 1 - BARROWS.UNIQUE_RATE; 
         
-        baseMatrix[i][i] = pNothing + pDupe;
+        // The chance to NOT progress is simply 100% minus the chance of getting a new item.
+        // This perfectly encompasses dupes, blanks, AND unwanted Barrows items.
+        baseMatrix[i][i] = 1 - pNew;
         
         if (i + 1 < size) {
             baseMatrix[i][i + 1] = pNew;
