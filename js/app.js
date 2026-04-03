@@ -194,11 +194,40 @@ function initGoalTracking() {
             }
         };
 
+        // --- NEW: LocalStorage Loading & Event Binding ---
+        goalCheckboxes.forEach(cb => {
+            const nameEl = cb.closest('.goal-item').querySelector('.goal-name');
+            if (nameEl) {
+                // Create unique key from the goal name
+                const saveKey = `goal-${nameEl.textContent.trim().replace(/\s+/g, '-')}`;
+                
+                // 1. Load state on boot
+                if (localStorage.getItem(saveKey) === 'true') {
+                    cb.checked = true;
+                }
+                
+                // 2. Save state when clicked individually
+                cb.addEventListener('change', () => {
+                    localStorage.setItem(saveKey, cb.checked);
+                });
+            }
+        });
+
+        // Run this once immediately after loading local storage to sync the "Check All" visuals
+        updateMasterVisuals();
+
         // 1. Toggle all items when "Check All" is clicked
         checkAllBox.addEventListener('change', (e) => {
             const isChecked = e.target.checked;
             goalCheckboxes.forEach(cb => {
                 cb.checked = isChecked;
+                
+                // Ensure bulk-clicks also save to local storage
+                const nameEl = cb.closest('.goal-item').querySelector('.goal-name');
+                if (nameEl) {
+                    const saveKey = `goal-${nameEl.textContent.trim().replace(/\s+/g, '-')}`;
+                    localStorage.setItem(saveKey, isChecked);
+                }
             });
             updateMasterVisuals();
         });
