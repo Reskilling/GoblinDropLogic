@@ -7,23 +7,14 @@ import { createMasterMatrix, createBarrowsMatrix, createMoonsMatrix } from './ma
 import { BOSS_CONFIG, getWikiUrl, formatBossName } from './data.js';
 import { runSimulation } from './solvers.js';
 
-// --- Configuration & State ---
 const CHART_FONT = "'Inter', sans-serif";
 const CHART_TEXT_COLOR = '#a8a29e';
-const COLORS = {
-    mode: '#ef4444',
-    progress: '#3b82f6',
-    mean: '#f97316',
-    user: '#22c55e'
-};
-
-// Power transformation constant for Chart.js X-axis scaling to visualize OSRS drop rates realistically.
+const COLORS = { mode: '#ef4444', progress: '#3b82f6', mean: '#f97316', user: '#22c55e' };
 const X_AXIS_POWER = 0.4;
 
 let activeBossKey = "";
 let chartInstance = null;
 
-// --- DOM Elements ---
 const DOM = {
     bossSelect: document.getElementById("boss-select"),
     itemGrid: document.getElementById("item-grid"),
@@ -38,7 +29,6 @@ const DOM = {
     chartCanvas: document.getElementById('distributionChart')
 };
 
-// --- Initialization ---
 function initApp() {
     setupChartDefaults();
     populateBossSelect();
@@ -53,421 +43,323 @@ function setupChartDefaults() {
 
 function populateBossSelect() {
     const defaultOption = '<option value="">Select Boss Intel...</option>';
-    const bossOptions = Object.keys(BOSS_CONFIG)
-        .sort()
-        .map(key => `<option value="${key}">${formatBossName(key)}</option>`)
-        .join('');
-    
+    const bossOptions = Object.keys(BOSS_CONFIG).sort().map(key => `<option value="${key}">${formatBossName(key)}</option>`).join('');
     DOM.bossSelect.innerHTML = defaultOption + bossOptions;
 }
 
-// --- Event Binding ---
+// --- RAID UI INJECTOR (Fixed Scope) ---
+function renderDynamicSettings(bossKey) {
+    let container = document.getElementById('dynamic-raid-settings');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'dynamic-raid-settings';
+        container.style.marginBottom = '24px';
+        DOM.bossPreview.insertBefore(container, document.querySelector('.collection-header'));
+    }
+
+    container.innerHTML = ''; 
+
+    const dt2Bosses = ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'];
+
+    if (bossKey === 'chambers_of_xeric') {
+        container.innerHTML = `
+            <div class="input-group">
+                <label>Average Team Points</label>
+                <input type="number" id="raid-cox-pts" value="30000" min="0">
+            </div>`;
+    } else if (bossKey === 'theatre_of_blood') {
+        container.innerHTML = `
+            <div class="input-row" style="margin-bottom: 0;">
+                <div class="input-group">
+                    <label>Team Size</label>
+                    <input type="number" id="raid-tob-size" value="3" min="1" max="5">
+                </div>
+                <div class="input-group">
+                    <label>Team Deaths</label>
+                    <input type="number" id="raid-tob-deaths" value="0" min="0">
+                </div>
+            </div>`;
+    } else if (bossKey === 'tombs_of_amascut') {
+        container.innerHTML = `
+            <div class="input-row" style="margin-bottom: 0;">
+                <div class="input-group">
+                    <label>Raid Level</label>
+                    <input type="number" id="raid-toa-level" value="150" min="0">
+                </div>
+                <div class="input-group">
+                    <label>Team Points</label>
+                    <input type="number" id="raid-toa-pts" value="15000" min="0">
+                </div>
+            </div>`;
+    } else if (dt2Bosses.includes(bossKey)) {
+        // --- BULLETPROOF DARK MODE BUTTON ---
+        container.innerHTML = `
+            <button type="button" id="dt2-awakened-btn" value="false" 
+                style="width: 100%; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;" 
+                onclick="
+                    if (this.value === 'false') {
+                        this.value = 'true';
+                        this.innerText = 'Awakened Variant (3x Uniques)';
+                        this.style.borderColor = 'var(--accent-orange)';
+                        this.style.color = 'var(--accent-orange)';
+                        this.style.background = 'rgba(249, 115, 22, 0.05)';
+                    } else {
+                        this.value = 'false';
+                        this.innerText = 'Standard Variant';
+                        this.style.borderColor = 'var(--border)';
+                        this.style.color = 'var(--text)';
+                        this.style.background = 'rgba(255,255,255,0.05)';
+                    }
+                ">
+                Standard Variant
+            </button>`;
+    }
+}
+
 function bindEvents() {
-    // 1. CALCULATOR CORE LOGIC
     if (DOM.bossSelect) DOM.bossSelect.addEventListener('change', handleBossSelection);
     if (DOM.itemGrid) DOM.itemGrid.addEventListener('click', toggleItemSelection);
     
-    // Kill Count Buttons (+10, +100, etc.)
     document.querySelectorAll(".kc-btn[data-add]").forEach(btn => {
         btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
     });
 
-    // KC Reset (The '0' button)
     const kcReset = document.getElementById("kc-reset");
-    if (kcReset) {
-        kcReset.addEventListener('click', () => {
-            if (DOM.kcInput) DOM.kcInput.value = 0;
-        });
-    }
+    if (kcReset) kcReset.addEventListener('click', () => { if (DOM.kcInput) DOM.kcInput.value = 0; });
 
-    // ITEM SELECTION (Select All / Reset Grid)
     const selectAllBtn = document.getElementById("select-all");
     const selectNoneBtn = document.getElementById("select-none");
 
-    if (selectAllBtn) {
-        selectAllBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            setAllItemsSelection(true);
-        });
-    }
-    if (selectNoneBtn) {
-        selectNoneBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            setAllItemsSelection(false);
-        });
-    }
+    if (selectAllBtn) selectAllBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(true); });
+    if (selectNoneBtn) selectNoneBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(false); });
 
     const calcBtn = document.getElementById("calculate-btn");
     if (calcBtn) calcBtn.addEventListener('click', handleCalculation);
 
-    // 2. NAVIGATION: HOME / RETURN BUTTON
     const btnHome = document.getElementById("btn-home");
-    if (btnHome) {
-        btnHome.addEventListener('click', () => {
-            document.getElementById('main-view').classList.add('hidden-view');
-            document.getElementById('hero-view').classList.remove('hidden-view');
-            window.scrollTo(0, 0);
-        });
-    }
+    if (btnHome) btnHome.addEventListener('click', () => { document.getElementById('main-view').classList.add('hidden-view'); document.getElementById('hero-view').classList.remove('hidden-view'); window.scrollTo(0, 0); });
 
-    // 3. NAVIGATION: MOBILE MENU TOGGLE
     const mobileBtn = document.getElementById('mobile-sections-btn');
     const mobileMenu = document.getElementById('mobile-dropdown');
+    if (mobileBtn && mobileMenu) { mobileBtn.addEventListener('click', (e) => { e.stopPropagation(); mobileMenu.classList.toggle('hidden'); }); document.addEventListener('click', () => { mobileMenu.classList.add('hidden'); }); }
 
-    if (mobileBtn && mobileMenu) {
-        mobileBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevents document click from closing it immediately
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Close menu if user clicks anywhere else
-        document.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-        });
-    }
-
-    // 4. NAVIGATION: UNIFIED TAB SWITCHING (Desktop + Mobile Sync)
     const navButtons = document.querySelectorAll('.tab-link, .mobile-nav-item');
     const allPanels = document.querySelectorAll('.tab-panel');
-
     navButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             const targetId = btn.getAttribute('data-tab');
-
-            // A. Hide all panels
-            allPanels.forEach(panel => {
-                panel.style.display = 'none';
-                panel.classList.remove('active-panel');
-            });
-
-            // B. Show the specific target panel
+            allPanels.forEach(panel => { panel.style.display = 'none'; panel.classList.remove('active-panel'); });
             const targetSection = document.getElementById(targetId);
-            if (targetSection) {
-                targetSection.style.display = 'block';
-                targetSection.classList.add('active-panel');
-            }
-
-            // C. Sync "Active" styling across both menus (Desktop & Mobile)
+            if (targetSection) { targetSection.style.display = 'block'; targetSection.classList.add('active-panel'); }
             navButtons.forEach(nb => nb.classList.remove('active'));
-            document.querySelectorAll(`[data-tab="${targetId}"]`).forEach(activeBtn => {
-                activeBtn.classList.add('active');
-            });
-
-            // D. Cleanup
+            document.querySelectorAll(`[data-tab="${targetId}"]`).forEach(activeBtn => activeBtn.classList.add('active'));
             if (mobileMenu) mobileMenu.classList.add('hidden');
             window.scrollTo(0, 0);
         });
     });
 }
 
-// --- Goal Tracking Logic ---
 function initGoalTracking() {
     const goalCards = document.querySelectorAll('#ironman-goals .card');
-
     goalCards.forEach(card => {
         const wrapper = card.querySelector('.check-all-wrapper'); 
         const checkAllBox = card.querySelector('.check-all-box');
         const goalCheckboxes = card.querySelectorAll('.goal-item input[type="checkbox"]');
-
         if (!wrapper || !checkAllBox || goalCheckboxes.length === 0) return;
 
-        // Helper function to explicitly force visual and logical updates
         const updateMasterVisuals = () => {
             const total = goalCheckboxes.length;
             const checkedCount = card.querySelectorAll('.goal-item input[type="checkbox"]:checked').length;
-
-            // Strip existing classes
             wrapper.classList.remove('is-checked', 'is-indeterminate');
-
-            if (checkedCount === 0) {
-                checkAllBox.checked = false;
-                checkAllBox.indeterminate = false;
-            } else if (checkedCount === total) {
-                checkAllBox.checked = true;
-                checkAllBox.indeterminate = false;
-                wrapper.classList.add('is-checked'); // Force Green Glow
-            } else {
-                checkAllBox.checked = false; 
-                checkAllBox.indeterminate = true; 
-                wrapper.classList.add('is-indeterminate'); // Force Orange Glow
-            }
+            if (checkedCount === 0) { checkAllBox.checked = false; checkAllBox.indeterminate = false; } 
+            else if (checkedCount === total) { checkAllBox.checked = true; checkAllBox.indeterminate = false; wrapper.classList.add('is-checked'); } 
+            else { checkAllBox.checked = false; checkAllBox.indeterminate = true; wrapper.classList.add('is-indeterminate'); }
         };
 
-        // --- NEW: LocalStorage Loading & Event Binding ---
         goalCheckboxes.forEach(cb => {
             const nameEl = cb.closest('.goal-item').querySelector('.goal-name');
             if (nameEl) {
-                // Create unique key from the goal name
                 const saveKey = `goal-${nameEl.textContent.trim().replace(/\s+/g, '-')}`;
-                
-                // 1. Load state on boot
-                if (localStorage.getItem(saveKey) === 'true') {
-                    cb.checked = true;
-                }
-                
-                // 2. Save state when clicked individually
-                cb.addEventListener('change', () => {
-                    localStorage.setItem(saveKey, cb.checked);
-                });
+                if (localStorage.getItem(saveKey) === 'true') cb.checked = true;
+                cb.addEventListener('change', () => localStorage.setItem(saveKey, cb.checked));
             }
         });
-
-        // Run this once immediately after loading local storage to sync the "Check All" visuals
         updateMasterVisuals();
 
-        // 1. Toggle all items when "Check All" is clicked
         checkAllBox.addEventListener('change', (e) => {
             const isChecked = e.target.checked;
-            goalCheckboxes.forEach(cb => {
-                cb.checked = isChecked;
-                
-                // Ensure bulk-clicks also save to local storage
-                const nameEl = cb.closest('.goal-item').querySelector('.goal-name');
-                if (nameEl) {
-                    const saveKey = `goal-${nameEl.textContent.trim().replace(/\s+/g, '-')}`;
-                    localStorage.setItem(saveKey, isChecked);
-                }
-            });
+            goalCheckboxes.forEach(cb => { cb.checked = isChecked; const nameEl = cb.closest('.goal-item').querySelector('.goal-name'); if (nameEl) localStorage.setItem(`goal-${nameEl.textContent.trim().replace(/\s+/g, '-')}`, isChecked); });
             updateMasterVisuals();
         });
-
-        // 2. Update "Check All" state when individual items are clicked
-        goalCheckboxes.forEach(cb => {
-            cb.addEventListener('change', updateMasterVisuals);
-        });
+        goalCheckboxes.forEach(cb => cb.addEventListener('change', updateMasterVisuals));
     });
 }
 
-// --- Event Handlers ---
-
 function handleBossSelection(e) {
     activeBossKey = e.target.value;
-    if (!activeBossKey) {
-        DOM.bossPreview.classList.add("hidden");
-        return;
-    }
+    if (!activeBossKey) { DOM.bossPreview.classList.add("hidden"); return; }
     renderItemGrid(BOSS_CONFIG[activeBossKey].items);
+    renderDynamicSettings(activeBossKey);
     DOM.bossPreview.classList.remove("hidden");
 }
 
-function updateKC(amount) {
-    const currentVal = parseInt(DOM.kcInput.value) || 0;
-    DOM.kcInput.value = currentVal + amount;
-}
-
-function toggleItemSelection(e) {
-    const box = e.target.closest(".item-box");
-    if (box) box.classList.toggle("selected");
-}
-
-function setAllItemsSelection(select) {
-    const action = select ? 'add' : 'remove';
-    // Use document selection to ensure it finds boxes even if grid re-rendered
-    const items = document.querySelectorAll("#item-grid .item-box");
-    items.forEach(b => b.classList[action]("selected"));
-}
+function updateKC(amount) { const currentVal = parseInt(DOM.kcInput.value) || 0; DOM.kcInput.value = currentVal + amount; }
+function toggleItemSelection(e) { const box = e.target.closest(".item-box"); if (box) box.classList.toggle("selected"); }
+function setAllItemsSelection(select) { const action = select ? 'add' : 'remove'; document.querySelectorAll("#item-grid .item-box").forEach(b => b.classList[action]("selected")); }
 
 function handleCalculation() {
     const selectedItems = getSelectedItems();
-    if (!selectedItems.length) {
-        alert("Select at least one item!");
-        return;
-    }
+    if (!selectedItems.length) { alert("Select at least one item!"); return; }
     const currentKC = parseInt(DOM.kcInput.value) || 0;
     const results = executeSimulation(selectedItems, currentKC);
     displayResults(results, currentKC);
 }
 
-// --- Core Logic ---
 function renderItemGrid(items) {
-    const sortedItems = [...items].sort((a, b) => a.order - b.order);
+    // FILTERS OUT THE HIDDEN ITEMS
+    const visibleItems = items.filter(item => !item.hidden);
+    const sortedItems = [...visibleItems].sort((a, b) => a.order - b.order);
     
     DOM.itemGrid.innerHTML = sortedItems.map(item => `
-        <div class="item-box selected" 
-             data-id="${item.id}" 
-             data-rate="${item.rate}" 
-             data-type="${item.type}" 
-             data-pieces="${item.pieces || 1}" 
-             data-pool="${item.pool || ''}" 
-             title="${item.name}">
+        <div class="item-box selected" data-id="${item.id}" data-rate="${item.rate}" data-type="${item.type}" data-pieces="${item.pieces || 1}" data-pool="${item.pool || ''}" title="${item.name}">
             <img src="${getWikiUrl(item.name)}" alt="${item.name}">
         </div>
     `).join('');
 }
 
 function getSelectedItems() {
-    return Array.from(DOM.itemGrid.querySelectorAll(".item-box.selected")).map(b => ({
-        name: b.title,
-        rate: parseFloat(b.dataset.rate),
-        type: b.dataset.type,
-        pieces: parseInt(b.dataset.pieces) || 1,
-        pool: b.dataset.pool 
-    }));
+    return Array.from(DOM.itemGrid.querySelectorAll(".item-box.selected")).map(b => ({ name: b.title, rate: parseFloat(b.dataset.rate), type: b.dataset.type, pieces: parseInt(b.dataset.pieces) || 1, pool: b.dataset.pool }));
 }
 
 function executeSimulation(selectedItems, currentKC) {
     let matrix;
     const bossData = BOSS_CONFIG[activeBossKey];
-    const rolls = bossData.rolls || 1;
+    let processedItems = [...selectedItems];
+    const dt2Bosses = ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'];
 
-    // Route to the appropriate matrix engine based on boss-specific mechanics
-    if (activeBossKey === 'moons_of_peril') {
-        matrix = createMoonsMatrix(selectedItems);
-    } else if (activeBossKey === 'barrows_chests') { 
-        // REMOVED: '&& selectedItems.length > 5'
-        matrix = createBarrowsMatrix(selectedItems.length); 
-    } else {
-        matrix = createMasterMatrix(selectedItems, rolls);
+    if (activeBossKey === 'chambers_of_xeric') {
+        const pts = parseInt(document.getElementById('raid-cox-pts').value) || 30000;
+        const uniqueChance = pts / 867600; 
+        processedItems = processedItems.map(item => {
+            if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / 69) };
+            if (item.name === 'Olmlet') return { ...item, rate: uniqueChance * item.rate };
+            return item;
+        });
+    } 
+    else if (activeBossKey === 'theatre_of_blood') {
+        const size = parseInt(document.getElementById('raid-tob-size').value) || 3;
+        const deaths = parseInt(document.getElementById('raid-tob-deaths').value) || 0;
+        const maxPts = (18 * size) + 14;
+        const earnedPts = Math.max(0, maxPts - (deaths * 4));
+        const uniqueChance = (1 / 9.1) * (earnedPts / maxPts);
+        processedItems = processedItems.map(item => {
+            if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / 19) };
+            return item;
+        });
+    } 
+    else if (activeBossKey === 'tombs_of_amascut') {
+        const level = parseInt(document.getElementById('raid-toa-level').value) || 150;
+        const pts = parseInt(document.getElementById('raid-toa-pts').value) || 15000;
+        let adjLevel = level;
+        if (adjLevel > 310) { if (adjLevel > 430) adjLevel = 430 + Math.floor((adjLevel - 430) / 2); adjLevel = 310 + Math.floor((adjLevel - 310) / 3); }
+        const denom = 100 * (10500 - 20 * adjLevel);
+        const uniqueChance = pts / denom;
+
+        let fangW = 70; let lbW = 70;
+        if (level >= 500) { fangW = 30; lbW = 35; }
+        else if (level >= 450) { fangW = 40 - Math.floor((level - 450) * 0.2); lbW = 40 - Math.floor((level - 450) * 0.1); }
+        else if (level >= 400) { fangW = 40; lbW = 50 - Math.floor((level - 400) * 0.2); }
+        else if (level >= 350) { fangW = 60 - Math.floor((level - 350) * 0.4); lbW = 60 - Math.floor((level - 350) * 0.2); }
+        else if (level >= 300) { fangW = 70 - Math.floor((level - 300) * 0.2); lbW = 70 - Math.floor((level - 300) * 0.2); }
+
+        const totalWeight = 10 + 20 + 20 + 20 + 30 + fangW + lbW;
+        processedItems = processedItems.map(item => {
+            if (item.type === 'main') {
+                let w = item.rate;
+                if (item.name === "Osmumten's fang") w = fangW;
+                if (item.name === "Lightbearer") w = lbW;
+                if (level < 150 && !["Osmumten's fang", "Lightbearer"].includes(item.name)) w = w / 50;
+                return { ...item, rate: uniqueChance * (w / totalWeight) };
+            }
+            if (item.name === "Tumeken's guardian") {
+                const petDenom = 100 * (350000 - 700 * Math.min(adjLevel, 466));
+                return { ...item, rate: pts / petDenom };
+            }
+            return item;
+        });
     }
+    else if (dt2Bosses.includes(activeBossKey)) {
+        // --- DT2 BUTTON MULTIPLIER ---
+        const btn = document.getElementById('dt2-awakened-btn');
+        const isAwakened = btn ? btn.value === 'true' : false;
+        
+        if (isAwakened) {
+            processedItems = processedItems.map(item => {
+                if (item.type === 'main') return { ...item, rate: item.rate * 3 };
+                return item;
+            });
+        }
+    }
+
+    const rolls = bossData.rolls || 1;
+    if (activeBossKey === 'moons_of_peril') matrix = createMoonsMatrix(processedItems);
+    else if (activeBossKey === 'barrows_chests') matrix = createBarrowsMatrix(processedItems.length);
+    else matrix = createMasterMatrix(processedItems, rolls);
 
     return runSimulation(matrix, currentKC);
 }
 
-// --- UI Rendering ---
 function displayResults(results, currentKC) {
     DOM.resultsSection.classList.remove("hidden");
     DOM.statChance.textContent = `${(results.targetP * 100).toFixed(2)}%`;
-    
-    // Helper to enforce a strict typographical hierarchy for our stats
-    const formatStat = (color, label, description, value) => 
-        `<span style="color:${color}; font-family: var(--font-mono); font-weight: 800; font-size: 1.05em; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px;">${label}</span>
-         <span style="color: var(--text); font-size: 1em; font-weight: 700;">${description}</span>
-         <b style="color: ${color}; font-size: 1.05em; margin-left: 4px;">${value} <span style="font-size: 0.85em; opacity: 0.9;">KC</span></b>`;
-
+    const formatStat = (color, label, description, value) => `<span style="color:${color}; font-family: var(--font-mono); font-weight: 800; font-size: 1.05em; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px;">${label}</span> <span style="color: var(--text); font-size: 1em; font-weight: 700;">${description}</span> <b style="color: ${color}; font-size: 1.05em; margin-left: 4px;">${value} <span style="font-size: 0.85em; opacity: 0.9;">KC</span></b>`;
     DOM.phraseMode.innerHTML = formatStat(COLORS.mode, "Mode", "Luckiest players finish as early as", results.modeKC.toLocaleString());
     DOM.phraseMedian.innerHTML = formatStat(COLORS.progress, "Median", "Half of players complete at or before", results.median.toLocaleString());
     DOM.phraseMean.innerHTML = formatStat(COLORS.mean, "Mean", "Average player completes at", Math.round(results.mean).toLocaleString());
     DOM.phraseUser.innerHTML = formatStat(COLORS.user, "Current", "Your current progress in the log", currentKC.toLocaleString());
-    
     renderChart(results.curveData, results, currentKC);
     DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 function renderChart(data, stats, userKC) {
     const ctx = DOM.chartCanvas.getContext('2d');
-    
     if (chartInstance) chartInstance.destroy();
-
-    // Data transformations for Chart.js
     const transformX = (x) => Math.pow(x, X_AXIS_POWER);
     const reverseX = (y) => Math.pow(y, 1 / X_AXIS_POWER);
-    
     const xMaxRaw = Math.max(data[data.length - 1].x, userKC * 1.1);
-
-    // Helper to find the nearest data point for annotations
-    const getClosestPoint = (targetX) => {
-        return data.reduce((prev, curr) => 
-            Math.abs(curr.x - targetX) < Math.abs(prev.x - targetX) ? curr : prev
-        );
-    };
-
+    const getClosestPoint = (targetX) => data.reduce((prev, curr) => Math.abs(curr.x - targetX) < Math.abs(prev.x - targetX) ? curr : prev);
     const modeY = getClosestPoint(stats.modeKC).pmf;
     const medianY = getClosestPoint(stats.median).cdf;
 
     chartInstance = new Chart(ctx, {
         type: 'line',
-        data: {
-            datasets: [
-                createDataset('Luck (PMF)', data, transformX, 'pmf', COLORS.mode, 'yPMF'),
-                createDataset('Progress (CDF)', data, transformX, 'cdf', COLORS.progress, 'yCDF', 2)
-            ]
-        },
+        data: { datasets: [ createDataset('Luck (PMF)', data, transformX, 'pmf', COLORS.mode, 'yPMF'), createDataset('Progress (CDF)', data, transformX, 'cdf', COLORS.progress, 'yCDF', 2) ] },
         options: getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, medianY)
     });
 }
 
-// --- Chart Helpers ---
 function createDataset(label, data, transformX, yKey, color, yAxisID, borderWidth = 3) {
-    return {
-        label: label,
-        data: data.map(d => ({ x: transformX(d.x), y: d[yKey], rawX: d.x })),
-        borderColor: color,
-        borderWidth: borderWidth,
-        pointRadius: 0,
-        yAxisID: yAxisID,
-        tension: 0.4,
-        fill: false
-    };
+    return { label: label, data: data.map(d => ({ x: transformX(d.x), y: d[yKey], rawX: d.x })), borderColor: color, borderWidth: borderWidth, pointRadius: 0, yAxisID: yAxisID, tension: 0.4, fill: false };
 }
 
 function getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, medianY) {
-    return {
-        responsive: true, 
-        maintainAspectRatio: false,
-        animation: false, 
-        interaction: { mode: 'nearest', intersect: false, axis: 'xy' },
-        scales: getChartScales(transformX, reverseX, xMaxRaw),
-        plugins: getChartPlugins(transformX, stats, userKC, modeY, medianY)
-    };
+    return { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'nearest', intersect: false, axis: 'xy' }, scales: getChartScales(transformX, reverseX, xMaxRaw), plugins: getChartPlugins(transformX, stats, userKC, modeY, medianY) };
 }
 
 function getChartScales(transformX, reverseX, xMaxRaw) {
      return {
-        x: {
-            type: 'linear', 
-            min: transformX(1), 
-            max: transformX(xMaxRaw),
-            grid: { color: 'rgba(68, 64, 60, 0.2)', drawTicks: false },
-            ticks: {
-                color: CHART_TEXT_COLOR,
-                font: { size: 10, weight: 700 },
-                maxTicksLimit: 8,
-                callback: function(val) {
-                    let realKC = reverseX(val);
-                    if (realKC < 1) return null; 
-                    if (realKC > 1000) realKC = Math.round(realKC / 100) * 100;
-                    else if (realKC > 100) realKC = Math.round(realKC / 10) * 10;
-                    else realKC = Math.round(realKC);
-                    return realKC.toLocaleString();
-                }
-            }
-        },
-        yPMF: { display: false }, 
-        yCDF: {
-            display: true, position: 'right', min: 0, max: 1, grid: { display: false },
-            ticks: { callback: v => (v * 100).toFixed(0) + '%', color: COLORS.progress, font: { size: 10, weight: 700 } }
-        }
+        x: { type: 'linear', min: transformX(1), max: transformX(xMaxRaw), grid: { color: 'rgba(68, 64, 60, 0.2)', drawTicks: false }, ticks: { color: CHART_TEXT_COLOR, font: { size: 10, weight: 700 }, maxTicksLimit: 8, callback: function(val) { let realKC = reverseX(val); if (realKC < 1) return null; if (realKC > 1000) realKC = Math.round(realKC / 100) * 100; else if (realKC > 100) realKC = Math.round(realKC / 10) * 10; else realKC = Math.round(realKC); return realKC.toLocaleString(); } } },
+        yPMF: { display: false }, yCDF: { display: true, position: 'right', min: 0, max: 1, grid: { display: false }, ticks: { callback: v => (v * 100).toFixed(0) + '%', color: COLORS.progress, font: { size: 10, weight: 700 } } }
     };
 }
 
 function getChartPlugins(transformX, stats, userKC, modeY, medianY) {
     return {
         legend: { display: false },
-        tooltip: {
-            backgroundColor: 'rgba(10,10,10,0.95)', borderColor: '#44403c', borderWidth: 1, padding: 12,
-            titleFont: { weight: 900, size: 13 },
-            bodyFont: { weight: 600, size: 12 },
-            callbacks: {
-                title: items => `KC: ${items[0].raw.rawX.toLocaleString()}`,
-                label: c => {
-                    if (c.datasetIndex === 0) {
-                        const prob = c.raw.y;
-                        const odds = prob > 0 ? Math.round(1 / prob).toLocaleString() : "0";
-                        return ` Luck Chance: ~1/${odds}`;
-                    } else {
-                        return ` Chance For Completion: ${(c.raw.y * 100).toFixed(2)}%`;
-                    }
-                }
-            }
-        },
-        annotation: {
-            annotations: {
-                modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: COLORS.mode, borderColor: '#fff', borderWidth: 2, radius: 5 },
-                medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: COLORS.progress, borderColor: '#fff', borderWidth: 2, radius: 5 },
-                mean: {
-                    type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean),
-                    borderColor: 'rgba(249, 115, 22, 0.8)', borderWidth: 2, borderDash: [5,5],
-                    label: { display: false, content: 'MEAN', position: 'start', backgroundColor: 'rgba(249, 115, 22, 0.1)', color: 'rgba(249, 115, 22, 1)', font: { size: 10, weight: 800 } }
-                },
-                user: {
-                    type: 'line', xMin: transformX(userKC), xMax: transformX(userKC),
-                    borderColor: COLORS.user, borderWidth: 2, borderDash: [6, 4], shadowBlur: 10, shadowColor: COLORS.user
-                }
-            }
-        }
+        tooltip: { backgroundColor: 'rgba(10,10,10,0.95)', borderColor: '#44403c', borderWidth: 1, padding: 12, titleFont: { weight: 900, size: 13 }, bodyFont: { weight: 600, size: 12 }, callbacks: { title: items => `KC: ${items[0].raw.rawX.toLocaleString()}`, label: c => c.datasetIndex === 0 ? ` Luck Chance: ~1/${(c.raw.y > 0 ? Math.round(1 / c.raw.y).toLocaleString() : "0")}` : ` Chance For Completion: ${(c.raw.y * 100).toFixed(2)}%` } },
+        annotation: { annotations: { modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: COLORS.mode, borderColor: '#fff', borderWidth: 2, radius: 5 }, medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: COLORS.progress, borderColor: '#fff', borderWidth: 2, radius: 5 }, mean: { type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean), borderColor: 'rgba(249, 115, 22, 0.8)', borderWidth: 2, borderDash: [5,5], label: { display: false } }, user: { type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: COLORS.user, borderWidth: 2, borderDash: [6, 4], shadowBlur: 10, shadowColor: COLORS.user } } }
     };
 }
 
-// Bootstrap the application
 initApp();
