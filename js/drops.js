@@ -56,12 +56,12 @@ export const RAW_BOSS_DATA = {
         "29786": { name: "Jar of venom", rate: 1/1500, type: "tertiary", order: 9 },
     },
     "artio": {
-        "13178": { name: "Callisto cub", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "12603": { name: "Tyrannical ring", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "27667": { name: "Claws of callisto", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "27681": { name: "Voidwaker hilt", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+        "13178": { name: "Callisto cub", rate: 1/2800, type: "tertiary", order: 1 },
+        "12603": { name: "Tyrannical ring", rate: 1/716, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: 1/358, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: 1/358, type: "main", order: 4 },
+        "27667": { name: "Claws of callisto", rate: 1/618, type: "main", order: 5 },
+        "27681": { name: "Voidwaker hilt", rate: 1/912, type: "main", order: 6 },
     },
     "barrows_chests": {
         "4732": { name: "Karil's coif", rate: 1/128, type: "main", order: 1 },
@@ -99,20 +99,20 @@ export const RAW_BOSS_DATA = {
         "22372": { name: "Bryophyta's essence", rate: 1/118, type: "main", order: 1 },
     },
     "callisto": {
-        "13178": { name: "Callisto cub", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "12603": { name: "Tyrannical ring", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "27667": { name: "Claws of callisto", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "27681": { name: "Voidwaker hilt", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+        "13178": { name: "Callisto cub", rate: 1/1500, type: "tertiary", order: 1 },
+        "12603": { name: "Tyrannical ring", rate: 1/512, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: 1/256, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: 1/256, type: "main", order: 4 },
+        "27667": { name: "Claws of callisto", rate: 1/196, type: "main", order: 5 },
+        "27681": { name: "Voidwaker hilt", rate: 1/360, type: "main", order: 6 },
     },
     "calvarion": {
-        "13179": { name: "Vet'ion jr.", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "12601": { name: "Ring of the gods", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "27673": { name: "Skull of vet'ion", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "27684": { name: "Voidwaker blade", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+        "13179": { name: "Vet'ion jr.", rate: 1/2800, type: "tertiary", order: 1 },
+        "12601": { name: "Ring of the gods", rate: 1/716, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: 1/358, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: 1/358, type: "main", order: 4 },
+        "27673": { name: "Skull of vet'ion", rate: 1/618, type: "main", order: 5 },
+        "27684": { name: "Voidwaker blade", rate: 1/912, type: "main", order: 6 },
     },
     "cerberus": {
         "13247": { name: "Hellpuppy", rate: 1/3000, type: "tertiary", order: 1 },
@@ -202,7 +202,7 @@ export const RAW_BOSS_DATA = {
     "26243": { name: "Virtus robe top", rate: 1/2160, type: "main", order: 4 },
     "26245": { name: "Virtus robe bottom", rate: 1/2160, type: "main", order: 5 },
     "28281": { name: "Magus vestige", rate: 1/240, type: "main", pieces: 3, order: 6 },
-    "28276": { name: "Chromium ingot", rate: 1/240, type: "main", pieces: 3, order: 7 }
+    "28276": { name: "Chromium ingot", rate: 1/240, type: "main", order: 7 }
 },
     "the_fight_caves": {
         "13225": { name: "Tzrek-jad", rate: 1/200, type: "tertiary", order: 1 },
@@ -227,7 +227,7 @@ export const RAW_BOSS_DATA = {
         "23859": { name: "Gauntlet cape", rate: 1/1, type: "main", order: 5 },
     },
     "general_graardor": {
-        "12650": { name: "Pet general graardor", rate: 1/5000, type: "main", order: 1 },
+        "12650": { name: "Pet general graardor", rate: 1/5000, type: "tertiary", order: 1 },
         "11832": { name: "Bandos chestplate", rate: 1/381, type: "main", order: 2 },
         "11834": { name: "Bandos tassets", rate: 1/381, type: "main", order: 3 },
         "11836": { name: "Bandos boots", rate: 1/381, type: "main", order: 4 },
@@ -276,10 +276,10 @@ export const RAW_BOSS_DATA = {
         "11286": { name: "Draconic visage", rate: 1/5000, type: "tertiary", order: 4 },
     },
     "kraken": {
-        "12655": { name: "Pet kraken", rate: PLACEHOLDER_RATE, type: "tertiary", order: 1 },
-        "12004": { name: "Kraken tentacle", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "11905": { name: "Trident of the seas (full)", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "12007": { name: "Jar of dirt", rate: PLACEHOLDER_RATE, type: "tertiary", order: 4 },
+        "12655": { name: "Pet kraken", rate: 1/3000, type: "tertiary", order: 1 },
+        "12004": { name: "Kraken tentacle", rate: 1/400, type: "other", order: 2 },
+        "11905": { name: "Trident of the seas (full)", rate: 1/512, type: "main", order: 3 },
+        "12007": { name: "Jar of dirt", rate: 1/1000, type: "tertiary", order: 4 },
     },
     "kree_arra": {
         "12649": { name: "Pet kree'arra", rate: 1/5000, type: "tertiary", order: 1 },
@@ -308,7 +308,7 @@ export const RAW_BOSS_DATA = {
     "26243": { name: "Virtus robe top", rate: 1/2304, type: "main", order: 4 },
     "26245": { name: "Virtus robe bottom", rate: 1/2304, type: "main", order: 5 },
     "28283": { name: "Venator vestige", rate: 1/256, type: "main", pieces: 3, order: 6 },
-    "28276": { name: "Chromium ingot", rate: 1/256, type: "main", pieces: 3, order: 7 }
+    "28276": { name: "Chromium ingot", rate: 1/256, type: "main", order: 7 }
 },
     "moons_of_peril": {
         "29000": { name: "Eclipse atlatl", rate: 1/56, type: "main", pool: "eclipse", order: 1 },
@@ -394,12 +394,12 @@ export const RAW_BOSS_DATA = {
         "19677": { name: "Ancient shard", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
     },
     "spindel": {
-        "13177": { name: "Venenatis spiderling", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "12605": { name: "Treasonous ring", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "27670": { name: "Fangs of venenatis", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "27687": { name: "Voidwaker gem", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+        "13177": { name: "Venenatis spiderling", rate: 1/2800, type: "tertiary", order: 1 },
+        "12605": { name: "Treasonous ring", rate: 1/716, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: 1/358, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: 1/358, type: "main", order: 4 },
+        "27670": { name: "Fangs of venenatis", rate: 1/618, type: "main", order: 5 },
+        "27687": { name: "Voidwaker gem", rate: 1/912, type: "main", order: 6 },
     },
     "tempoross": {
         "25602": { name: "Tiny tempor", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
@@ -429,23 +429,23 @@ export const RAW_BOSS_DATA = {
     "26243": { name: "Virtus robe top", rate: 1/3264, type: "main", order: 4 },
     "26245": { name: "Virtus robe bottom", rate: 1/3264, type: "main", order: 5 },
     "28285": { name: "Ultor vestige", rate: 1/362.66, type: "main", pieces: 3, order: 6 },
-    "28276": { name: "Chromium ingot", rate: 1/362.66, type: "main", pieces: 3, order: 7 }
+    "28276": { name: "Chromium ingot", rate: 1/362.66, type: "main", order: 7 }
 },
     "venenatis": {
-        "13177": { name: "Venenatis spiderling", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "12605": { name: "Treasonous ring", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "27670": { name: "Fangs of venenatis", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "27687": { name: "Voidwaker gem", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+        "13177": { name: "Venenatis spiderling", rate: 1/1500, type: "main", order: 1 },
+        "12605": { name: "Treasonous ring", rate: 1/512, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: 1/256, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: 1/256, type: "main", order: 4 },
+        "27670": { name: "Fangs of venenatis", rate: 1/196, type: "main", order: 5 },
+        "27687": { name: "Voidwaker gem", rate: 1/360, type: "main", order: 6 },
     },
     "vetion": {
-        "13179": { name: "Vet'ion jr.", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "12601": { name: "Ring of the gods", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "27673": { name: "Skull of vet'ion", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "27684": { name: "Voidwaker blade", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+        "13179": { name: "Vet'ion jr.", rate: 1/1500, type: "main", order: 1 },
+        "12601": { name: "Ring of the gods", rate: 1/512, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: 1/256, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: 1/256, type: "main", order: 4 },
+        "27673": { name: "Skull of vet'ion", rate: 1/196, type: "main", order: 5 },
+        "27684": { name: "Voidwaker blade", rate: 1/360, type: "main", order: 6 },
     },
     "vorkath": {
         "21992": { name: "Vorki", rate: 1/3000, type: "tertiary", order: 1 },
@@ -462,7 +462,7 @@ export const RAW_BOSS_DATA = {
     "26243": { name: "Virtus robe top", rate: 1/1536, type: "main", order: 4 },
     "26245": { name: "Virtus robe bottom", rate: 1/1536, type: "main", order: 5 },
     "28279": { name: "Bellator vestige", rate: 1/170.66, type: "main", pieces: 3, order: 6 },
-    "28276": { name: "Chromium ingot", rate: 1/170.66, type: "main", pieces: 3, order: 7 }
+    "28276": { name: "Chromium ingot", rate: 1/170.66, type: "main", order: 7 }
 },
     "wintertodt": {
         "20693": { name: "Phoenix", rate: PLACEHOLDER_RATE, type: "tertiary", order: 1 },
