@@ -363,6 +363,10 @@ main {
     padding: 0 clamp(20px, 5vw, 40px);
 }
 
+.container.is-50 { 
+    max-width: 50vw;
+}
+
 .container.is-75 { 
     max-width: 75vw;
 }
@@ -397,6 +401,58 @@ header {
 }
 
 .controls { display: flex; gap: 10px; }
+
+/* ==========================================
+   DROPLOGIC DASHBOARD LAYOUT
+   ========================================== */
+.droplogic-layout {
+    display: grid;
+    /* Forces a 400px left sidebar, and lets the chart take up the rest of the screen */
+    grid-template-columns: 400px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.droplogic-controls {
+    /* This makes the left panel stick to the screen if the user scrolls down the page */
+    position: sticky;
+    top: 110px; 
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Remove bottom margins from cards in the sidebar since the gap handles spacing */
+.droplogic-controls .card {
+    margin-bottom: 0;
+}
+
+/* Make sure it drops back to a single vertical column on tablets/phones */
+@media (max-width: 1000px) {
+    .droplogic-layout {
+        grid-template-columns: 1fr;
+    }
+    .droplogic-controls {
+        position: relative;
+        top: 0;
+    }
+}
+
+/* ==========================================
+   SIDEBAR BUTTON SIZING REFINEMENTS
+   ========================================== */
+
+/* Shrinks the +KC buttons so they fit neatly in a row */
+.kc-controls .kc-btn {
+    padding: 8px 26px;
+    font-size: 11px;
+}
+
+/* Shrinks the Select All / Reset buttons */
+#boss-preview .controls .btn-sm {
+    padding: 8px 16px;
+    font-size: 11px;
+}
 
 /* ==========================================
    FORMS & INPUTS

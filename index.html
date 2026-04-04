@@ -67,73 +67,78 @@
 
         <main>
             
-            <section id="droplogic" class="tab-panel active-panel">
-                <div class="container is-75">
+<section id="droplogic" class="tab-panel active-panel">
+                <div class="container is-100">
                     <header>
                         <h1>DropLogic</h1>
                         <p class="subtitle">Clan Intelligence // Bandosian Division</p>
                     </header>
 
-                    <section class="card">
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="boss-select">Assigned Boss</label>
-                                <div class="select-wrapper">
-                                    <select id="boss-select">
-                                        <option value="">Select Boss Intel...</option>
-                                    </select>
+                    <div class="droplogic-layout">
+                        <div class="droplogic-controls">
+                            <section class="card">
+                                <div class="input-group" style="margin-bottom: 24px;">
+                                    <label for="boss-select">Assigned Boss</label>
+                                    <div class="select-wrapper">
+                                        <select id="boss-select">
+                                            <option value="">Select Boss Intel...</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="input-group">
-                                <label for="target-kc">Current KC</label>
-                                <input type="number" id="target-kc" value="0" min="0">
+                                <div class="input-group">
+                                    <label for="target-kc">Current KC</label>
+                                    <input type="number" id="target-kc" value="0" min="0">
+                                    
+                                    <div class="kc-controls">
+                                        <button class="kc-btn" data-add="1">+1</button>
+                                        <button class="kc-btn" data-add="5">+5</button>
+                                        <button class="kc-btn" data-add="10">+10</button>
+                                        <button class="kc-btn" data-add="100">+100</button>
+                                        <button class="kc-btn" data-add="1000">+1k</button>
+                                        <button class="kc-btn reset" id="kc-reset">0</button>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section id="boss-preview" class="card hidden">
+                                <div class="header-row">
+                                    <h3>Collection Log</h3>
+                                    <div class="controls">
+                                        <button class="btn-sm" id="select-all">All</button>
+                                        <button class="btn-sm" id="select-none">Reset</button>
+                                    </div>
+                                </div>
+                                <div id="item-grid" class="item-grid" style="margin-bottom: 24px;"></div>
                                 
-                                <div class="kc-controls">
-                                    <button class="kc-btn" data-add="1">+1</button>
-                                    <button class="kc-btn" data-add="5">+5</button>
-                                    <button class="kc-btn" data-add="10">+10</button>
-                                    <button class="kc-btn" data-add="100">+100</button>
-                                    <button class="kc-btn" data-add="1000">+1k</button>
-                                    <button class="kc-btn reset" id="kc-reset">0</button>
+                                <button id="calculate-btn">Submit Forecast</button>
+                            </section>
+                        </div>
+
+                        <div class="droplogic-results">
+                            <section id="results" class="card hidden" style="height: 100%;">
+                                <div class="result-header">
+                                    <h2 id="res-name">Dry Streak Analysis</h2>
+                                    <div class="prob-container">
+                                        <span id="stat-chance">0%</span>
+                                        <div class="prob-label">Green Log Chance</div>
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="distributionChart"></canvas>
+                                </div>
+                                <div class="stats-list">
+                                    <div class="stat-item" id="phrase-mode"></div>
+                                    <div class="stat-item" id="phrase-median"></div>
+                                    <div class="stat-item" id="phrase-mean"></div>
+                                    <div class="stat-item" id="phrase-user"></div>
+                                </div>
+                            </section>
                         </div>
-                        <button id="calculate-btn">Submit Forecast</button>
-                    </section>
-
-                    <section id="boss-preview" class="card hidden">
-                        <div class="header-row">
-                            <h3>Collection Log</h3>
-                            <div class="controls">
-                                <button class="btn-sm" id="select-all">Select All</button>
-                                <button class="btn-sm" id="select-none">Reset</button>
-                            </div>
-                        </div>
-                        <div id="item-grid" class="item-grid"></div>
-                    </section>
-
-                    <section id="results" class="card hidden">
-                        <div class="result-header">
-                            <h2 id="res-name">Dry Streak Analysis</h2>
-                            <div class="prob-container">
-                                <span id="stat-chance">0%</span>
-                                <div class="prob-label">Green Log Chance</div>
-                            </div>
-                        </div>
-                        <div class="chart-wrapper">
-                            <canvas id="distributionChart"></canvas>
-                        </div>
-                        <div class="stats-list">
-                            <div class="stat-item" id="phrase-mode"></div>
-                            <div class="stat-item" id="phrase-median"></div>
-                            <div class="stat-item" id="phrase-mean"></div>
-                            <div class="stat-item" id="phrase-user"></div>
-                        </div>
-                    </section>
+                    </div>
                 </div>
             </section>
-
+            
             <section id="guides" class="tab-panel">
                 <div class="container is-75">
                     <header>
