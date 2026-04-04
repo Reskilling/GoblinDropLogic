@@ -410,7 +410,7 @@ header {
     /* Forces a 400px left sidebar, and lets the chart take up the rest of the screen */
     grid-template-columns: 400px 1fr;
     gap: 24px;
-    align-items: start;
+    align-items: stretch; /* Fixes unequal column heights */
 }
 
 .droplogic-controls {
@@ -439,19 +439,38 @@ header {
 }
 
 /* ==========================================
-   SIDEBAR BUTTON SIZING REFINEMENTS
+   UNIFIED DASHBOARD BUTTONS
    ========================================== */
 
-/* Shrinks the +KC buttons so they fit neatly in a row */
-.kc-controls .kc-btn {
-    padding: 8px 26px;
-    font-size: 11px;
+/* Forces all utility buttons in the sidebar to be the exact same size */
+.unified-btn {
+    padding: 10px 0 !important;
+    font-size: 11px !important;
+    text-align: center;
 }
 
-/* Shrinks the Select All / Reset buttons */
-#boss-preview .controls .btn-sm {
-    padding: 8px 16px;
-    font-size: 11px;
+/* Force the KC buttons to stretch and share the row evenly */
+.kc-controls {
+    display: flex;
+    width: 100%;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.kc-controls .unified-btn {
+    flex: 1; /* Makes every button take up the exact same width */
+}
+
+/* Force the All/Reset buttons to match the exact same height/look */
+#boss-preview .controls {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+
+#boss-preview .controls .unified-btn {
+    padding: 10px 16px !important; /* Slightly wider padding since there are only two */
+    flex: 1;
 }
 
 /* ==========================================
@@ -501,10 +520,6 @@ input[type=number]::-webkit-inner-spin-button {
     -webkit-appearance: none; 
     margin: 0;
 }
-
-.kc-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-
-.kc-btn.reset { color: #ef4444; border-color: rgba(var(--stat-mode-rgb), 0.3); }
 
 /* The Big Submit Button */
 button#calculate-btn {
@@ -637,6 +652,30 @@ button#calculate-btn::after {
     color: var(--accent-green); 
     font-family: var(--font-mono); 
     font-feature-settings: "tnum"; 
+}
+
+/* Collection Log Header & Controls */
+.collection-header {
+    text-align: center;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    position: relative; /* Needed for the absolute positioned gradient line */
+}
+
+/* Polished gradient divider that fades out at the edges */
+.collection-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%; /* Keeps the line from hitting the hard edges of the card */
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-green-rgb), 0.6), transparent);
+    box-shadow: 0 1px 8px rgba(var(--accent-green-rgb), 0.3);
+}
+
+.collection-controls {
+    margin-bottom: 24px;
 }
 
 #phrase-mode { border-left-color: var(--stat-mode); }
@@ -1233,22 +1272,6 @@ a:hover {
         margin-bottom: 20px;
     }
 
-    /* Makes the buttons container fill the full card width */
-    #boss-preview .controls {
-        width: 100%;
-        display: flex;
-        gap: 10px;
-    }
-
-    /* Gives buttons a 50/50 split and larger tap area */
-    #boss-preview .controls .btn-sm {
-        flex: 1;
-        padding: 12px;
-        text-align: center;
-        justify-content: center;
-        font-size: 11px;
-    }
-
     /* --- RESULT HEADER STACKING --- */
     .result-header { 
         flex-direction: column; 
@@ -1260,20 +1283,28 @@ a:hover {
     #stat-chance { font-size: 3rem; }
     .prob-label { text-align: center; }
 
-    /* KC Multiplier Grid */
+    /* KC Multiplier Grid with Unified Button override */
     .kc-controls { 
         display: grid; 
         grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); 
         gap: 8px; 
     }
-    .kc-btn { padding: 12px 0; }
+    .kc-controls .unified-btn { 
+        padding: 12px 0 !important; 
+    }
+
+    /* Collection Log buttons for mobile */
+    #boss-preview .controls .unified-btn {
+        padding: 12px !important;
+        font-size: 11px !important;
+    }
 
     .card { padding: 24px 16px; }
     .container { padding: 15px 10px; }
 
     /* Typography Safety */
     .stat-item, .stat-item span, #res-name, .prob-label { font-family: var(--font-primary) !important; }
-    .stat-item b, #target-kc, .kc-btn, #stat-chance { font-family: var(--font-mono) !important; }
+    .stat-item b, #target-kc, .unified-btn, .kc-btn, #stat-chance { font-family: var(--font-mono) !important; }
 }
 
 @media (max-width: 480px) {

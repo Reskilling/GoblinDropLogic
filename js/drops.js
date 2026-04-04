@@ -55,6 +55,14 @@ export const RAW_BOSS_DATA = {
         "29788": { name: "Araxyte head", rate: 1/250, type: "tertiary", order: 8 },
         "29786": { name: "Jar of venom", rate: 1/1500, type: "tertiary", order: 9 },
     },
+    "artio": {
+        "13178": { name: "Callisto cub", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
+        "12603": { name: "Tyrannical ring", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
+        "27667": { name: "Claws of callisto", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
+        "27681": { name: "Voidwaker hilt", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+    },
     "barrows_chests": {
         "4732": { name: "Karil's coif", rate: 1/128, type: "main", order: 1 },
         "4708": { name: "Ahrim's hood", rate: 1/128, type: "main", order: 2 },
@@ -90,13 +98,21 @@ export const RAW_BOSS_DATA = {
     "bryophyta": {
         "22372": { name: "Bryophyta's essence", rate: 1/118, type: "main", order: 1 },
     },
-    "callisto_and_artio": {
+    "callisto": {
         "13178": { name: "Callisto cub", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
         "12603": { name: "Tyrannical ring", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
         "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
         "27667": { name: "Claws of callisto", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
         "27681": { name: "Voidwaker hilt", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+    },
+    "calvarion": {
+        "13179": { name: "Vet'ion jr.", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
+        "12601": { name: "Ring of the gods", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
+        "27673": { name: "Skull of vet'ion", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
+        "27684": { name: "Voidwaker blade", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
     },
     "cerberus": {
         "13247": { name: "Hellpuppy", rate: 1/3000, type: "tertiary", order: 1 },
@@ -150,19 +166,19 @@ export const RAW_BOSS_DATA = {
         "6724": { name: "Seercull", rate: 1/128, type: "main", order: 9 },
         "6562": { name: "Mud battlestaff", rate: 1/128, type: "main", order: 10 },
     },
-        "dagannoth_rex": {
+    "dagannoth_rex": {
         "12645": { name: "Pet dagannoth rex", rate: 1/5000, type: "tertiary", order: 3 },
         "6737": { name: "Berserker ring", rate: 1/128, type: "main", order: 4 },
         "6735": { name: "Warrior ring", rate: 1/128, type: "main", order: 7 },
         "6739": { name: "Dragon axe", rate: 1/128, type: "main", order: 8 },
     },
-        "dagannoth_supreme": {
+    "dagannoth_supreme": {
         "12643": { name: "Pet dagannoth supreme", rate: 1/5000, type: "tertiary", order: 2 },
         "6733": { name: "Archers ring", rate: 1/128, type: "main", order: 5 },
         "6739": { name: "Dragon axe", rate: 1/128, type: "main", order: 8 },
         "6724": { name: "Seercull", rate: 1/128, type: "main", order: 9 },
     },
-        "dagannoth_prime": {
+    "dagannoth_prime": {
         "12644": { name: "Pet dagannoth prime", rate: 1/5000, type: "tertiary", order: 1 },
         "6731": { name: "Seers ring", rate: 1/128, type: "main", order: 6 },
         "6739": { name: "Dragon axe", rate: 1/128, type: "main", order: 8 },
@@ -383,6 +399,14 @@ export const RAW_BOSS_DATA = {
         "6571": { name: "Uncut onyx", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
         "19677": { name: "Ancient shard", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
     },
+    "spindel": {
+        "13177": { name: "Venenatis spiderling", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
+        "12605": { name: "Treasonous ring", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
+        "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
+        "7158": { name: "Dragon 2h sword", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
+        "27670": { name: "Fangs of venenatis", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
+        "27687": { name: "Voidwaker gem", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+    },
     "tempoross": {
         "25602": { name: "Tiny tempor", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
         "25559": { name: "Big harpoonfish", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
@@ -414,7 +438,7 @@ export const RAW_BOSS_DATA = {
         "28268": { name: "Blood quartz", rate: 1/204, type: "tertiary", order: 7 },
         "28276": { name: "Chromium ingot", rate: 1/362.66, type: "main", pieces: 3, order: 9 }
     },
-    "venenatis_and_spindel": {
+    "venenatis": {
         "13177": { name: "Venenatis spiderling", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
         "12605": { name: "Treasonous ring", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
@@ -422,7 +446,7 @@ export const RAW_BOSS_DATA = {
         "27670": { name: "Fangs of venenatis", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
         "27687": { name: "Voidwaker gem", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
     },
-    "vetion_and_calvarion": {
+    "vetion": {
         "13179": { name: "Vet'ion jr.", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
         "12601": { name: "Ring of the gods", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: PLACEHOLDER_RATE, type: "main", order: 3 },

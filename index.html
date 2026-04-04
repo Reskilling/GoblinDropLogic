@@ -77,6 +77,7 @@
                     <div class="droplogic-layout">
                         <div class="droplogic-controls">
                             <section class="card">
+                                
                                 <div class="input-group" style="margin-bottom: 24px;">
                                     <label for="boss-select">Assigned Boss</label>
                                     <div class="select-wrapper">
@@ -86,37 +87,40 @@
                                     </div>
                                 </div>
 
-                                <div class="input-group">
+                                <div class="input-group" style="margin-bottom: 24px;">
                                     <label for="target-kc">Current KC</label>
                                     <input type="number" id="target-kc" value="0" min="0">
                                     
                                     <div class="kc-controls">
-                                        <button class="kc-btn" data-add="1">+1</button>
-                                        <button class="kc-btn" data-add="5">+5</button>
-                                        <button class="kc-btn" data-add="10">+10</button>
-                                        <button class="kc-btn" data-add="100">+100</button>
-                                        <button class="kc-btn" data-add="1000">+1k</button>
-                                        <button class="kc-btn reset" id="kc-reset">0</button>
+                                        <button class="kc-btn unified-btn" data-add="1">+1</button>
+                                        <button class="kc-btn unified-btn" data-add="5">+5</button>
+                                        <button class="kc-btn unified-btn" data-add="10">+10</button>
+                                        <button class="kc-btn unified-btn" data-add="100">+100</button>
+                                        <button class="kc-btn unified-btn" data-add="1000">+1k</button>
+                                        <button class="kc-btn reset unified-btn" id="kc-reset">0</button>
                                     </div>
                                 </div>
-                            </section>
 
-                            <section id="boss-preview" class="card hidden">
-                                <div class="header-row">
-                                    <h3>Collection Log</h3>
-                                    <div class="controls">
-                                        <button class="btn-sm" id="select-all">All</button>
-                                        <button class="btn-sm" id="select-none">Reset</button>
+                                <div id="boss-preview" class="hidden" style="padding-top: 24px;">
+                                    
+                                    <div class="collection-header">
+                                        <h3>Collection Log</h3>
                                     </div>
+                                    
+                                    <div class="controls collection-controls">
+                                        <button class="btn-sm unified-btn" id="select-all">All</button>
+                                        <button class="btn-sm unified-btn" id="select-none">Reset</button>
+                                    </div>
+                                    
+                                    <div id="item-grid" class="item-grid" style="margin-bottom: 24px;"></div>
+                                    
+                                    <button id="calculate-btn">Submit Analysis</button>
                                 </div>
-                                <div id="item-grid" class="item-grid" style="margin-bottom: 24px;"></div>
-                                
-                                <button id="calculate-btn">Submit Forecast</button>
                             </section>
                         </div>
 
                         <div class="droplogic-results">
-                            <section id="results" class="card hidden" style="height: 100%;">
+                            <section id="results" class="card" style="height: 100%;">
                                 <div class="result-header">
                                     <h2 id="res-name">Dry Streak Analysis</h2>
                                     <div class="prob-container">
@@ -138,7 +142,7 @@
                     </div>
                 </div>
             </section>
-            
+
             <section id="guides" class="tab-panel">
                 <div class="container is-75">
                     <header>
