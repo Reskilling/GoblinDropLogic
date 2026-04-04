@@ -593,21 +593,52 @@ button#calculate-btn::after {
 
 /* Plugin Directory Layout */
 .plugin-directory {
-    display: flex;
-    flex-direction: column; 
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
-.plugin-entry {
-    display: grid;
-    grid-template-columns: 220px 1fr; 
-    align-items: center;
-    gap: 20px;
-    background: rgba(28, 25, 23, 0.4);
-    padding: 16px;
-    border-radius: 8px;
+.resource-card {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: rgba(28, 25, 23, 0.4); 
     border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
     transition: all 0.2s ease;
+}
+
+.resource-card:hover,
+.resource-card:focus-visible {
+    transform: translateY(-3px);
+    background: rgba(var(--accent-green-rgb), 0.03);
+    border-color: rgba(var(--accent-green-rgb), 0.4);
+    box-shadow: 0 5px 15px rgba(var(--accent-green-rgb), 0.1);
+    outline: none;
+}
+
+.resource-title {
+    color: var(--text);
+    font-weight: 800;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    transition: color 0.2s ease;
+}
+
+.resource-card:hover .resource-title {
+    color: var(--accent-green);
+}
+
+.resource-desc {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 500;
+    margin: 0;
 }
 
 .plugin-entry:hover {
