@@ -427,7 +427,8 @@ function createDataset(label, data, transformX, yKey, color, yAxisID, borderWidt
         borderWidth: borderWidth, 
         pointRadius: 0, 
         yAxisID: yAxisID, 
-        tension: 0.4, 
+        tension: 0.2, 
+        cubicInterpolationMode: 'monotone', 
         fill: false 
     };
 }
@@ -437,7 +438,7 @@ function getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, me
         responsive: true, 
         maintainAspectRatio: false, 
         animation: false, 
-        interaction: { mode: 'nearest', intersect: false, axis: 'xy' }, 
+        interaction: { mode: 'index', intersect: false }, 
         scales: getChartScales(transformX, reverseX, xMaxRaw), 
         plugins: getChartPlugins(transformX, stats, userKC, modeY, medianY) 
     };
@@ -492,9 +493,16 @@ function getChartPlugins(transformX, stats, userKC, modeY, medianY) {
             bodyFont: { weight: 600, size: 12 }, 
             callbacks: { 
                 title: items => `KC: ${items[0].raw.rawX.toLocaleString()}`, 
-                label: c => c.datasetIndex === 0 
-                    ? ` Luck Chance: ~1/${(c.raw.y > 0 ? Math.round(1 / c.raw.y).toLocaleString() : "0")}` 
-                    : ` Chance For Completion: ${(c.raw.y * 100).toFixed(2)}%` 
+                
+                // We convert the callback block so we can filter out dead data mathematically
+                label: c => {
+                    // Instantly hide the tooltip for this specific line if the probability is mathematically zero
+                    if (c.raw.y === 0) return null;
+                    
+                    return c.datasetIndex === 0 
+                        ? ` Luck Chance: ~1/${Math.round(1 / c.raw.y).toLocaleString()}` 
+                        : ` Chance For Completion: ${(c.raw.y * 100).toFixed(2)}%`;
+                }
             } 
         },
         annotation: { 

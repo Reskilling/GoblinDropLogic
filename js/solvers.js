@@ -4,11 +4,11 @@
 
 // Centralizing our performance and display thresholds
 const SIM_CONFIG = {
-    MAX_ITERATIONS: 1000000,     // Prevents main-thread lockup on impossible matrices
-    PRUNE_THRESHOLD: 1e-12,      // Bypasses underflow calculations on dead states
+    MAX_ITERATIONS: 1000000,       // Prevents main-thread lockup on impossible matrices
+    PRUNE_THRESHOLD: 1e-12,        // Bypasses underflow calculations on dead states
     COMPLETION_THRESHOLD: 0.99999, // Our effective "100% completion" mark
-    TAIL_MULTIPLIER: 1.5,        // How far past the mean we want to draw the chart tail
-    MAX_CHART_POINTS: 2500       // Max canvas coordinates before Chart.js stutters
+    TAIL_MULTIPLIER: 1.5,          // How far past the mean we want to draw the chart tail
+    MAX_CHART_POINTS: 2500         // Max canvas coordinates before Chart.js stutters
 };
 
 /**
@@ -17,11 +17,33 @@ const SIM_CONFIG = {
  */
 function buildChartData(historyPMF, historyCDF, finalK, targetKC, modeKC, median) {
     const curveData = [];
-    const stepSize = Math.max(1, Math.floor(finalK / SIM_CONFIG.MAX_CHART_POINTS));
-
-    // Downsample the bulk of the curve based on our step limit
-    for (let k = 1; k <= finalK; k += stepSize) {
-        curveData.push({ x: k, pmf: historyPMF[k], cdf: historyCDF[k] });
+    
+    if (finalK <= SIM_CONFIG.MAX_CHART_POINTS) {
+        // For short grinds, we don't need to downsample at all. 
+        // We plot every single KC for maximum visual fidelity.
+        for (let k = 1; k <= finalK; k++) {
+            curveData.push({ x: k, pmf: historyPMF[k], cdf: historyCDF[k] });
+        }
+    } else {
+        // For long grinds, we must downsample to prevent browser lag.
+        // Because the UI applies a power-transform (x^0.4) to visually stretch the early KCs,
+        // uniform sampling starves the peak of data points, causing wavy Bezier artifacts.
+        // We use the inverse power (1 / 0.4 = 2.5) to distribute our 2500 points evenly across 
+        // the *visual* canvas space rather than the underlying mathematical space.
+        const VISUAL_SKEW_POWER = 2.5; 
+        let lastK = -1;
+        
+        for (let i = 0; i <= SIM_CONFIG.MAX_CHART_POINTS; i++) {
+            const progress = i / SIM_CONFIG.MAX_CHART_POINTS;
+            let k = Math.round(Math.pow(progress, VISUAL_SKEW_POWER) * finalK);
+            
+            k = Math.max(1, Math.min(k, finalK)); // Clamp to ensure we don't hit 0 or overflow
+            
+            if (k !== lastK) {
+                curveData.push({ x: k, pmf: historyPMF[k], cdf: historyCDF[k] });
+                lastK = k;
+            }
+        }
     }
 
     // Ensure critical milestones are explicitly included in the dataset 
@@ -29,13 +51,13 @@ function buildChartData(historyPMF, historyCDF, finalK, targetKC, modeKC, median
     const milestones = [targetKC, modeKC, median].filter(m => m > 0 && m <= finalK);
     
     milestones.forEach(m => {
-        // Only inject if it wasn't already caught by our uniform step jump
-        if (m % stepSize !== 0) {
+        // Only inject if it wasn't already caught by our loops above
+        if (!curveData.some(d => d.x === m)) {
             curveData.push({ x: m, pmf: historyPMF[m], cdf: historyCDF[m] });
         }
     });
 
-    // Re-sort because injected milestones may be out of order relative to the step sequence.
+    // Re-sort because injected milestones may be out of order relative to the sequence.
     curveData.sort((a, b) => a.x - b.x);
 
     return curveData;
