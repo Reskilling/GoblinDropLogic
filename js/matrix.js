@@ -80,14 +80,14 @@ export function createBarrowsMatrix(targetCount) {
     for (let r = 1; r < BARROWS.ROLLS_PER_CHEST; r++) {
         const nextMatrix = Array.from({length: size}, () => new Float64Array(size));
         
-        for (let i = 0; i < size; i++) {
-            for (let j = i; j < size; j++) {
-                if (chestMatrix[i][j] === 0) continue;
+        for (let row = 0; row < size; row++) {
+            for (let col = row; col < size; col++) {
+                if (chestMatrix[row][col] === 0) continue;
                 
-                // Upper triangular constraint (k = j) because you can't "lose" an item you already obtained
-                for (let k = j; k <= Math.min(j + 1, targetCount); k++) {
-                    if (baseMatrix[j][k] > 0) {
-                        nextMatrix[i][k] += chestMatrix[i][j] * baseMatrix[j][k];
+                // Upper triangular constraint (k = col) because you can't "lose" an item you already obtained
+                for (let k = col; k <= Math.min(col + 1, targetCount); k++) {
+                    if (baseMatrix[col][k] > 0) {
+                        nextMatrix[row][k] += chestMatrix[row][col] * baseMatrix[col][k];
                     }
                 }
             }
@@ -139,27 +139,27 @@ export function createMasterMatrix(selectedItems, rollCount = 1) {
     const { totalStates, getIndex, getCounts } = buildStateSpace(groups);
     const matrix = Array.from({length: totalStates}, () => new Float64Array(totalStates));
 
-    for (let s = 0; s < totalStates; s++) {
-        const counts = getCounts(s);
+    for (let stateIdx = 0; stateIdx < totalStates; stateIdx++) {
+        const counts = getCounts(stateIdx);
         
         // Absorbing state fallback
         if (counts.every((c, i) => c === groups[i].target)) {
-            matrix[s][s] = 1.0; 
+            matrix[stateIdx][stateIdx] = 1.0; 
             continue;
         }
 
         let stateProbs = new Float64Array(totalStates);
-        stateProbs[s] = 1.0;
+        stateProbs[stateIdx] = 1.0;
 
         // Apply mutually exclusive rolls. An item from MainGroup A prevents receiving an item from MainGroup B.
         for (let r = 0; r < rollCount; r++) {
             const nextRoll = new Float64Array(totalStates);
             
-            for (let curr_s = 0; curr_s < totalStates; curr_s++) {
-                if (stateProbs[curr_s] === 0) continue;
+            for (let currState = 0; currState < totalStates; currState++) {
+                if (stateProbs[currState] === 0) continue;
                 
-                const currCounts = getCounts(curr_s);
-                let pHitAnyMain = 0;
+                const currCounts = getCounts(currState);
+                let probHitAnyMain = 0;
 
                 for (const mg of mainGroups) {
                     const count = currCounts[mg.index];
@@ -169,11 +169,11 @@ export function createMasterMatrix(selectedItems, rollCount = 1) {
                         const nextCounts = [...currCounts];
                         nextCounts[mg.index]++;
                         
-                        nextRoll[getIndex(nextCounts)] += stateProbs[curr_s] * effectiveRate;
-                        pHitAnyMain += effectiveRate;
+                        nextRoll[getIndex(nextCounts)] += stateProbs[currState] * effectiveRate;
+                        probHitAnyMain += effectiveRate;
                     }
                 }
-                nextRoll[curr_s] += stateProbs[curr_s] * (1 - pHitAnyMain);
+                nextRoll[currState] += stateProbs[currState] * (1 - probHitAnyMain);
             }
             stateProbs = nextRoll;
         }
@@ -182,29 +182,29 @@ export function createMasterMatrix(selectedItems, rollCount = 1) {
         for (const tg of tertGroups) {
             const nextProbs = new Float64Array(totalStates);
             
-            for (let mid_s = 0; mid_s < totalStates; mid_s++) {
-                if (stateProbs[mid_s] === 0) continue;
+            for (let midState = 0; midState < totalStates; midState++) {
+                if (stateProbs[midState] === 0) continue;
                 
-                const midCounts = getCounts(mid_s);
+                const midCounts = getCounts(midState);
                 const count = midCounts[tg.index];
 
                 if (count < tg.target) {
                     const effectiveRate = tg.isSequential ? tg.rate : (tg.target - count) * tg.rate;
                     
-                    nextProbs[mid_s] += stateProbs[mid_s] * (1 - effectiveRate);
+                    nextProbs[midState] += stateProbs[midState] * (1 - effectiveRate);
                     
                     const nextCounts = [...midCounts];
                     nextCounts[tg.index]++;
-                    nextProbs[getIndex(nextCounts)] += stateProbs[mid_s] * effectiveRate;
+                    nextProbs[getIndex(nextCounts)] += stateProbs[midState] * effectiveRate;
                 } else {
-                    nextProbs[mid_s] += stateProbs[mid_s];
+                    nextProbs[midState] += stateProbs[midState];
                 }
             }
             stateProbs = nextProbs;
         }
 
-        for (let final_s = 0; final_s < totalStates; final_s++) {
-            if (stateProbs[final_s] > 0) matrix[s][final_s] = stateProbs[final_s];
+        for (let finalState = 0; finalState < totalStates; finalState++) {
+            if (stateProbs[finalState] > 0) matrix[stateIdx][finalState] = stateProbs[finalState];
         }
     }
     return matrix;
@@ -230,42 +230,42 @@ export function createMoonsMatrix(selectedItems) {
     const { totalStates, getIndex, getCounts } = buildStateSpace(groups);
     const matrix = Array.from({length: totalStates}, () => new Float64Array(totalStates));
 
-    for (let s = 0; s < totalStates; s++) {
-        const counts = getCounts(s);
+    for (let stateIdx = 0; stateIdx < totalStates; stateIdx++) {
+        const counts = getCounts(stateIdx);
         
         if (counts.every((c, i) => c === groups[i].target)) {
-            matrix[s][s] = 1.0; 
+            matrix[stateIdx][stateIdx] = 1.0; 
             continue;
         }
 
         let stateProbs = new Float64Array(totalStates);
-        stateProbs[s] = 1.0;
+        stateProbs[stateIdx] = 1.0;
 
         // Moons rolls are siloed by boss pool. We process exactly one independent 
         // check per active boss pool concurrently, simulating a 3-boss KC.
         for (const g of groups) {
             const nextProbs = new Float64Array(totalStates);
-            for (let mid_s = 0; mid_s < totalStates; mid_s++) {
-                if (stateProbs[mid_s] === 0) continue;
+            for (let midState = 0; midState < totalStates; midState++) {
+                if (stateProbs[midState] === 0) continue;
                 
-                const midCounts = getCounts(mid_s);
+                const midCounts = getCounts(midState);
                 const count = midCounts[g.index];
 
                 if (count < g.target) {
-                    nextProbs[mid_s] += stateProbs[mid_s] * (1 - g.rate);
+                    nextProbs[midState] += stateProbs[midState] * (1 - g.rate);
                     
                     const nextCounts = [...midCounts];
                     nextCounts[g.index]++;
-                    nextProbs[getIndex(nextCounts)] += stateProbs[mid_s] * g.rate;
+                    nextProbs[getIndex(nextCounts)] += stateProbs[midState] * g.rate;
                 } else {
-                    nextProbs[mid_s] += stateProbs[mid_s];
+                    nextProbs[midState] += stateProbs[midState];
                 }
             }
             stateProbs = nextProbs;
         }
 
-        for (let final_s = 0; final_s < totalStates; final_s++) {
-            if (stateProbs[final_s] > 0) matrix[s][final_s] = stateProbs[final_s];
+        for (let finalState = 0; finalState < totalStates; finalState++) {
+            if (stateProbs[finalState] > 0) matrix[stateIdx][finalState] = stateProbs[finalState];
         }
     }
     return matrix;
