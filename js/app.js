@@ -16,6 +16,7 @@ const DT2_BOSSES = ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviatha
 let activeBossKey = "";
 let chartInstance = null;
 
+// Centralized DOM caching prevents redundant document queries
 const DOM = {
     bossSelect: document.getElementById("boss-select"),
     itemGrid: document.getElementById("item-grid"),
@@ -27,7 +28,15 @@ const DOM = {
     phraseMedian: document.getElementById("phrase-median"),
     phraseMean: document.getElementById("phrase-mean"),
     phraseUser: document.getElementById("phrase-user"),
-    chartCanvas: document.getElementById('distributionChart')
+    chartCanvas: document.getElementById('distributionChart'),
+    
+    // Extracted from bindEvents to ensure all static UI elements share a single source of truth
+    kcResetBtn: document.getElementById("kc-reset"),
+    selectAllBtn: document.getElementById("select-all"),
+    selectNoneBtn: document.getElementById("select-none"),
+    calcBtn: document.getElementById("calculate-btn"),
+    mobileBtn: document.getElementById('mobile-sections-btn'),
+    mobileMenu: document.getElementById('mobile-dropdown')
 };
 
 function initApp() {
@@ -54,6 +63,9 @@ function populateBossSelect() {
 // --- RAID UI INJECTOR ---
 function renderDynamicSettings(bossKey) {
     let container = document.getElementById('dynamic-raid-settings');
+    
+    // We create this dynamically on the fly rather than caching it in the DOM object
+    // because it relies on activeBossKey state that doesn't exist on initial load.
     if (!container) {
         container = document.createElement('div');
         container.id = 'dynamic-raid-settings';
@@ -61,8 +73,6 @@ function renderDynamicSettings(bossKey) {
         DOM.bossPreview.insertBefore(container, document.querySelector('.collection-header'));
     }
 
-    // Using a switch here instead of an if/else chain makes it much easier 
-    // to read and scale if we add more dynamic boss settings later.
     switch (bossKey) {
         case 'chambers_of_xeric':
             container.innerHTML = `
@@ -110,7 +120,6 @@ function renderDynamicSettings(bossKey) {
             break;
     }
 
-    // Bind the DT2 toggle logic dynamically if the button exists
     const dt2Btn = document.getElementById('dt2-awakened-btn');
     if (dt2Btn) {
         dt2Btn.addEventListener('click', function() {
@@ -132,28 +141,20 @@ function bindEvents() {
         btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
     });
 
-    const kcReset = document.getElementById("kc-reset");
-    if (kcReset) kcReset.addEventListener('click', () => { if (DOM.kcInput) DOM.kcInput.value = 0; });
+    if (DOM.kcResetBtn) DOM.kcResetBtn.addEventListener('click', () => { if (DOM.kcInput) DOM.kcInput.value = 0; });
+    
+    if (DOM.selectAllBtn) DOM.selectAllBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(true); });
+    if (DOM.selectNoneBtn) DOM.selectNoneBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(false); });
 
-    const selectAllBtn = document.getElementById("select-all");
-    const selectNoneBtn = document.getElementById("select-none");
+    if (DOM.calcBtn) DOM.calcBtn.addEventListener('click', handleCalculation);
 
-    if (selectAllBtn) selectAllBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(true); });
-    if (selectNoneBtn) selectNoneBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(false); });
-
-    const calcBtn = document.getElementById("calculate-btn");
-    if (calcBtn) calcBtn.addEventListener('click', handleCalculation);
-
-    // Keep the mobile dropdown toggle, as it strictly controls a local UI state 
-    // (showing/hiding the menu) rather than a global page view transition.
-    const mobileBtn = document.getElementById('mobile-sections-btn');
-    const mobileMenu = document.getElementById('mobile-dropdown');
-    if (mobileBtn && mobileMenu) { 
-        mobileBtn.addEventListener('click', (e) => { 
+    // Local UI state toggle (does not conflict with index.html view transitions)
+    if (DOM.mobileBtn && DOM.mobileMenu) { 
+        DOM.mobileBtn.addEventListener('click', (e) => { 
             e.stopPropagation(); 
-            mobileMenu.classList.toggle('hidden'); 
+            DOM.mobileMenu.classList.toggle('hidden'); 
         }); 
-        document.addEventListener('click', () => { mobileMenu.classList.add('hidden'); }); 
+        document.addEventListener('click', () => { DOM.mobileMenu.classList.add('hidden'); }); 
     }
 }
 
@@ -236,7 +237,8 @@ function toggleItemSelection(e) {
 
 function setAllItemsSelection(select) { 
     const action = select ? 'add' : 'remove'; 
-    document.querySelectorAll("#item-grid .item-box").forEach(b => b.classList[action]("selected")); 
+    // Scoped query against DOM.itemGrid is much faster than checking the entire document
+    DOM.itemGrid.querySelectorAll(".item-box").forEach(b => b.classList[action]("selected")); 
 }
 
 function handleCalculation() {
