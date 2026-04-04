@@ -386,12 +386,11 @@ export const RAW_BOSS_DATA = {
         "32921": { name: "Jar of feathers", rate: 1 / 2000, type: "tertiary", order: 4 },
     },
     "skotizo": {
-        "21273": { name: "Skotos", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "19701": { name: "Jar of darkness", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "21275": { name: "Dark claw", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "19685": { name: "Dark totem", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "6571": { name: "Uncut onyx", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "19677": { name: "Ancient shard", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+        "21273": { name: "Skotos", rate: 1/ 65, type: "main", order: 1 },
+        "19701": { name: "Jar of darkness", rate: 1/ 200, type: "main", order: 2 },
+        "21275": { name: "Dark claw", rate: 1 / 25, type: "main", order: 3 },
+        "19685": { name: "Dark totem", rate: 1 / 128, type: "main", order: 4 },
+        "6571": { name: "Uncut onyx", rate: 1 / 1000, type: "main", order: 5 },
     },
     "spindel": {
         "13177": { name: "Venenatis spiderling", rate: 1 / 2800, type: "tertiary", order: 1 },
