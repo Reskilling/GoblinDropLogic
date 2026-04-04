@@ -180,12 +180,16 @@ ol, p {
 .logo-pedestal {
     z-index: 10;
     margin-bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .showcase-logo {
     height: 60vh;
     max-height: 600px;
     width: auto;
+    max-width: 100%; 
     object-fit: contain;
     filter: drop-shadow(0px 0px 2px #000000) 
             drop-shadow(0px 0px 2px #000000) 
