@@ -108,11 +108,18 @@ ol, p {
 /* ==========================================
    VIEW TRANSITIONS & ANIMATIONS
    ========================================== */
-.active-view {
+
+/* 1. Establish layout and hide the element immediately on load */
+.view-container {
+    opacity: 0; 
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
+}
+
+/* 2. The active view simply triggers the fade animation */
+.active-view {
     animation: fadeIn 0.3s ease forwards;
 }
 
