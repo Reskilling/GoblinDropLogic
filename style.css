@@ -85,7 +85,9 @@ h1, h2, h3 {
     color: var(--accent-green); 
 }
 
-h1 { font-size: 2.5rem; }
+h1 { 
+    font-size: 2.5rem; 
+}
 
 ol, p {
     line-height: 1.6;
@@ -166,13 +168,15 @@ ol, p {
 }
 
 .green-orb {
-    width: 50vw; height: 50vh;
+    width: 50vw; 
+    height: 50vh;
     background-color: var(--accent-green);
     transform: translate(-20%, -10%);
 }
 
 .orange-orb {
-    width: 40vw; height: 40vh;
+    width: 40vw; 
+    height: 40vh;
     background-color: var(--accent-orange);
     transform: translate(20%, 10%);
 }
@@ -223,7 +227,10 @@ ol, p {
     z-index: 10;
 }
 
-.premium-btn, .premium-btn-sm, .kc-btn, .btn-sm {
+.premium-btn, 
+.premium-btn-sm, 
+.kc-btn, 
+.btn-sm {
     text-decoration: none; 
     display: inline-flex;  
     align-items: center;
@@ -262,7 +269,10 @@ ol, p {
 
 /* FIX: Hover highlight wrapped in hover query to prevent mobile stickiness */
 @media (hover: hover) {
-    .premium-btn:hover, .premium-btn-sm:hover, .btn-sm:hover, .kc-btn:hover {
+    .premium-btn:hover, 
+    .premium-btn-sm:hover, 
+    .btn-sm:hover, 
+    .kc-btn:hover {
         color: #fff !important;
         background: #23201d;
         border-top-color: var(--accent-green);
@@ -279,7 +289,10 @@ ol, p {
 }
 
 /* Physical feedback for tap/click */
-.premium-btn:active, .premium-btn-sm:active, .btn-sm:active, .kc-btn:active {
+.premium-btn:active, 
+.premium-btn-sm:active, 
+.btn-sm:active, 
+.kc-btn:active {
     transform: translateY(2px);
     transition: 0.05s;
 }
@@ -321,7 +334,10 @@ ol, p {
     z-index: 100;
 }
 
-.mini-nav { display: flex; gap: 10px; }
+.mini-nav { 
+    display: flex; 
+    gap: 10px; 
+}
 
 .tab-link {
     background: transparent;
@@ -336,8 +352,15 @@ ol, p {
     border-radius: 4px;
 }
 
-.tab-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-.tab-link.active { color: var(--accent-green); background: var(--glow-green); }
+.tab-link:hover { 
+    color: var(--text); 
+    background: rgba(255,255,255,0.05); 
+}
+
+.tab-link.active { 
+    color: var(--accent-green); 
+    background: var(--glow-green); 
+}
 
 .tab-panel { 
     display: none; 
@@ -400,7 +423,10 @@ header {
     margin-bottom: 20px; 
 }
 
-.controls { display: flex; gap: 10px; }
+.controls { 
+    display: flex; 
+    gap: 10px; 
+}
 
 /* ==========================================
    DROPLOGIC DASHBOARD LAYOUT
@@ -425,17 +451,6 @@ header {
 /* Remove bottom margins from cards in the sidebar since the gap handles spacing */
 .droplogic-controls .card {
     margin-bottom: 0;
-}
-
-/* Make sure it drops back to a single vertical column on tablets/phones */
-@media (max-width: 1000px) {
-    .droplogic-layout {
-        grid-template-columns: 1fr;
-    }
-    .droplogic-controls {
-        position: relative;
-        top: 0;
-    }
 }
 
 /* ==========================================
@@ -589,8 +604,16 @@ button#calculate-btn::after {
     touch-action: manipulation; 
 }
 
-.item-box:hover { transform: scale(1.05); }
-.item-box img { width: 32px; height: 32px; object-fit: contain; pointer-events: none; }
+.item-box:hover { 
+    transform: scale(1.05); 
+}
+
+.item-box img { 
+    width: 32px; 
+    height: 32px; 
+    object-fit: contain; 
+    pointer-events: none; 
+}
 
 .item-box.selected { 
     border-color: var(--accent-green); 
@@ -806,7 +829,10 @@ button#calculate-btn::after {
     border-bottom-color: var(--accent-green);
 }
 
-.plugin-entry strong { color: var(--accent-green); font-weight: 800; }
+.plugin-entry strong { 
+    color: var(--accent-green); 
+    font-weight: 800; 
+}
 
 .link-grid-modern { 
     display: grid; 
@@ -849,7 +875,11 @@ button#calculate-btn::after {
     margin-top: 20px;
 }
 
-.step { display: flex; gap: 20px; align-items: flex-start; }
+.step { 
+    display: flex; 
+    gap: 20px; 
+    align-items: flex-start; 
+}
 
 .step-num {
     font-family: var(--font-mono);
@@ -864,10 +894,15 @@ button#calculate-btn::after {
     text-align: center;
 }
 
-.step-content p { margin-bottom: 4px; }
+.step-content p { 
+    margin-bottom: 4px; 
+}
 
 /* Lists & Tables */
-.intel-list { list-style: none; margin-top: 10px; }
+.intel-list { 
+    list-style: none; 
+    margin-top: 10px; 
+}
 
 .intel-list li {
     font-size: 16px;
@@ -901,9 +936,17 @@ button#calculate-btn::after {
     transition: background 0.2s;
 }
 
-.food-row:hover { background: #1c1917; }
-.food-row span { color: var(--text-dim); }
-.food-row .val { font-size: 14px; }
+.food-row:hover { 
+    background: #1c1917; 
+}
+
+.food-row span { 
+    color: var(--text-dim); 
+}
+
+.food-row .val { 
+    font-size: 14px; 
+}
 
 /* Code Blocks */
 pre {
@@ -975,7 +1018,9 @@ a:hover {
         background: #23201d;
         border-top-color: var(--accent-green);
         transform: translateY(-2px);
-        box-shadow: 0 0 12px var(--glow-green), 0 8px 15px rgba(0, 0, 0, 0.6);
+        box-shadow: 
+            0 0 12px var(--glow-green), 
+            0 8px 15px rgba(0, 0, 0, 0.6);
     }
 }
 
@@ -1084,15 +1129,22 @@ a:hover {
 }
 
 /* ==========================================
-   MOBILE DROPDOWN SYSTEM
+   DEFAULT VISIBILITY UTILITIES
    ========================================== */
 
-/* Utility visibility classes */
-.mobile-only { display: none; }
-.desktop-only { display: flex; }
+.mobile-only { 
+    display: none; 
+}
+.desktop-only { 
+    display: flex; 
+}
 
-/* THE DESKTOP CLICK-THROUGH FIX: 
-   Prevents invisible mobile wrappers from blocking your desktop buttons */
+/* ==========================================
+   MEDIA QUERIES (Responsive Layouts)
+   ========================================== */
+
+/* 1. THE DESKTOP CLICK-THROUGH FIX
+   Ensures invisible mobile wrappers don't block desktop buttons */
 @media (min-width: 769px) {
     .mobile-only {
         display: none !important;
@@ -1100,40 +1152,72 @@ a:hover {
     }
 }
 
-@media (max-width: 768px) {
-    .mobile-only { display: block; }
-    .desktop-only { display: none !important; }
+@media (max-width: 1000px) {
+    .droplogic-layout {
+        grid-template-columns: 1fr;
+    }
+    .droplogic-controls {
+        position: relative;
+        top: 0;
+    }
+}
 
+@media (max-width: 900px) {
+    .container.is-75 { 
+        max-width: 100%; 
+    }
+}
+
+@media (max-width: 768px) {
+    .showcase-logo { 
+        height: 40vh; 
+    }
+    
+    .hero-titles h1 { 
+        font-size: 2.2rem; 
+    }
+
+    /* Flip default visibility for mobile */
+    .mobile-only { 
+        display: block; 
+    }
+    
+    .desktop-only { 
+        display: none !important; 
+    }
+
+    /* --- HEADER BUTTON SYMMETRY --- */
     .content-header {
-        padding: 12px 15px;
         display: flex !important;
         flex-direction: row !important; /* Forces Return and Sections to stay side-by-side */
         justify-content: space-between;
         align-items: center;
         width: 100%;
+        height: 70px; 
+        padding: 12px 15px;
         gap: 12px;
     }
 
-    /* FORCED SYMMETRY: 
-       Ensures both header elements share the width equally */
     .content-header #btn-home,
     .content-header .mobile-menu-wrapper {
         flex: 1; 
         width: auto !important;
-        max-width: 160px; /* Prevents buttons from becoming too wide on tablets */
+        max-width: 160px;
     }
 
     .content-header .premium-btn-sm {
-        width: 100% !important; 
-        height: 42px;
-        padding: 0 10px;
-        font-size: 10px;
-        white-space: nowrap;
         display: flex;
         justify-content: center;
         align-items: center;
+        width: 100% !important; 
+        height: 42px; 
+        padding: 0 5px;
+        font-size: 10px;
+        white-space: nowrap;
+        pointer-events: auto;
     }
 
+    /* --- MOBILE DROPDOWN --- */
     .mobile-menu-wrapper {
         position: relative;
         display: flex;
@@ -1156,7 +1240,6 @@ a:hover {
         animation: fadeIn 0.2s ease forwards;
     }
 
-    /* Ensures the menu actually disappears when the 'hidden' class is applied */
     .mobile-dropdown.hidden {
         display: none !important;
     }
@@ -1186,55 +1269,6 @@ a:hover {
         background: var(--glow-green);
         border-left: 4px solid var(--accent-green);
     }
-}
-
-/* ==========================================
-   MEDIA QUERIES (Mobile Fixes & Layout)
-   ========================================== */
-
-/* 1. THE DESKTOP CLICK-THROUGH FIX
-   Ensures invisible mobile wrappers don't block desktop buttons */
-@media (min-width: 769px) {
-    .mobile-only {
-        display: none !important;
-        pointer-events: none; 
-    }
-}
-
-@media (max-width: 900px) {
-    .container.is-75 { max-width: 100%; }
-}
-
-@media (max-width: 768px) {
-    .showcase-logo { height: 40vh; }
-    .hero-titles h1 { font-size: 2.2rem; }
-
-    /* --- HEADER BUTTON SYMMETRY --- */
-    .content-header {
-        flex-direction: row !important; 
-        justify-content: space-between;
-        padding: 12px 15px;
-        gap: 12px;
-        height: 70px; 
-    }
-
-    .content-header #btn-home,
-    .content-header .mobile-menu-wrapper {
-        flex: 1; 
-        width: auto !important;
-        max-width: 160px;
-    }
-
-    .content-header .premium-btn-sm {
-        width: 100% !important; 
-        height: 42px; 
-        padding: 0 5px;
-        font-size: 10px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        pointer-events: auto;
-    }
 
     /* --- MAIN NAV GRID (Home Page) --- */
     .premium-nav { 
@@ -1260,8 +1294,15 @@ a:hover {
 }
 
 @media (max-width: 650px) {
-    .input-row { grid-template-columns: 1fr; gap: 16px; }
-    .chart-wrapper { height: 320px; padding: 10px; }
+    .input-row { 
+        grid-template-columns: 1fr; 
+        gap: 16px; 
+    }
+    
+    .chart-wrapper { 
+        height: 320px; 
+        padding: 10px; 
+    }
     
     /* --- COLLECTION LOG STACKING --- */
     /* Forces 'Collection Log' text and buttons to stack vertically */
@@ -1280,8 +1321,13 @@ a:hover {
         gap: 12px; 
     }
     
-    #stat-chance { font-size: 3rem; }
-    .prob-label { text-align: center; }
+    #stat-chance { 
+        font-size: 3rem; 
+    }
+    
+    .prob-label { 
+        text-align: center; 
+    }
 
     /* KC Multiplier Grid with Unified Button override */
     .kc-controls { 
@@ -1289,6 +1335,7 @@ a:hover {
         grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); 
         gap: 8px; 
     }
+    
     .kc-controls .unified-btn { 
         padding: 12px 0 !important; 
     }
@@ -1299,12 +1346,29 @@ a:hover {
         font-size: 11px !important;
     }
 
-    .card { padding: 24px 16px; }
-    .container { padding: 15px 10px; }
+    .card { 
+        padding: 24px 16px; 
+    }
+    
+    .container { 
+        padding: 15px 10px; 
+    }
 
     /* Typography Safety */
-    .stat-item, .stat-item span, #res-name, .prob-label { font-family: var(--font-primary) !important; }
-    .stat-item b, #target-kc, .unified-btn, .kc-btn, #stat-chance { font-family: var(--font-mono) !important; }
+    .stat-item, 
+    .stat-item span, 
+    #res-name, 
+    .prob-label { 
+        font-family: var(--font-primary) !important; 
+    }
+    
+    .stat-item b, 
+    #target-kc, 
+    .unified-btn, 
+    .kc-btn, 
+    #stat-chance { 
+        font-family: var(--font-mono) !important; 
+    }
 }
 
 @media (max-width: 480px) {
@@ -1312,9 +1376,19 @@ a:hover {
     .premium-nav { 
         grid-template-columns: 1fr; 
     }
-    .hero-titles h1 { font-size: 1.8rem; }
+    
+    .hero-titles h1 { 
+        font-size: 1.8rem; 
+    }
     
     /* Ensure header buttons don't get too squished */
-    .content-header { gap: 8px; padding: 12px 10px; }
-    .content-header .premium-btn-sm { font-size: 9px; letter-spacing: 0.05em; }
+    .content-header { 
+        gap: 8px; 
+        padding: 12px 10px; 
+    }
+    
+    .content-header .premium-btn-sm { 
+        font-size: 9px; 
+        letter-spacing: 0.05em; 
+    }
 }
