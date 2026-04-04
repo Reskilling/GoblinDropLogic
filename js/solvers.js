@@ -69,16 +69,16 @@ export function runSimulation(matrix, targetKC) {
 
         // Iterate only through transient (incomplete) states. 
         // Calculating transitions OUT of the completed state wastes cycles.
-        for (let i = 0; i < absorbingState; i++) {
+        for (let currentState = 0; currentState < absorbingState; currentState++) {
             
             // Prune microscopic probabilities to accelerate vector multiplication
-            if (stateVector[i] < SIM_CONFIG.PRUNE_THRESHOLD) continue; 
+            if (stateVector[currentState] < SIM_CONFIG.PRUNE_THRESHOLD) continue; 
             
             activeTransientStates++;
 
-            for (let j = i; j < size; j++) {
-                if (matrix[i][j] === 0) continue;
-                nextStateVector[j] += stateVector[i] * matrix[i][j]; 
+            for (let nextState = currentState; nextState < size; nextState++) {
+                if (matrix[currentState][nextState] === 0) continue;
+                nextStateVector[nextState] += stateVector[currentState] * matrix[currentState][nextState]; 
             }
         }
 

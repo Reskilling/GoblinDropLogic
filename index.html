@@ -43,31 +43,31 @@
     <div id="main-view" class="view-container hidden-view">
         
         <header class="content-header">
-    <button id="btn-home" class="premium-btn-sm">&larr; Return</button>
+            <button id="btn-home" class="premium-btn-sm">&larr; Return</button>
 
-    <nav class="mini-nav desktop-only">
-        <button class="tab-link active" data-tab="droplogic">DropLogic</button>
-        <button class="tab-link" data-tab="guides">Guides</button>
-        <button class="tab-link" data-tab="plugins">Plugins</button>
-        <button class="tab-link" data-tab="ironman-faq">FAQ</button>
-        <button class="tab-link" data-tab="ironman-goals">Checklist</button>
-    </nav>
+            <nav class="mini-nav desktop-only">
+                <button class="tab-link active" data-tab="droplogic">DropLogic</button>
+                <button class="tab-link" data-tab="guides">Guides</button>
+                <button class="tab-link" data-tab="plugins">Plugins</button>
+                <button class="tab-link" data-tab="ironman-faq">FAQ</button>
+                <button class="tab-link" data-tab="ironman-goals">Checklist</button>
+            </nav>
 
-    <div class="mobile-menu-wrapper mobile-only">
-        <button id="mobile-sections-btn" class="premium-btn-sm">Sections ▾</button>
-        <div id="mobile-dropdown" class="mobile-dropdown hidden">
-            <button class="mobile-nav-item" data-tab="droplogic">DropLogic</button>
-            <button class="mobile-nav-item" data-tab="guides">Guides</button>
-            <button class="mobile-nav-item" data-tab="plugins">Plugins</button>
-            <button class="mobile-nav-item" data-tab="ironman-faq">FAQ</button>
-            <button class="mobile-nav-item" data-tab="ironman-goals">Checklist</button>
-        </div>
-    </div>
-</header>
+            <div class="mobile-menu-wrapper mobile-only">
+                <button id="mobile-sections-btn" class="premium-btn-sm">Sections ▾</button>
+                <div id="mobile-dropdown" class="mobile-dropdown hidden">
+                    <button class="mobile-nav-item" data-tab="droplogic">DropLogic</button>
+                    <button class="mobile-nav-item" data-tab="guides">Guides</button>
+                    <button class="mobile-nav-item" data-tab="plugins">Plugins</button>
+                    <button class="mobile-nav-item" data-tab="ironman-faq">FAQ</button>
+                    <button class="mobile-nav-item" data-tab="ironman-goals">Checklist</button>
+                </div>
+            </div>
+        </header>
 
         <main>
             
-<section id="droplogic" class="tab-panel active-panel">
+            <section id="droplogic" class="tab-panel active-panel">
                 <div class="container is-100">
                     <header>
                         <h1>DropLogic</h1>
@@ -411,7 +411,7 @@
                 </div>
             </section>
 
-<section id="ironman-goals" class="tab-panel">
+            <section id="ironman-goals" class="tab-panel">
                 <div class="container is-100">
                     <header>
                         <h1>Ironman Progression</h1>
@@ -1297,12 +1297,14 @@
         document.addEventListener("DOMContentLoaded", () => {
             
             // --- DOM Elements ---
+            // Grouping these prevents redundant DOM queries during interactions
             const DOM = {
                 heroView: document.getElementById("hero-view"),
                 mainView: document.getElementById("main-view"),
                 btnHome: document.getElementById("btn-home"),
                 heroBtns: document.querySelectorAll(".premium-nav button.premium-btn"),
-                miniNavBtns: document.querySelectorAll(".mini-nav .tab-link"),
+                // Fixed: Restored .mobile-nav-item so mobile dropdown buttons work again
+                miniNavBtns: document.querySelectorAll(".tab-link, .mobile-nav-item"),
                 tabPanels: document.querySelectorAll(".tab-panel")
             };
 
@@ -1337,31 +1339,25 @@
             };
 
             // --- Event Listeners ---
-            function bindEvents() {
-                DOM.heroBtns.forEach(btn => {
-                    btn.addEventListener("click", () => {
-                        const targetId = btn.getAttribute("data-target");
-                        if (targetId) { // Safeguard against the external link button
-                            switchTab(targetId);
-                            transitionView(DOM.heroView, DOM.mainView);
-                        }
-                    });
+            DOM.heroBtns.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    switchTab(e.currentTarget.getAttribute("data-target"));
+                    transitionView(DOM.heroView, DOM.mainView);
                 });
+            });
 
-                DOM.miniNavBtns.forEach(btn => {
-                    btn.addEventListener("click", () => {
-                        switchTab(btn.getAttribute("data-tab"));
-                    });
+            DOM.miniNavBtns.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    switchTab(e.currentTarget.getAttribute("data-tab"));
                 });
+            });
 
+            if (DOM.btnHome) {
                 DOM.btnHome.addEventListener("click", () => {
                     transitionView(DOM.mainView, DOM.heroView);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
             }
-
-            // Bootstrap the view controller
-            bindEvents();
         });
     </script>
 

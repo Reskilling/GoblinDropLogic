@@ -15,16 +15,20 @@ const IMAGE_OVERRIDES = {
     "Muphin": "Muphin_(ranged).png"
 };
 
+/**
+ * Maps raw item dictionaries into normalized array structures.
+ * Destructuring the item object here explicitly documents our expected data schema.
+ */
 const parseBossItems = (items) => {
-    return Object.entries(items).map(([id, details]) => ({
+    return Object.entries(items).map(([id, { name, rate, type, order, pieces, pool, hidden }]) => ({
         id, 
-        name: details.name,
-        rate: details.rate,
-        type: details.type,
-        order: details.order || DEFAULT_SORT_ORDER,
-        pieces: details.pieces,
-        pool: details.pool,
-        hidden: details.hidden || false // Evaluates the hidden flag
+        name,
+        rate,
+        type,
+        order: order || DEFAULT_SORT_ORDER,
+        pieces,
+        pool,
+        hidden: Boolean(hidden) // Explicit boolean cast guarantees type safety
     }));
 };
 
@@ -49,7 +53,10 @@ export const BOSS_CONFIG = buildBossConfig(RAW_BOSS_DATA);
 
 export function formatBossName(str) {
     if (!str) return "";
-    return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return str.toLowerCase()
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 }
 
 export function getWikiUrl(name) {

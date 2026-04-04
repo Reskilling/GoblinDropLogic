@@ -99,8 +99,6 @@ function renderDynamicSettings(bossKey) {
             break;
         default:
             if (DT2_BOSSES.includes(bossKey)) {
-                // I stripped the massive inline onclick string out of the HTML. 
-                // We'll bind the event cleanly below.
                 container.innerHTML = `
                     <button type="button" id="dt2-awakened-btn" value="false" 
                         style="width: 100%; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
@@ -146,13 +144,8 @@ function bindEvents() {
     const calcBtn = document.getElementById("calculate-btn");
     if (calcBtn) calcBtn.addEventListener('click', handleCalculation);
 
-    const btnHome = document.getElementById("btn-home");
-    if (btnHome) btnHome.addEventListener('click', () => { 
-        document.getElementById('main-view').classList.add('hidden-view'); 
-        document.getElementById('hero-view').classList.remove('hidden-view'); 
-        window.scrollTo(0, 0); 
-    });
-
+    // Keep the mobile dropdown toggle, as it strictly controls a local UI state 
+    // (showing/hiding the menu) rather than a global page view transition.
     const mobileBtn = document.getElementById('mobile-sections-btn');
     const mobileMenu = document.getElementById('mobile-dropdown');
     if (mobileBtn && mobileMenu) { 
@@ -162,33 +155,6 @@ function bindEvents() {
         }); 
         document.addEventListener('click', () => { mobileMenu.classList.add('hidden'); }); 
     }
-
-    const navButtons = document.querySelectorAll('.tab-link, .mobile-nav-item');
-    const allPanels = document.querySelectorAll('.tab-panel');
-    
-    navButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = btn.getAttribute('data-tab');
-            
-            allPanels.forEach(panel => { 
-                panel.style.display = 'none'; 
-                panel.classList.remove('active-panel'); 
-            });
-            
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) { 
-                targetSection.style.display = 'block'; 
-                targetSection.classList.add('active-panel'); 
-            }
-            
-            navButtons.forEach(nb => nb.classList.remove('active'));
-            document.querySelectorAll(`[data-tab="${targetId}"]`).forEach(activeBtn => activeBtn.classList.add('active'));
-            
-            if (mobileMenu) mobileMenu.classList.add('hidden');
-            window.scrollTo(0, 0);
-        });
-    });
 }
 
 function initGoalTracking() {
@@ -305,10 +271,6 @@ function getSelectedItems() {
     }));
 }
 
-// --- STRATEGY FUNCTIONS FOR RAID RATES ---
-// I separated these out so `executeSimulation` isn't a massive 80-line if/else chain.
-// This abides by the Single Responsibility Principle: each function only handles one specific boss's math.
-
 function adjustRatesForCox(items) {
     const pts = parseInt(document.getElementById('raid-cox-pts').value, 10) || 30000;
     const uniqueChance = pts / 867600; 
@@ -335,7 +297,6 @@ function adjustRatesForToa(items) {
     const level = parseInt(document.getElementById('raid-toa-level').value, 10) || 150;
     const pts = parseInt(document.getElementById('raid-toa-pts').value, 10) || 15000;
     
-    // We cap and scale raid level to calculate the points denominator based on Wiki formulas
     let adjLevel = level;
     if (adjLevel > 310) { 
         if (adjLevel > 430) adjLevel = 430 + Math.floor((adjLevel - 430) / 2); 
@@ -359,7 +320,6 @@ function adjustRatesForToa(items) {
             let w = item.rate;
             if (item.name === "Osmumten's fang") w = fangW;
             if (item.name === "Lightbearer") w = lbW;
-            // Items are heavily penalized if rolling below 150 invocation
             if (level < 150 && !["Osmumten's fang", "Lightbearer"].includes(item.name)) w /= 50;
             return { ...item, rate: uniqueChance * (w / totalWeight) };
         }
@@ -388,7 +348,6 @@ function executeSimulation(selectedItems, currentKC) {
     const bossData = BOSS_CONFIG[activeBossKey];
     let processedItems = [...selectedItems];
 
-    // Delegate dynamic calculations cleanly 
     if (activeBossKey === 'chambers_of_xeric') {
         processedItems = adjustRatesForCox(processedItems);
     } else if (activeBossKey === 'theatre_of_blood') {
