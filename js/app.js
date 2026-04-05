@@ -58,9 +58,15 @@ function populateBossSelect() {
 }
 
 // --- DYNAMIC UI INJECTOR ---
+/**
+ * @file app.js (Dynamic UI Component)
+ * Generates boss-specific input controls and handles UI state lockdowns.
+ */
+
 function renderDynamicSettings(bossKey) {
     let container = document.getElementById('dynamic-raid-settings');
     
+    // Create container if it doesn't exist
     if (!container) {
         container = document.createElement('div');
         container.id = 'dynamic-raid-settings';
@@ -161,7 +167,6 @@ function renderDynamicSettings(bossKey) {
                     this.style.borderColor = 'var(--border)';
                     this.style.color = 'var(--text)';
                     this.style.background = 'rgba(255,255,255,0.05)';
-                    
                     teamInput.disabled = false;
                     teamInput.style.opacity = '1';
                 } else {
@@ -170,17 +175,10 @@ function renderDynamicSettings(bossKey) {
                     this.style.borderColor = 'var(--accent-orange)';
                     this.style.color = 'var(--accent-orange)';
                     this.style.background = 'rgba(249, 115, 22, 0.05)';
-                    
                     teamInput.value = 1;
                     teamInput.disabled = true;
                     teamInput.style.opacity = '0.5';
                 }
-            });
-            
-            document.getElementById('nightmare-team-size').addEventListener('change', function() {
-                let val = parseInt(this.value, 10);
-                if (isNaN(val) || val < 1) this.value = 1;
-                else if (val > 80) this.value = 80;
             });
             break;
 
@@ -197,6 +195,98 @@ function renderDynamicSettings(bossKey) {
                 else if (val > 100) this.value = 100;
             });
             break;
+
+        case 'tempoross':
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Points per Game</label>
+                    <input type="number" id="tempoross-points" value="4000" min="0">
+                </div>`;
+            break;
+
+        case 'wintertodt':
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Points per Game</label>
+                    <input type="number" id="wintertodt-points" value="750" min="500">
+                </div>`;
+            break;
+
+        case 'zalcano':
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Contribution %</label>
+                    <input type="number" id="zalcano-contribution" value="100" min="0" max="100">
+                </div>`;
+            break;
+
+        case 'royal_titans':
+            container.innerHTML = `
+                <div class="input-row" style="margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button type="button" id="titan-target-btn" value="branda" 
+                        style="padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer;">
+                        Target: Branda
+                    </button>
+                    <button type="button" id="titan-action-btn" value="loot" 
+                        style="padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer;">
+                        Loot: Standard
+                    </button>
+                </div>
+                <div class="input-group">
+                    <label>Contribution %</label>
+                    <input type="number" id="titan-contribution" value="100" min="0" max="100">
+                </div>`;
+            
+            document.getElementById('titan-target-btn').addEventListener('click', function() {
+                const isBranda = this.value === 'branda';
+                this.value = isBranda ? 'eldric' : 'branda';
+                this.innerText = isBranda ? 'Target: Eldric' : 'Target: Branda';
+                this.style.borderColor = isBranda ? '#3b82f6' : 'var(--border)';
+                this.style.color = isBranda ? '#3b82f6' : 'var(--text)';
+            });
+
+            document.getElementById('titan-action-btn').addEventListener('click', function() {
+                const isLooting = this.value === 'loot';
+                this.value = isLooting ? 'sacrifice' : 'loot';
+                this.innerText = isLooting ? 'Loot: Sacrifice' : 'Loot: Standard';
+                
+                const active = this.value === 'sacrifice';
+                this.style.borderColor = active ? 'var(--accent-orange)' : 'var(--border)';
+                this.style.color = active ? 'var(--accent-orange)' : 'var(--text)';
+
+                if (active) forceItemSelection(["Bran"]);
+                else unlockItemSelection();
+            });
+            break;
+
+        case 'araxxor':
+            container.innerHTML = `
+                <button type="button" id="araxxor-sacrifice-btn" value="false" 
+                    style="width: 100%; margin-bottom: 12px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                    Loot Egg Sac (Standard)
+                </button>`;
+            
+            document.getElementById('araxxor-sacrifice-btn').addEventListener('click', function() {
+                const newState = this.value === 'false'; // Toggle state
+                this.value = newState ? 'true' : 'false';
+
+                if (newState) {
+                    // ACTIVE SACRIFICE STATE
+                    this.innerText = 'Smash Egg Sac (2x Pet)';
+                    this.style.borderColor = 'var(--accent-orange)';
+                    this.style.color = 'var(--accent-orange)';
+                    this.style.background = 'rgba(249, 115, 22, 0.05)';
+                    forceItemSelection(["Nid"]);
+                } else {
+                    // STANDARD LOOT STATE
+                    this.innerText = 'Loot Egg Sac (Standard)';
+                    this.style.borderColor = 'var(--border)';
+                    this.style.color = 'var(--text)';
+                    this.style.background = 'rgba(255,255,255,0.05)';
+                    unlockItemSelection();
+                }
+            });
+            break;
             
         default:
             if (DT2_BOSSES.includes(bossKey)) {
@@ -207,57 +297,15 @@ function renderDynamicSettings(bossKey) {
                     </button>`;
                 
                 document.getElementById('dt2-awakened-btn').addEventListener('click', function() {
-                    const isAwakened = this.value === 'true';
-                    this.value = isAwakened ? 'false' : 'true';
-                    this.innerText = isAwakened ? 'Standard Variant' : 'Awakened Variant (3x Uniques)';
-                    this.style.borderColor = isAwakened ? 'var(--border)' : 'var(--accent-orange)';
-                    this.style.color = isAwakened ? 'var(--text)' : 'var(--accent-orange)';
-                    this.style.background = isAwakened ? 'rgba(255,255,255,0.05)' : 'rgba(249, 115, 22, 0.05)';
+                    const active = this.value === 'false';
+                    this.value = active ? 'true' : 'false';
+                    this.innerText = active ? 'Awakened Variant (3x Uniques)' : 'Standard Variant';
+                    this.style.borderColor = active ? 'var(--accent-orange)' : 'var(--border)';
+                    this.style.color = active ? 'var(--accent-orange)' : 'var(--text)';
                 });
             } else {
                 container.innerHTML = ''; 
             }
-            break;
-
-            case 'tempoross':
-            container.innerHTML = `
-                <div class="input-group">
-                    <label>Points per Game</label>
-                    <input type="number" id="tempoross-points" value="4000" min="0">
-                </div>`;
-            
-            document.getElementById('tempoross-points').addEventListener('change', function() {
-                let val = parseInt(this.value, 10);
-                if (isNaN(val) || val < 0) this.value = 0;
-            });
-            break;
-
-        case 'wintertodt':
-            container.innerHTML = `
-                <div class="input-group">
-                    <label>Points per Game</label>
-                    <input type="number" id="wintertodt-points" value="750" min="500">
-                </div>`;
-            
-            document.getElementById('wintertodt-points').addEventListener('change', function() {
-                let val = parseInt(this.value, 10);
-                // Snap to minimum threshold required for loot
-                if (isNaN(val) || val < 500) this.value = 500;
-            });
-            break;
-
-        case 'zalcano':
-            container.innerHTML = `
-                <div class="input-group">
-                    <label>Contribution %</label>
-                    <input type="number" id="zalcano-contribution" value="100" min="0" max="100">
-                </div>`;
-            
-            document.getElementById('zalcano-contribution').addEventListener('change', function() {
-                let val = parseInt(this.value, 10);
-                if (isNaN(val) || val < 0) this.value = 0;
-                else if (val > 100) this.value = 100;
-            });
             break;
     }
 }
@@ -361,12 +409,37 @@ function updateKC(amount) {
 
 function toggleItemSelection(e) { 
     const box = e.target.closest(".item-box"); 
-    if (box) box.classList.toggle("selected"); 
+    if (!box) return;
+
+    // BLOCKER: Prevent manual selection changes during Sacrifice modes
+    if (isSacrificeModeActive()) {
+        return; 
+    }
+
+    box.classList.toggle("selected"); 
 }
 
 function setAllItemsSelection(select) { 
+    // BLOCKER: Prevent "Select All" from ruining sacrifice rates
+    if (isSacrificeModeActive()) {
+        return;
+    }
+
     const action = select ? 'add' : 'remove'; 
     DOM.itemGrid.querySelectorAll(".item-box").forEach(b => b.classList[action]("selected")); 
+}
+
+/**
+ * Helper to determine if the UI should be locked to Pet-Only mode.
+ */
+function isSacrificeModeActive() {
+    const araxxorBtn = document.getElementById('araxxor-sacrifice-btn');
+    if (araxxorBtn && araxxorBtn.value === 'true') return true;
+
+    const titanAction = document.getElementById('titan-action-btn');
+    if (titanAction && titanAction.value === 'sacrifice') return true;
+
+    return false;
 }
 
 function handleCalculation() {
@@ -441,6 +514,63 @@ function adjustRatesForDoom(items) {
         } else {
             return { ...item, rate: 0 }; 
         }
+    });
+}
+
+function adjustRatesForAraxxor(items) {
+    const btn = document.getElementById('araxxor-sacrifice-btn');
+    const isSacrificing = btn ? btn.value === 'true' : false;
+
+    return items.map(item => {
+        // 1. Handle Pet Mechanics
+        if (item.name === "Nid") {
+            return { ...item, rate: isSacrificing ? 1/1500 : 1/3000 };
+        }
+
+        // 2. Handle Main Table Drops (Nullified if sacrificing)
+        if (isSacrificing && item.type === 'main') {
+            return { ...item, rate: 0 };
+        }
+
+        // Tertiary drops (like the Araxyte head or Jar of venom) still roll 
+        // at their standard rates even when the main loot is sacrificed.
+        return item;
+    });
+}
+
+function adjustRatesForTitans(items) {
+    // Update these selectors to match the new button IDs
+    const target = document.getElementById('titan-target-btn').value;
+    const action = document.getElementById('titan-action-btn').value;
+    
+    let contrib = parseInt(document.getElementById('titan-contribution').value, 10);
+    if (isNaN(contrib) || contrib < 0) contrib = 0;
+    if (contrib > 100) contrib = 100;
+    
+    const cFrac = contrib / 100;
+
+    return items.map(item => {
+        const baseRate = item.rate;
+
+        if (item.name === "Bran") {
+            return { ...item, rate: action === 'sacrifice' ? 1/1500 : 1/3000 };
+        }
+
+        if (action !== 'loot' || cFrac === 0) {
+            return { ...item, rate: 0 };
+        }
+
+        if (target === 'branda') {
+            if (["Deadeye prayer scroll", "Ice element staff crown"].includes(item.name)) {
+                return { ...item, rate: 0 };
+            }
+        } else if (target === 'eldric') {
+            if (["Mystic vigour prayer scroll", "Fire element staff crown"].includes(item.name)) {
+                return { ...item, rate: 0 };
+            }
+        }
+
+        return { ...item, rate: baseRate * cFrac };
     });
 }
 
@@ -748,6 +878,7 @@ function executeSimulation(selectedItems, currentKC) {
     const bossData = BOSS_CONFIG[activeBossKey];
     let processedItems = [...selectedItems];
 
+    // Route items through their respective modifier logic before building the matrix
     if (activeBossKey === 'chambers_of_xeric') {
         processedItems = adjustRatesForCox(processedItems);
     } else if (activeBossKey === 'theatre_of_blood') {
@@ -770,17 +901,31 @@ function executeSimulation(selectedItems, currentKC) {
         processedItems = adjustRatesForWintertodt(processedItems);
     } else if (activeBossKey === 'zalcano') {
         processedItems = adjustRatesForZalcano(processedItems);
+    } else if (activeBossKey === 'royal_titans') {
+        processedItems = adjustRatesForTitans(processedItems);
+    } else if (activeBossKey === 'araxxor') {
+        processedItems = adjustRatesForAraxxor(processedItems);
+    }
+
+    // GLOBAL SAFETY NET: Strip out any items that are mathematically impossible.
+    // This prevents the Markov chain from looping to infinity trying to solve for 0%.
+    const validItems = processedItems.filter(item => item.rate > 0);
+
+    if (validItems.length === 0) {
+        alert("The current settings make it mathematically impossible to obtain the selected items. Please adjust your target or settings.");
+        return null;
     }
 
     let matrix;
     const rolls = bossData.rolls || 1;
 
+    // Dispatch to the correct mathematical solver
     if (activeBossKey === 'moons_of_peril') {
-        matrix = createMoonsMatrix(processedItems);
+        matrix = createMoonsMatrix(validItems);
     } else if (activeBossKey === 'barrows_chests') {
-        matrix = createBarrowsMatrix(processedItems.length);
+        matrix = createBarrowsMatrix(validItems.length);
     } else {
-        matrix = createMasterMatrix(processedItems, rolls);
+        matrix = createMasterMatrix(validItems, rolls);
     }
 
     return runSimulation(matrix, currentKC);
@@ -923,6 +1068,27 @@ function getChartPlugins(transformX, stats, userKC, modeY, medianY) {
             } 
         }
     };
+}
+
+/**
+ * Enhanced UI Force: Now handles visual "Lockdown" styling.
+ */
+function forceItemSelection(allowedNames) {
+    DOM.itemGrid.querySelectorAll(".item-box").forEach(box => {
+        const isAllowed = allowedNames.includes(box.title);
+        box.classList.toggle("selected", isAllowed);
+        
+        // Visual feedback: Dim items that are currently locked out
+        box.style.opacity = isAllowed ? "1" : "0.3";
+        box.style.pointerEvents = isAllowed ? "auto" : "none";
+    });
+}
+
+function unlockItemSelection() {
+    DOM.itemGrid.querySelectorAll(".item-box").forEach(box => {
+        box.style.opacity = "1";
+        box.style.pointerEvents = "auto";
+    });
 }
 
 initApp();
