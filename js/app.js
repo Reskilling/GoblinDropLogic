@@ -400,8 +400,9 @@ function handleBossSelection(e) {
 }
 
 function updateKC(amount) { 
-    const currentVal = parseInt(DOM.kcInput.value, 10) || 0; 
-    DOM.kcInput.value = currentVal + amount; 
+    // Clamp the value to prevent negative KC entries from causing NaN errors
+    const currentVal = parseInt(DOM.kcInput.value || '0', 10);
+    DOM.kcInput.value = Math.max(0, currentVal + amount); 
 }
 
 function toggleItemSelection(e) { 
@@ -773,7 +774,9 @@ function handleCalculation() {
         alert("Select at least one item!"); 
         return; 
     }
-    const currentKC = parseInt(DOM.kcInput.value, 10) || 0;
+    
+    // Clamp the value here to ensure the core simulation engine never receives a negative targetKC
+    const currentKC = Math.max(0, parseInt(DOM.kcInput.value || '0', 10));
     
     // EXTRACT STATE ONCE IN THE UI THREAD
     const bossState = STATE_EXTRACTORS[activeBossKey] ? STATE_EXTRACTORS[activeBossKey]() : {};
