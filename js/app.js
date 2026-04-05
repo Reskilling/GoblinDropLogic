@@ -448,32 +448,32 @@ function getSelectedItems() {
 
 // ==========================================
 // STATE EXTRACTION LAYER
-// Reads the DOM so our math functions don't have to
+// Reads the DOM safely with string-fallbacks to prevent falsy-zero and NaN overrides.
 // ==========================================
 const STATE_EXTRACTORS = {
-    'chambers_of_xeric': () => ({ pts: parseInt(document.getElementById('raid-cox-pts')?.value, 10) || 30000 }),
+    'chambers_of_xeric': () => ({ pts: parseInt(document.getElementById('raid-cox-pts')?.value || '30000', 10) }),
     'theatre_of_blood': () => ({
-        size: parseInt(document.getElementById('raid-tob-size')?.value, 10) || 3,
-        deaths: parseInt(document.getElementById('raid-tob-deaths')?.value, 10) || 0
+        size: parseInt(document.getElementById('raid-tob-size')?.value || '3', 10),
+        deaths: parseInt(document.getElementById('raid-tob-deaths')?.value || '0', 10)
     }),
     'tombs_of_amascut': () => ({
-        level: parseInt(document.getElementById('raid-toa-level')?.value, 10) || 150,
-        pts: parseInt(document.getElementById('raid-toa-pts')?.value, 10) || 15000
+        level: parseInt(document.getElementById('raid-toa-level')?.value || '150', 10),
+        pts: parseInt(document.getElementById('raid-toa-pts')?.value || '15000', 10)
     }),
-    'doom_of_mokhaiotl': () => ({ level: parseInt(document.getElementById('doom-delve-level')?.value, 10) || 9 }),
+    'doom_of_mokhaiotl': () => ({ level: parseInt(document.getElementById('doom-delve-level')?.value || '9', 10) }),
     'fortis_colosseum': () => ({ isSacrificing: document.getElementById('colo-sacrifice-btn')?.value === 'true' }),
     'the_nightmare': () => ({
         variant: document.getElementById('nightmare-variant-btn')?.value || 'standard',
-        teamSize: parseInt(document.getElementById('nightmare-team-size')?.value, 10) || 1
+        teamSize: parseInt(document.getElementById('nightmare-team-size')?.value || '5', 10)
     }),
-    'yama': () => ({ contrib: parseInt(document.getElementById('yama-contribution')?.value, 10) ?? 100 }),
-    'tempoross': () => ({ pts: parseInt(document.getElementById('tempoross-points')?.value, 10) || 0 }),
-    'wintertodt': () => ({ pts: parseInt(document.getElementById('wintertodt-points')?.value, 10) || 500 }),
-    'zalcano': () => ({ contrib: parseInt(document.getElementById('zalcano-contribution')?.value, 10) ?? 100 }),
+    'yama': () => ({ contrib: parseInt(document.getElementById('yama-contribution')?.value || '100', 10) }),
+    'tempoross': () => ({ pts: parseInt(document.getElementById('tempoross-points')?.value || '4000', 10) }),
+    'wintertodt': () => ({ pts: parseInt(document.getElementById('wintertodt-points')?.value || '750', 10) }),
+    'zalcano': () => ({ contrib: parseInt(document.getElementById('zalcano-contribution')?.value || '100', 10) }),
     'royal_titans': () => ({
         target: document.getElementById('titan-target-btn')?.value || 'branda',
         action: document.getElementById('titan-action-btn')?.value || 'loot',
-        contrib: parseInt(document.getElementById('titan-contribution')?.value, 10) ?? 100
+        contrib: parseInt(document.getElementById('titan-contribution')?.value || '100', 10)
     }),
     'araxxor': () => ({ isSacrificing: document.getElementById('araxxor-sacrifice-btn')?.value === 'true' })
 };
