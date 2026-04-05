@@ -397,18 +397,15 @@ export const RAW_BOSS_DATA = {
         "27687": { name: "Voidwaker gem", rate: 1 / 912, type: "main", order: 6 },
     },
     "tempoross": {
-        "25602": { name: "Tiny tempor", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "25559": { name: "Big harpoonfish", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "25592": { name: "Spirit angler headband", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "25594": { name: "Spirit angler top", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "25596": { name: "Spirit angler waders", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "25598": { name: "Spirit angler boots", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
-        "25576": { name: "Tome of water (empty)", rate: PLACEHOLDER_RATE, type: "main", order: 7 },
-        "25578": { name: "Soaked page", rate: PLACEHOLDER_RATE, type: "main", order: 8 },
-        "25580": { name: "Tackle box", rate: PLACEHOLDER_RATE, type: "main", order: 9 },
-        "25582": { name: "Fish barrel", rate: PLACEHOLDER_RATE, type: "main", order: 10 },
-        "21028": { name: "Dragon harpoon", rate: PLACEHOLDER_RATE, type: "main", order: 11 },
-        "25588": { name: "Spirit flakes", rate: PLACEHOLDER_RATE, type: "main", order: 12 },
+        "25602": { name: "Tiny tempor", rate: 1/8000, type: "main", order: 1 },
+        "25559": { name: "Big harpoonfish", rate: 1/1600, type: "main", order: 2 },
+        "25576": { name: "Tome of water (empty)", rate: 1/1600, type: "main", order: 3 },
+        "25580": { name: "Tackle box", rate: 1/400, type: "main", order: 4 },
+        "25582": { name: "Fish barrel", rate: 1/400, type: "main", order: 5 },
+        "21028": { name: "Dragon harpoon", rate: 1/8000, type: "main", order: 6 },
+        "25578": { name: "Soaked page", rate: 149/8000, type: "main", hidden: true, order: 7 },
+        "25588": { name: "Spirit flakes", rate: 1/4, type: "main", hidden: true, order: 8 },
+        "20546": { name: "Casket (Reward pool)", rate: 1/20, type: "main", hidden: true, order: 9 }
     },
     "thermonuclear_smoke_devil": {
         "12648": { name: "Pet smoke devil", rate: 1 / 3000, type: "tertiary", order: 1 },
@@ -460,16 +457,16 @@ export const RAW_BOSS_DATA = {
         "28276": { name: "Chromium ingot", rate: 1 / 170.66, type: "main", order: 7 }
     },
     "wintertodt": {
-        "20693": { name: "Phoenix", rate: PLACEHOLDER_RATE, type: "tertiary", order: 1 },
-        "20716": { name: "Tome of fire (empty)", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "20718": { name: "Burnt page", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "20704": { name: "Pyromancer garb", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "20708": { name: "Pyromancer hood", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "20706": { name: "Pyromancer robe", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
-        "20710": { name: "Pyromancer boots", rate: PLACEHOLDER_RATE, type: "main", order: 7 },
-        "20712": { name: "Warm gloves", rate: PLACEHOLDER_RATE, type: "main", order: 8 },
-        "20720": { name: "Bruma torch", rate: PLACEHOLDER_RATE, type: "main", order: 9 },
-        "6739": { name: "Dragon axe", rate: PLACEHOLDER_RATE, type: "main", order: 10 },
+        "20693": { name: "Phoenix", rate: 1/5000, type: "tertiary", order: 1 },
+        "6739": { name: "Dragon axe", rate: 1/10000, type: "main", order: 2 },
+        "20716": { name: "Tome of fire (empty)", rate: 1/1000, type: "main", order: 3 },
+        "20712": { name: "Warm gloves", rate: 1/150, type: "main", order: 4 },
+        "20720": { name: "Bruma torch", rate: 1/150, type: "main", order: 5 },
+        "20704": { name: "Pyromancer garb", rate: 1/150, type: "main", pool: "pyromancer", order: 6 },
+        "20708": { name: "Pyromancer hood", rate: 1/150, type: "main", pool: "pyromancer", order: 7 },
+        "20706": { name: "Pyromancer robe", rate: 1/150, type: "main", pool: "pyromancer", order: 8 },
+        "20710": { name: "Pyromancer boots", rate: 1/150, type: "main", pool: "pyromancer", order: 9 },
+        "20718": { name: "Burnt page", rate: 1/45, type: "main", hidden: true, order: 10 }
     },
     "yama": {
         "30888": { name: "Yami", rate: 1/2500, type: "tertiary", order: 1 },
@@ -483,10 +480,10 @@ export const RAW_BOSS_DATA = {
         "30795": { name: "Barrel of demonic tallow (full)", rate: 5/78, type: "main", order: 11 }
     },
     "zalcano": {
-        "23760": { name: "Smolcano", rate: PLACEHOLDER_RATE, type: "tertiary", order: 1 },
-        "23953": { name: "Crystal tool seed", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "23908": { name: "Zalcano shard", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "6571": { name: "Uncut onyx", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
+        "23760": { name: "Smolcano", rate: 1/2250, type: "tertiary", order: 1 },
+        "23953": { name: "Crystal tool seed", rate: 39/8000, type: "main", order: 2 },
+        "6571": { name: "Uncut onyx", rate: 1/8000, type: "main", hidden: true, order: 3 },
+        "23908": { name: "Zalcano shard", rate: 1/750, type: "main", order: 4 }
     },
     "zulrah": {
         "12921": { name: "Pet snakeling", rate: 1 / 4000, type: "tertiary", order: 1 },

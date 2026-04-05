@@ -218,6 +218,47 @@ function renderDynamicSettings(bossKey) {
                 container.innerHTML = ''; 
             }
             break;
+
+            case 'tempoross':
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Points per Game</label>
+                    <input type="number" id="tempoross-points" value="4000" min="0">
+                </div>`;
+            
+            document.getElementById('tempoross-points').addEventListener('change', function() {
+                let val = parseInt(this.value, 10);
+                if (isNaN(val) || val < 0) this.value = 0;
+            });
+            break;
+
+        case 'wintertodt':
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Points per Game</label>
+                    <input type="number" id="wintertodt-points" value="750" min="500">
+                </div>`;
+            
+            document.getElementById('wintertodt-points').addEventListener('change', function() {
+                let val = parseInt(this.value, 10);
+                // Snap to minimum threshold required for loot
+                if (isNaN(val) || val < 500) this.value = 500;
+            });
+            break;
+
+        case 'zalcano':
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Contribution %</label>
+                    <input type="number" id="zalcano-contribution" value="100" min="0" max="100">
+                </div>`;
+            
+            document.getElementById('zalcano-contribution').addEventListener('change', function() {
+                let val = parseInt(this.value, 10);
+                if (isNaN(val) || val < 0) this.value = 0;
+                else if (val > 100) this.value = 100;
+            });
+            break;
     }
 }
 
@@ -401,6 +442,92 @@ function adjustRatesForDoom(items) {
             return { ...item, rate: 0 }; 
         }
     });
+}
+
+function adjustRatesForTempoross(items) {
+    let pts = parseInt(document.getElementById('tempoross-points').value, 10);
+    if (isNaN(pts) || pts < 0) pts = 0;
+    
+    // 1 permit at 2000 pts, +1 permit for every 700 pts thereafter
+    let rolls = 0;
+    if (pts >= 2000) {
+        rolls = 1 + (pts - 2000) / 700;
+    }
+
+    if (rolls === 0) return items.map(item => ({ ...item, rate: 0 }));
+
+    return items.map(item => ({
+        ...item,
+        // Cumulative probability of getting the item at least once across all game rolls
+        rate: 1 - Math.pow(1 - item.rate, rolls),
+        // Force to tertiary so the matrix evaluates this calculated game-chance independently
+        type: "tertiary" 
+    }));
+}
+
+function adjustRatesForWintertodt(items) {
+    let pts = parseInt(document.getElementById('wintertodt-points').value, 10);
+    if (isNaN(pts) || pts < 500) pts = 500;
+    
+    // 500 points = 2 rolls, +1 roll for every 500 points thereafter
+    const rolls = 1 + (pts / 500);
+
+    // Calculate the chance of getting each item on a SINGLE reward roll using the sequential cascade
+    let runningProb = 1.0;
+    const rollRates = {};
+
+    const cascadeRates = [
+        { name: "Phoenix", rate: 1/5000 },
+        { name: "Dragon axe", rate: 1/10000 },
+        { name: "Tome of fire (empty)", rate: 1/1000 },
+        { name: "Warm gloves", rate: 1/150 },
+        { name: "Bruma torch", rate: 1/150 },
+        { name: "Pyromancer garb", rate: 1/150 }, // Acts as the generic "pyro piece" pool
+        { name: "Burnt page", rate: 1/45 }
+    ];
+
+    cascadeRates.forEach(drop => {
+        rollRates[drop.name] = drop.rate * runningProb;
+        runningProb *= (1 - drop.rate);
+    });
+
+    // Apply the generic pyro chance to all specific Pyromancer pieces
+    rollRates["Pyromancer hood"] = rollRates["Pyromancer garb"];
+    rollRates["Pyromancer robe"] = rollRates["Pyromancer garb"];
+    rollRates["Pyromancer boots"] = rollRates["Pyromancer garb"];
+
+    return items.map(item => {
+        const ratePerRoll = rollRates[item.name] || 0;
+        return {
+            ...item,
+            rate: 1 - Math.pow(1 - ratePerRoll, rolls),
+            type: "tertiary" 
+        };
+    });
+}
+
+function adjustRatesForZalcano(items) {
+    let contrib = parseInt(document.getElementById('zalcano-contribution').value, 10);
+    if (isNaN(contrib) || contrib < 0) contrib = 0;
+    if (contrib > 100) contrib = 100;
+    
+    const cFrac = contrib / 100;
+
+    if (cFrac === 0) return items.map(item => ({ ...item, rate: 0 }));
+
+    // The 1/200 table roll is split: 39/40 chance for Tool Seed, 1/40 chance for Onyx
+    const rates = {
+        "Smolcano": 1/2250,
+        "Crystal tool seed": (1/200) * (39/40) * cFrac,
+        "Uncut onyx": (1/200) * (1/40) * cFrac,
+        "Zalcano shard": 1 / (1500 - (750 * cFrac))
+    };
+
+    return items.map(item => ({
+        ...item,
+        rate: rates[item.name] !== undefined ? rates[item.name] : item.rate,
+        type: "tertiary"
+    }));
 }
 
 function adjustRatesForYama(items) {
@@ -637,6 +764,12 @@ function executeSimulation(selectedItems, currentKC) {
         processedItems = adjustRatesForNightmare(processedItems);
     } else if (activeBossKey === 'yama') {
         processedItems = adjustRatesForYama(processedItems);
+    } else if (activeBossKey === 'tempoross') {
+        processedItems = adjustRatesForTempoross(processedItems);
+    } else if (activeBossKey === 'wintertodt') {
+        processedItems = adjustRatesForWintertodt(processedItems);
+    } else if (activeBossKey === 'zalcano') {
+        processedItems = adjustRatesForZalcano(processedItems);
     }
 
     let matrix;
