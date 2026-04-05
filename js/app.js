@@ -322,7 +322,12 @@ function bindEvents() {
         btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
     });
 
-    if (DOM.kcResetBtn) DOM.kcResetBtn.addEventListener('click', () => { if (DOM.kcInput) DOM.kcInput.value = 0; });
+    if (DOM.kcResetBtn) DOM.kcResetBtn.addEventListener('click', () => { 
+        if (DOM.kcInput) DOM.kcInput.value = 0; 
+        handleCalculation();
+    });
+
+    if (DOM.kcInput) DOM.kcInput.addEventListener('change', handleCalculation);
     
     if (DOM.selectAllBtn) DOM.selectAllBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(true); });
     if (DOM.selectNoneBtn) DOM.selectNoneBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(false); });
@@ -403,6 +408,7 @@ function updateKC(amount) {
     // Clamp the value to prevent negative KC entries from causing NaN errors
     const currentVal = parseInt(DOM.kcInput.value || '0', 10);
     DOM.kcInput.value = Math.max(0, currentVal + amount); 
+    handleCalculation();
 }
 
 function toggleItemSelection(e) { 
@@ -871,7 +877,6 @@ function displayResults(results, currentKC) {
 
 function renderChart(data, stats, userKC) {
     const ctx = DOM.chartCanvas.getContext('2d');
-    if (chartInstance) chartInstance.destroy();
     
     const transformX = (x) => Math.pow(x, X_AXIS_POWER);
     const reverseX = (y) => Math.pow(y, 1 / X_AXIS_POWER);
@@ -884,16 +889,24 @@ function renderChart(data, stats, userKC) {
     const modeY = getClosestPoint(stats.modeKC).pmf;
     const medianY = getClosestPoint(stats.median).cdf;
 
-    chartInstance = new Chart(ctx, {
-        type: 'line',
-        data: { 
-            datasets: [ 
-                createDataset('Luck (PMF)', data, transformX, 'pmf', COLORS.mode, 'yPMF'), 
-                createDataset('Progress (CDF)', data, transformX, 'cdf', COLORS.progress, 'yCDF', 2) 
-            ] 
-        },
-        options: getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, medianY)
-    });
+    const newDatasets = [ 
+        createDataset('Luck (PMF)', data, transformX, 'pmf', COLORS.mode, 'yPMF'), 
+        createDataset('Progress (CDF)', data, transformX, 'cdf', COLORS.progress, 'yCDF', 2) 
+    ];
+    const newOptions = getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, medianY);
+
+    if (chartInstance) {
+        // Fluidly update the existing chart instead of destroying it to trigger animations
+        chartInstance.data.datasets = newDatasets;
+        chartInstance.options = newOptions;
+        chartInstance.update();
+    } else {
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { datasets: newDatasets },
+            options: newOptions
+        });
+    }
 }
 
 function createDataset(label, data, transformX, yKey, color, yAxisID, borderWidth = 3) {
