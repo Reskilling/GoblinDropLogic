@@ -224,7 +224,7 @@ function renderDynamicSettings(bossKey) {
             container.innerHTML = `
                 <div class="input-row" style="margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <button type="button" id="titan-target-btn" value="branda" 
-                        style="padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer;">
+                        style="padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer;">
                         Target: Branda
                     </button>
                     <button type="button" id="titan-action-btn" value="loot" 
@@ -238,11 +238,20 @@ function renderDynamicSettings(bossKey) {
                 </div>`;
             
             document.getElementById('titan-target-btn').addEventListener('click', function() {
-                const isBranda = this.value === 'branda';
-                this.value = isBranda ? 'eldric' : 'branda';
-                this.innerText = isBranda ? 'Target: Eldric' : 'Target: Branda';
-                this.style.borderColor = isBranda ? '#3b82f6' : 'var(--border)';
-                this.style.color = isBranda ? '#3b82f6' : 'var(--text)';
+                // Toggle the value
+                const isCurrentlyBranda = this.value === 'branda';
+                this.value = isCurrentlyBranda ? 'eldric' : 'branda';
+                
+                // Update UI based on the NEW value
+                if (this.value === 'branda') {
+                    this.innerText = 'Target: Branda';
+                    this.style.borderColor = '#ef4444'; // Red
+                    this.style.color = '#ef4444';       // Red
+                } else {
+                    this.innerText = 'Target: Eldric';
+                    this.style.borderColor = '#3b82f6'; // Blue
+                    this.style.color = '#3b82f6';       // Blue
+                }
             });
 
             document.getElementById('titan-action-btn').addEventListener('click', function() {
