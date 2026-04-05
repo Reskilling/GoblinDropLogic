@@ -58,6 +58,7 @@ function populateBossSelect() {
 }
 
 // --- DYNAMIC UI INJECTOR ---
+// --- DYNAMIC UI INJECTOR ---
 function renderDynamicSettings(bossKey) {
     let container = document.getElementById('dynamic-raid-settings');
     
@@ -134,6 +135,55 @@ function renderDynamicSettings(bossKey) {
                 this.style.borderColor = isSacrificing ? 'var(--border)' : 'var(--accent-orange)';
                 this.style.color = isSacrificing ? 'var(--text)' : 'var(--accent-orange)';
                 this.style.background = isSacrificing ? 'rgba(255,255,255,0.05)' : 'rgba(249, 115, 22, 0.05)';
+            });
+            break;
+
+        case 'the_nightmare':
+            container.innerHTML = `
+                <div class="input-row" style="margin-bottom: 0;">
+                    <div class="input-group" style="display: flex; flex-direction: column; justify-content: flex-end;">
+                        <button type="button" id="nightmare-variant-btn" value="standard" 
+                            style="width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease; white-space: normal; line-height: 1.2;">
+                            Standard Mode
+                        </button>
+                    </div>
+                    <div class="input-group">
+                        <label>Team Size</label>
+                        <input type="number" id="nightmare-team-size" value="5" min="1" max="80">
+                    </div>
+                </div>`;
+            
+            document.getElementById('nightmare-variant-btn').addEventListener('click', function() {
+                const isPhosani = this.value === 'phosani';
+                const teamInput = document.getElementById('nightmare-team-size');
+                
+                if (isPhosani) {
+                    this.value = 'standard';
+                    this.innerText = 'Standard Mode';
+                    this.style.borderColor = 'var(--border)';
+                    this.style.color = 'var(--text)';
+                    this.style.background = 'rgba(255,255,255,0.05)';
+                    
+                    teamInput.disabled = false;
+                    teamInput.style.opacity = '1';
+                } else {
+                    this.value = 'phosani';
+                    this.innerText = "Phosani's Variant"; // Shortened to prevent clipping
+                    this.style.borderColor = 'var(--accent-orange)';
+                    this.style.color = 'var(--accent-orange)';
+                    this.style.background = 'rgba(249, 115, 22, 0.05)';
+                    
+                    teamInput.value = 1;
+                    teamInput.disabled = true;
+                    teamInput.style.opacity = '0.5';
+                }
+            });
+            
+            // Clamp team size based on the Wiki's hard cap of 80 players.
+            document.getElementById('nightmare-team-size').addEventListener('change', function() {
+                let val = parseInt(this.value, 10);
+                if (isNaN(val) || val < 1) this.value = 1;
+                else if (val > 80) this.value = 80;
             });
             break;
             
@@ -356,7 +406,6 @@ function adjustRatesForColosseum(items) {
     });
 }
 
-// ... [Keep existing Raid adjustments: adjustRatesForCox, adjustRatesForTob, adjustRatesForToa, adjustRatesForDT2] ...
 function adjustRatesForCox(items) {
     const pts = parseInt(document.getElementById('raid-cox-pts').value, 10) || 30000;
     const uniqueChance = pts / 867600; 
@@ -429,12 +478,78 @@ function adjustRatesForDT2(items) {
     }
     return items;
 }
+
+function adjustRatesForNightmare(items) {
+    const variant = document.getElementById('nightmare-variant-btn').value;
+    let teamSize = parseInt(document.getElementById('nightmare-team-size').value, 10) || 1;
+    teamSize = Math.min(Math.max(teamSize, 1), 80);
+
+    if (variant === 'phosani') {
+        // Phosani's uses a distinct, static drop table (updated via Project Rebalance). 
+        // We override the baseline JSON data entirely to apply the exact effective rates,
+        // rather than recalculating the 8% staff-to-mace shift on the fly.
+        const phosaniRates = {
+            "Little nightmare": 1 / 1400,
+            "Inquisitor's mace": 1 / 1129,
+            "Inquisitor's great helm": 1 / 700,
+            "Inquisitor's hauberk": 1 / 700,
+            "Inquisitor's plateskirt": 1 / 700,
+            "Nightmare staff": 1 / 507.2,
+            "Volatile orb": 1 / 1600,
+            "Harmonised orb": 1 / 1600,
+            "Eldritch orb": 1 / 1600,
+            "Jar of dreams": 1 / 4000,
+            "Slepey tablet": 1 / 25,
+            "Parasitic egg": 1 / 200
+        };
+        
+        return items.map(item => ({
+            ...item,
+            rate: phosaniRates[item.name] || item.rate
+        }));
+        
+    } else {
+        // Standard Nightmare:
+        // If a team is larger than 5, they gain +1% chance per player to roll the unique table 
+        // a SECOND time (capped at 75% for 80 players). 
+        // This scaling factor is applied to the base rate, and then divided by the team size 
+        // to yield the player's personal expected drop rate.
+        const scale = 1 + (Math.max(0, Math.min(teamSize - 5, 75)) / 100);
+        
+        return items.map(item => {
+            // These items are mathematically impossible in the standard encounter.
+            if (item.name === "Slepey tablet" || item.name === "Parasitic egg") {
+                return { ...item, rate: 0 }; 
+            }
+            
+            // The pet logic scales differently than standard tertiary items
+            if (item.name === "Little nightmare") {
+                const petRate = teamSize <= 5 ? 1 / (800 * teamSize) : 1 / 4000;
+                return { ...item, rate: petRate };
+            }
+            
+            if (item.name === "Jar of dreams") {
+                return { ...item, rate: 1 / (2000 * teamSize) };
+            }
+            
+            // Uniques
+            if (item.type === "main") {
+                const personalRate = (item.rate * scale) / teamSize;
+                return { ...item, rate: personalRate };
+            }
+            
+            return item;
+        });
+    }
+}
 // --- END RATE ADJUSTMENT ---
 
+// --- SIMULATION EXECUTION ---
 function executeSimulation(selectedItems, currentKC) {
     const bossData = BOSS_CONFIG[activeBossKey];
     let processedItems = [...selectedItems];
 
+    // Route items through their respective modifier logic before building the matrix
     if (activeBossKey === 'chambers_of_xeric') {
         processedItems = adjustRatesForCox(processedItems);
     } else if (activeBossKey === 'theatre_of_blood') {
@@ -447,13 +562,14 @@ function executeSimulation(selectedItems, currentKC) {
         processedItems = adjustRatesForDoom(processedItems);
     } else if (activeBossKey === 'fortis_colosseum') {
         processedItems = adjustRatesForColosseum(processedItems);
+    } else if (activeBossKey === 'the_nightmare') {
+        processedItems = adjustRatesForNightmare(processedItems);
     }
 
     let matrix;
     const rolls = bossData.rolls || 1;
 
-    // By leaving Fortis Colosseum out of this if-statement, it defaults to createMasterMatrix.
-    // createMasterMatrix seamlessly handles the Sunfire pool logic automatically!
+    // Dispatch to the correct mathematical solver
     if (activeBossKey === 'moons_of_peril') {
         matrix = createMoonsMatrix(processedItems);
     } else if (activeBossKey === 'barrows_chests') {
