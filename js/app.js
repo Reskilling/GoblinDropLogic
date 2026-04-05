@@ -58,7 +58,6 @@ function populateBossSelect() {
 }
 
 // --- DYNAMIC UI INJECTOR ---
-// --- DYNAMIC UI INJECTOR ---
 function renderDynamicSettings(bossKey) {
     let container = document.getElementById('dynamic-raid-settings');
     
@@ -113,7 +112,6 @@ function renderDynamicSettings(bossKey) {
                     <input type="number" id="doom-delve-level" value="9" min="2" max="15">
                 </div>`;
             
-            // Visually clamp the input so users can't type numbers outside the realistic scope
             document.getElementById('doom-delve-level').addEventListener('change', function() {
                 let val = parseInt(this.value, 10);
                 if (isNaN(val) || val < 2) this.value = 2;
@@ -168,7 +166,7 @@ function renderDynamicSettings(bossKey) {
                     teamInput.style.opacity = '1';
                 } else {
                     this.value = 'phosani';
-                    this.innerText = "Phosani's Variant"; // Shortened to prevent clipping
+                    this.innerText = "Phosani's Variant"; 
                     this.style.borderColor = 'var(--accent-orange)';
                     this.style.color = 'var(--accent-orange)';
                     this.style.background = 'rgba(249, 115, 22, 0.05)';
@@ -179,11 +177,24 @@ function renderDynamicSettings(bossKey) {
                 }
             });
             
-            // Clamp team size based on the Wiki's hard cap of 80 players.
             document.getElementById('nightmare-team-size').addEventListener('change', function() {
                 let val = parseInt(this.value, 10);
                 if (isNaN(val) || val < 1) this.value = 1;
                 else if (val > 80) this.value = 80;
+            });
+            break;
+
+        case 'yama':
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Contribution %</label>
+                    <input type="number" id="yama-contribution" value="100" min="0" max="100">
+                </div>`;
+            
+            document.getElementById('yama-contribution').addEventListener('change', function() {
+                let val = parseInt(this.value, 10);
+                if (isNaN(val) || val < 0) this.value = 0;
+                else if (val > 100) this.value = 100;
             });
             break;
             
@@ -392,6 +403,67 @@ function adjustRatesForDoom(items) {
     });
 }
 
+function adjustRatesForYama(items) {
+    let rawPoints = parseInt(document.getElementById('yama-contribution').value, 10);
+    if (isNaN(rawPoints)) rawPoints = 100;
+    
+    // Convert percentage (e.g., 50%) to a multiplier (e.g., 0.5)
+    const points = Math.min(Math.max(rawPoints, 0), 100) / 100;
+
+    // Minimum damage threshold (15%) to roll non-junk loot
+    if (points < 0.15) {
+        return items.map(item => ({ ...item, rate: 0 }));
+    }
+
+    // Yama uses a Sequential Cascading Drop Table. 
+    // We must track the probability of "failing" the previous tiers to calculate the true drop rate.
+    let runningProb = 1.0;
+
+    // 1. Uniques (Scales with points)
+    const rareSum = (1/120) * points;
+    const helmRate = (1/600) * points * runningProb;
+    const chestRate = (1/600) * points * runningProb;
+    const legsRate = (1/600) * points * runningProb;
+    const hornRate = (1/300) * points * runningProb;
+    runningProb *= (1 - rareSum);
+
+    // 2. Dossier (Scales with points)
+    // *CRITICAL*: Even though the Dossier is hidden from the UI, its mathematical roll 
+    // still occurs in-game. We must calculate its failure chance to accurately reduce 
+    // the probability mass that trickles down to the Lockbox and Shards.
+    const dossierRate = (1/12) * points * runningProb;
+    runningProb *= (1 - ((1/12) * points));
+
+    // 3. Forgotten Lockbox (Static rate)
+    const lockboxRate = (1/30) * runningProb;
+    runningProb *= (1 - (1/30));
+
+    // 4. Oathplate shards (Static rate)
+    const shardsRate = (1/15) * runningProb;
+    runningProb *= (1 - (1/15));
+
+    // 5. Standard Table Drops (Only tracking log-relevant items)
+    const tallowRate = (5/78) * runningProb;
+
+    // Build the dynamic dictionary. Items removed from drops.js have been purged here as well.
+    const yamaRates = {
+        "Yami": 1/2500, 
+        "Oathplate helm": helmRate,
+        "Oathplate chest": chestRate,
+        "Oathplate legs": legsRate,
+        "Soulflame horn": hornRate,
+        "Dossier": dossierRate,
+        "Forgotten lockbox": lockboxRate,
+        "Oathplate shards": shardsRate,
+        "Barrel of demonic tallow (full)": tallowRate
+    };
+
+    return items.map(item => ({
+        ...item,
+        rate: yamaRates[item.name] !== undefined ? yamaRates[item.name] : item.rate
+    }));
+}
+
 function adjustRatesForColosseum(items) {
     const btn = document.getElementById('colo-sacrifice-btn');
     const isSacrificing = btn ? btn.value === 'true' : false;
@@ -549,7 +621,6 @@ function executeSimulation(selectedItems, currentKC) {
     const bossData = BOSS_CONFIG[activeBossKey];
     let processedItems = [...selectedItems];
 
-    // Route items through their respective modifier logic before building the matrix
     if (activeBossKey === 'chambers_of_xeric') {
         processedItems = adjustRatesForCox(processedItems);
     } else if (activeBossKey === 'theatre_of_blood') {
@@ -564,12 +635,13 @@ function executeSimulation(selectedItems, currentKC) {
         processedItems = adjustRatesForColosseum(processedItems);
     } else if (activeBossKey === 'the_nightmare') {
         processedItems = adjustRatesForNightmare(processedItems);
+    } else if (activeBossKey === 'yama') {
+        processedItems = adjustRatesForYama(processedItems);
     }
 
     let matrix;
     const rolls = bossData.rolls || 1;
 
-    // Dispatch to the correct mathematical solver
     if (activeBossKey === 'moons_of_peril') {
         matrix = createMoonsMatrix(processedItems);
     } else if (activeBossKey === 'barrows_chests') {
