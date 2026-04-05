@@ -16,7 +16,6 @@ const DT2_BOSSES = ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviatha
 let activeBossKey = "";
 let chartInstance = null;
 
-// Centralized DOM caching prevents redundant document queries
 const DOM = {
     bossSelect: document.getElementById("boss-select"),
     itemGrid: document.getElementById("item-grid"),
@@ -29,8 +28,6 @@ const DOM = {
     phraseMean: document.getElementById("phrase-mean"),
     phraseUser: document.getElementById("phrase-user"),
     chartCanvas: document.getElementById('distributionChart'),
-    
-    // Extracted from bindEvents to ensure all static UI elements share a single source of truth
     kcResetBtn: document.getElementById("kc-reset"),
     selectAllBtn: document.getElementById("select-all"),
     selectNoneBtn: document.getElementById("select-none"),
@@ -60,12 +57,10 @@ function populateBossSelect() {
     DOM.bossSelect.innerHTML = defaultOption + bossOptions;
 }
 
-// --- RAID UI INJECTOR ---
+// --- DYNAMIC UI INJECTOR ---
 function renderDynamicSettings(bossKey) {
     let container = document.getElementById('dynamic-raid-settings');
     
-    // We create this dynamically on the fly rather than caching it in the DOM object
-    // because it relies on activeBossKey state that doesn't exist on initial load.
     if (!container) {
         container = document.createElement('div');
         container.id = 'dynamic-raid-settings';
@@ -81,6 +76,7 @@ function renderDynamicSettings(bossKey) {
                     <input type="number" id="raid-cox-pts" value="30000" min="0">
                 </div>`;
             break;
+            
         case 'theatre_of_blood':
             container.innerHTML = `
                 <div class="input-row" style="margin-bottom: 0;">
@@ -94,6 +90,7 @@ function renderDynamicSettings(bossKey) {
                     </div>
                 </div>`;
             break;
+            
         case 'tombs_of_amascut':
             container.innerHTML = `
                 <div class="input-row" style="margin-bottom: 0;">
@@ -107,6 +104,39 @@ function renderDynamicSettings(bossKey) {
                     </div>
                 </div>`;
             break;
+            
+        case 'doom_of_mokhaiotl':
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Delve Level (Max 15)</label>
+                    <input type="number" id="doom-delve-level" value="9" min="2" max="15">
+                </div>`;
+            
+            // Visually clamp the input so users can't type numbers outside the realistic scope
+            document.getElementById('doom-delve-level').addEventListener('change', function() {
+                let val = parseInt(this.value, 10);
+                if (isNaN(val) || val < 2) this.value = 2;
+                else if (val > 15) this.value = 15;
+            });
+            break;
+            
+        case 'fortis_colosseum':
+            container.innerHTML = `
+                <button type="button" id="colo-sacrifice-btn" value="false" 
+                    style="width: 100%; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                    Keep Quivers (Standard)
+                </button>`;
+            
+            document.getElementById('colo-sacrifice-btn').addEventListener('click', function() {
+                const isSacrificing = this.value === 'true';
+                this.value = isSacrificing ? 'false' : 'true';
+                this.innerText = isSacrificing ? 'Keep Quivers (Standard)' : 'Sacrifice Quivers for Pet Chance';
+                this.style.borderColor = isSacrificing ? 'var(--border)' : 'var(--accent-orange)';
+                this.style.color = isSacrificing ? 'var(--text)' : 'var(--accent-orange)';
+                this.style.background = isSacrificing ? 'rgba(255,255,255,0.05)' : 'rgba(249, 115, 22, 0.05)';
+            });
+            break;
+            
         default:
             if (DT2_BOSSES.includes(bossKey)) {
                 container.innerHTML = `
@@ -114,25 +144,23 @@ function renderDynamicSettings(bossKey) {
                         style="width: 100%; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
                         Standard Variant
                     </button>`;
+                
+                document.getElementById('dt2-awakened-btn').addEventListener('click', function() {
+                    const isAwakened = this.value === 'true';
+                    this.value = isAwakened ? 'false' : 'true';
+                    this.innerText = isAwakened ? 'Standard Variant' : 'Awakened Variant (3x Uniques)';
+                    this.style.borderColor = isAwakened ? 'var(--border)' : 'var(--accent-orange)';
+                    this.style.color = isAwakened ? 'var(--text)' : 'var(--accent-orange)';
+                    this.style.background = isAwakened ? 'rgba(255,255,255,0.05)' : 'rgba(249, 115, 22, 0.05)';
+                });
             } else {
                 container.innerHTML = ''; 
             }
             break;
     }
-
-    const dt2Btn = document.getElementById('dt2-awakened-btn');
-    if (dt2Btn) {
-        dt2Btn.addEventListener('click', function() {
-            const isAwakened = this.value === 'true';
-            this.value = isAwakened ? 'false' : 'true';
-            this.innerText = isAwakened ? 'Standard Variant' : 'Awakened Variant (3x Uniques)';
-            this.style.borderColor = isAwakened ? 'var(--border)' : 'var(--accent-orange)';
-            this.style.color = isAwakened ? 'var(--text)' : 'var(--accent-orange)';
-            this.style.background = isAwakened ? 'rgba(255,255,255,0.05)' : 'rgba(249, 115, 22, 0.05)';
-        });
-    }
 }
 
+// ... [Keep bindEvents, initGoalTracking, UI handlers exact as they are] ...
 function bindEvents() {
     if (DOM.bossSelect) DOM.bossSelect.addEventListener('change', handleBossSelection);
     if (DOM.itemGrid) DOM.itemGrid.addEventListener('click', toggleItemSelection);
@@ -148,7 +176,6 @@ function bindEvents() {
 
     if (DOM.calcBtn) DOM.calcBtn.addEventListener('click', handleCalculation);
 
-    // Local UI state toggle (does not conflict with index.html view transitions)
     if (DOM.mobileBtn && DOM.mobileMenu) { 
         DOM.mobileBtn.addEventListener('click', (e) => { 
             e.stopPropagation(); 
@@ -237,7 +264,6 @@ function toggleItemSelection(e) {
 
 function setAllItemsSelection(select) { 
     const action = select ? 'add' : 'remove'; 
-    // Scoped query against DOM.itemGrid is much faster than checking the entire document
     DOM.itemGrid.querySelectorAll(".item-box").forEach(b => b.classList[action]("selected")); 
 }
 
@@ -272,7 +298,65 @@ function getSelectedItems() {
         pool: b.dataset.pool 
     }));
 }
+// ... [End UI Handlers] ...
+// --- RATE ADJUSTMENT FUNCTIONS ---
+function adjustRatesForDoom(items) {
+    let rawLevel = parseInt(document.getElementById('doom-delve-level').value, 10) || 9;
+    
+    // Clamp the input to our realistic infinite dive cap of 15
+    const targetLevel = Math.min(Math.max(rawLevel, 2), 15);
+    
+    // Base rates per individual floor
+    const floorRates = {
+        'Mokhaiotl cloth': { 2: 2500, 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
+        'Eye of ayak (uncharged)': { 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
+        'Avernic treads': { 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
+        'Dom': { 6: 1000, 7: 750, 8: 500, 9: 250 }
+    };
 
+    return items.map(item => {
+        const itemRates = floorRates[item.name];
+        if (!itemRates) return item;
+
+        let chanceToFailAll = 1.0;
+        let canRoll = false;
+
+        // A full run rolls the loot table at every floor reached.
+        for (let floor = 2; floor <= targetLevel; floor++) {
+            // If the floor is 9 or above, it uses the maxed-out floor 9 rate
+            const rateKey = floor >= 9 ? 9 : floor;
+            
+            if (itemRates[rateKey]) {
+                canRoll = true;
+                chanceToFailAll *= (1 - (1 / itemRates[rateKey]));
+            }
+        }
+
+        if (canRoll) {
+            // The overall chance of getting the item at least once during the entire dive
+            const cumulativeChance = 1 - chanceToFailAll;
+            return { ...item, rate: cumulativeChance };
+        } else {
+            return { ...item, rate: 0 }; 
+        }
+    });
+}
+
+function adjustRatesForColosseum(items) {
+    const btn = document.getElementById('colo-sacrifice-btn');
+    const isSacrificing = btn ? btn.value === 'true' : false;
+    
+    return items.map(item => {
+        if (item.name === 'Smol heredit' && isSacrificing) {
+            // Models two independent 1/200 rolls: 1 - (1 - 1/200)^2
+            const doubleRollChance = 1 - Math.pow((1 - item.rate), 2);
+            return { ...item, rate: doubleRollChance };
+        }
+        return item;
+    });
+}
+
+// ... [Keep existing Raid adjustments: adjustRatesForCox, adjustRatesForTob, adjustRatesForToa, adjustRatesForDT2] ...
 function adjustRatesForCox(items) {
     const pts = parseInt(document.getElementById('raid-cox-pts').value, 10) || 30000;
     const uniqueChance = pts / 867600; 
@@ -345,6 +429,7 @@ function adjustRatesForDT2(items) {
     }
     return items;
 }
+// --- END RATE ADJUSTMENT ---
 
 function executeSimulation(selectedItems, currentKC) {
     const bossData = BOSS_CONFIG[activeBossKey];
@@ -358,11 +443,17 @@ function executeSimulation(selectedItems, currentKC) {
         processedItems = adjustRatesForToa(processedItems);
     } else if (DT2_BOSSES.includes(activeBossKey)) {
         processedItems = adjustRatesForDT2(processedItems);
+    } else if (activeBossKey === 'doom_of_mokhaiotl') {
+        processedItems = adjustRatesForDoom(processedItems);
+    } else if (activeBossKey === 'fortis_colosseum') {
+        processedItems = adjustRatesForColosseum(processedItems);
     }
 
     let matrix;
     const rolls = bossData.rolls || 1;
 
+    // By leaving Fortis Colosseum out of this if-statement, it defaults to createMasterMatrix.
+    // createMasterMatrix seamlessly handles the Sunfire pool logic automatically!
     if (activeBossKey === 'moons_of_peril') {
         matrix = createMoonsMatrix(processedItems);
     } else if (activeBossKey === 'barrows_chests') {
@@ -374,6 +465,7 @@ function executeSimulation(selectedItems, currentKC) {
     return runSimulation(matrix, currentKC);
 }
 
+// ... [Keep displayResults, renderChart, createDataset, getChartOptions, getChartScales, getChartPlugins exact as they are] ...
 function displayResults(results, currentKC) {
     DOM.resultsSection.classList.remove("hidden");
     DOM.statChance.textContent = `${(results.targetP * 100).toFixed(2)}%`;
@@ -493,12 +585,8 @@ function getChartPlugins(transformX, stats, userKC, modeY, medianY) {
             bodyFont: { weight: 600, size: 12 }, 
             callbacks: { 
                 title: items => `KC: ${items[0].raw.rawX.toLocaleString()}`, 
-                
-                // We convert the callback block so we can filter out dead data mathematically
                 label: c => {
-                    // Instantly hide the tooltip for this specific line if the probability is mathematically zero
                     if (c.raw.y === 0) return null;
-                    
                     return c.datasetIndex === 0 
                         ? ` Luck Chance: ~1/${Math.round(1 / c.raw.y).toLocaleString()}` 
                         : ` Chance For Completion: ${(c.raw.y * 100).toFixed(2)}%`;

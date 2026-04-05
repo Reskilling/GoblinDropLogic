@@ -188,12 +188,10 @@ export const RAW_BOSS_DATA = {
         "30895": { name: "Steel ring", rate: 1 / 43.67, type: "main", order: 1 },
     },
     "doom_of_mokhaiotl": {
-        "31130": { name: "Dom", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "31088": { name: "Avernic treads", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "31115": { name: "Eye of ayak (uncharged)", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "31109": { name: "Mokhaiotl cloth", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "31099": { name: "Mokhaiotl waystone", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "31111": { name: "Demon tear", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
+        "31130": { name: "Dom", rate: 1/250, type: "tertiary", order: 1 },
+        "31088": { name: "Avernic treads", rate: 1/540, type: "main", order: 2 },
+        "31115": { name: "Eye of ayak (uncharged)", rate: 1/540, type: "main", order: 3 },
+        "31109": { name: "Mokhaiotl cloth", rate: 1/540, type: "main", order: 4 }
     },
     "duke_sucellus": {
         "28250": { name: "Baron", rate: 1 / 2500, type: "tertiary", order: 1 },
@@ -209,15 +207,13 @@ export const RAW_BOSS_DATA = {
         "6570": { name: "Fire cape", rate: 1 / 1, type: "main", order: 2 },
     },
     "fortis_colosseum": {
-        "28960": { name: "Smol heredit", rate: PLACEHOLDER_RATE, type: "main", order: 1 },
-        "28947": { name: "Dizana's quiver (uncharged)", rate: PLACEHOLDER_RATE, type: "main", order: 2 },
-        "28936": { name: "Sunfire fanatic cuirass", rate: PLACEHOLDER_RATE, type: "main", order: 3 },
-        "28939": { name: "Sunfire fanatic chausses", rate: PLACEHOLDER_RATE, type: "main", order: 4 },
-        "28933": { name: "Sunfire fanatic helm", rate: PLACEHOLDER_RATE, type: "main", order: 5 },
-        "28942": { name: "Echo crystal", rate: PLACEHOLDER_RATE, type: "main", order: 6 },
-        "28919": { name: "Tonalztics of ralos (uncharged)", rate: PLACEHOLDER_RATE, type: "main", order: 7 },
-        "28924": { name: "Sunfire splinters", rate: PLACEHOLDER_RATE, type: "main", order: 8 },
-        "6571": { name: "Uncut onyx", rate: PLACEHOLDER_RATE, type: "main", order: 9 },
+        "28960": { name: "Smol heredit", rate: 1/200, type: "tertiary", order: 1 },
+        "28947": { name: "Dizana's quiver (uncharged)", rate: 1/1, type: "main", order: 2 },
+        "28936": { name: "Sunfire fanatic cuirass", rate: 1/64, type: "main", pool: "sunfire", order: 3 },
+        "28939": { name: "Sunfire fanatic chausses", rate: 1/64, type: "main", pool: "sunfire", order: 4 },
+        "28933": { name: "Sunfire fanatic helm", rate: 1/64, type: "main", pool: "sunfire", order: 5 },
+        "28942": { name: "Echo crystal", rate: 1/32, type: "main", order: 6 },
+        "28919": { name: "Tonalztics of ralos (uncharged)", rate: 1/192, type: "main", order: 7 }
     },
     "the_corrupted_gauntlet": {
         "23757": { name: "Youngllef", rate: 1 / 800, type: "main", order: 1 },
