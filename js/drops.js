@@ -1,15 +1,16 @@
 /**
  * @file drops.js
  * Master configuration for boss loot tables.
- * * SCHEMA CONSTRAINTS:
- * - `type`: 
- * "main" affects state-space reduction for our Coupon Collector math. 
+ *
+ * SCHEMA CONSTRAINTS:
+ * - `type`:
+ * "main" affects state-space reduction for our Coupon Collector math.
  * "tertiary" items roll independently of the main loot table.
- * - `pieces`: 
- * Triggers the sequential/invisible roll logic in createMasterMatrix 
+ * - `pieces`:
+ * Triggers the sequential/invisible roll logic in createMasterMatrix
  * (e.g., DT2 Vestiges & Ingots where you need 3 invisible rolls to get the item).
- * - `pool`: 
- * Triggers the siloed duplicate-protection logic in createMoonsMatrix 
+ * - `pool`:
+ * Triggers the siloed duplicate-protection logic in createMoonsMatrix
  * (e.g., Moons of Peril where you can't roll a dupe until the pool is empty).
  */
 
@@ -18,7 +19,7 @@
 const PLACEHOLDER_RATE = 1 / 1;
 
 export const RAW_BOSS_DATA = {
-    "abyssal_sire": {
+    abyssal_sire: {
         "13262": { name: "Abyssal orphan", rate: 5 / 12800, type: "main", order: 1 },
         "7979": { name: "Abyssal head", rate: 10 / 12800, type: "main", order: 2 },
         "13274": { name: "Bludgeon spine", rate: 62 / 12800, type: "main", pool: "bludgeon", order: 3 },
@@ -28,7 +29,7 @@ export const RAW_BOSS_DATA = {
         "13265": { name: "Abyssal dagger", rate: 26 / 12800, type: "main", order: 7 },
         "4151": { name: "Abyssal whip", rate: 12 / 12800, type: "main", order: 8 },
     },
-    "alchemical_hydra": {
+    alchemical_hydra: {
         "22746": { name: "Ikkle hydra", rate: 1 / 3000, type: "tertiary", order: 1 },
         "22966": { name: "Hydra's claw", rate: 1 / 1001, type: "main", order: 2 },
         "22988": { name: "Hydra tail", rate: 1 / 513, type: "main", order: 3 },
@@ -41,12 +42,12 @@ export const RAW_BOSS_DATA = {
         "23064": { name: "Jar of chemicals", rate: 1 / 2000, type: "tertiary", order: 10 },
         "23077": { name: "Alchemical hydra heads", rate: 1 / 256, type: "tertiary", order: 11 },
     },
-    "amoxliatl": {
+    amoxliatl: {
         "30154": { name: "Moxi", rate: 1 / 3000, type: "tertiary", order: 1 },
         "29889": { name: "Glacial temotli", rate: 1 / 100, type: "tertiary", order: 2 },
         "29892": { name: "Pendant of ates (inert)", rate: 1 / 25, type: "tertiary", order: 3 },
     },
-    "araxxor": {
+    araxxor: {
         "29836": { name: "Nid", rate: 1 / 3000, type: "tertiary", order: 1 },
         "29799": { name: "Araxyte fang", rate: 1 / 600, type: "main", order: 2 },
         "29790": { name: "Noxious point", rate: 1 / 200, type: "main", pool: "noxious", order: 3 },
@@ -55,7 +56,7 @@ export const RAW_BOSS_DATA = {
         "29788": { name: "Araxyte head", rate: 1 / 250, type: "tertiary", order: 6 },
         "29786": { name: "Jar of venom", rate: 1 / 1500, type: "tertiary", order: 7 },
     },
-    "artio": {
+    artio: {
         "13178": { name: "Callisto cub", rate: 1 / 2800, type: "tertiary", order: 1 },
         "12603": { name: "Tyrannical ring", rate: 1 / 716, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 358, type: "main", order: 3 },
@@ -63,7 +64,7 @@ export const RAW_BOSS_DATA = {
         "27667": { name: "Claws of callisto", rate: 1 / 618, type: "main", order: 5 },
         "27681": { name: "Voidwaker hilt", rate: 1 / 912, type: "main", order: 6 },
     },
-    "barrows_chests": {
+    barrows_chests: {
         "4732": { name: "Karil's coif", rate: 1 / 128, type: "main", order: 1 },
         "4736": { name: "Karil's leathertop", rate: 1 / 128, type: "main", order: 2 },
         "4738": { name: "Karil's leatherskirt", rate: 1 / 128, type: "main", order: 3 },
@@ -89,16 +90,16 @@ export const RAW_BOSS_DATA = {
         "4751": { name: "Torag's platelegs", rate: 1 / 128, type: "main", order: 23 },
         "4747": { name: "Torag's hammers", rate: 1 / 128, type: "main", order: 24 },
     },
-    "brutus": {
+    brutus: {
         "33124": { name: "Beef", rate: 1 / 1000, type: "tertiary", order: 1 },
         "33101": { name: "Mooleta", rate: 1 / 30, type: "main", order: 2 },
         "33091": { name: "Bottomless milk bucket (empty)", rate: 1 / 37.5, type: "main", order: 3 },
         "33093": { name: "Cow slippers", rate: 1 / 150, type: "main", order: 4 },
     },
-    "bryophyta": {
+    bryophyta: {
         "22372": { name: "Bryophyta's essence", rate: 1 / 118, type: "main", order: 1 },
     },
-    "callisto": {
+    callisto: {
         "13178": { name: "Callisto cub", rate: 1 / 1500, type: "tertiary", order: 1 },
         "12603": { name: "Tyrannical ring", rate: 1 / 512, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 256, type: "main", order: 3 },
@@ -106,7 +107,7 @@ export const RAW_BOSS_DATA = {
         "27667": { name: "Claws of callisto", rate: 1 / 196, type: "main", order: 5 },
         "27681": { name: "Voidwaker hilt", rate: 1 / 360, type: "main", order: 6 },
     },
-    "calvarion": {
+    calvarion: {
         "13179": { name: "Vet'ion jr.", rate: 1 / 2800, type: "tertiary", order: 1 },
         "12601": { name: "Ring of the gods", rate: 1 / 716, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 358, type: "main", order: 3 },
@@ -114,7 +115,7 @@ export const RAW_BOSS_DATA = {
         "27673": { name: "Skull of vet'ion", rate: 1 / 618, type: "main", order: 5 },
         "27684": { name: "Voidwaker blade", rate: 1 / 912, type: "main", order: 6 },
     },
-    "cerberus": {
+    cerberus: {
         "13247": { name: "Hellpuppy", rate: 1 / 3000, type: "tertiary", order: 1 },
         "13227": { name: "Eternal crystal", rate: 1 / 520, type: "main", order: 2 },
         "13229": { name: "Pegasian crystal", rate: 1 / 520, type: "main", order: 3 },
@@ -122,17 +123,17 @@ export const RAW_BOSS_DATA = {
         "13245": { name: "Jar of souls", rate: 1 / 2000, type: "tertiary", order: 5 },
         "13233": { name: "Smouldering stone", rate: 1 / 520, type: "main", order: 6 },
     },
-    "chaos_elemental": {
+    chaos_elemental: {
         "11995": { name: "Pet chaos elemental", rate: 1 / 300, type: "tertiary", order: 1 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 256, type: "main", order: 2 },
         "7158": { name: "Dragon 2h sword", rate: 1 / 64, type: "main", order: 3 },
     },
-    "chaos_fanatic": {
+    chaos_fanatic: {
         "11995": { name: "Pet chaos elemental", rate: 1 / 1000, type: "tertiary", order: 1 },
         "11928": { name: "Odium shard 1", rate: 1 / 256, type: "main", order: 2 },
         "11931": { name: "Malediction shard 1", rate: 1 / 256, type: "main", order: 3 },
     },
-    "commander_zilyana": {
+    commander_zilyana: {
         "12651": { name: "Pet zilyana", rate: 1 / 5000, type: "tertiary", order: 1 },
         "11785": { name: "Armadyl crossbow", rate: 1 / 508, type: "main", order: 2 },
         "11814": { name: "Saradomin hilt", rate: 1 / 508, type: "main", order: 3 },
@@ -142,19 +143,19 @@ export const RAW_BOSS_DATA = {
         "11820": { name: "Godsword shard 2", rate: 1 / 762, type: "main", order: 7 },
         "11822": { name: "Godsword shard 3", rate: 1 / 762, type: "main", order: 8 },
     },
-    "corporeal_beast": {
+    corporeal_beast: {
         "12816": { name: "Pet dark core", rate: 1 / 5000, type: "tertiary", order: 1 },
         "12819": { name: "Elysian sigil", rate: 1 / 4095, type: "main", order: 2 },
         "12823": { name: "Spectral sigil", rate: 1 / 1365, type: "main", order: 3 },
         "12827": { name: "Arcane sigil", rate: 1 / 1365, type: "main", order: 4 },
         "25521": { name: "Jar of spirits", rate: 1 / 1000, type: "tertiary", order: 7 },
     },
-    "crazy_archaeologist": {
+    crazy_archaeologist: {
         "11929": { name: "Odium shard 2", rate: 1 / 256, type: "main", order: 1 },
         "11932": { name: "Malediction shard 2", rate: 1 / 256, type: "main", order: 2 },
         "11990": { name: "Fedora", rate: 1 / 128, type: "tertiary", order: 3 },
     },
-    "dagannoth_kings": {
+    dagannoth_kings: {
         "12644": { name: "Pet dagannoth prime", rate: 1 / 5000, type: "tertiary", order: 1 },
         "12643": { name: "Pet dagannoth supreme", rate: 1 / 5000, type: "tertiary", order: 2 },
         "12645": { name: "Pet dagannoth rex", rate: 1 / 5000, type: "tertiary", order: 3 },
@@ -166,63 +167,63 @@ export const RAW_BOSS_DATA = {
         "6724": { name: "Seercull", rate: 1 / 128, type: "main", order: 9 },
         "6562": { name: "Mud battlestaff", rate: 1 / 128, type: "main", order: 10 },
     },
-    "dagannoth_rex": {
+    dagannoth_rex: {
         "12645": { name: "Pet dagannoth rex", rate: 1 / 5000, type: "tertiary", order: 3 },
         "6737": { name: "Berserker ring", rate: 1 / 128, type: "main", order: 4 },
         "6735": { name: "Warrior ring", rate: 1 / 128, type: "main", order: 7 },
         "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 8 },
     },
-    "dagannoth_supreme": {
+    dagannoth_supreme: {
         "12643": { name: "Pet dagannoth supreme", rate: 1 / 5000, type: "tertiary", order: 2 },
         "6733": { name: "Archers ring", rate: 1 / 128, type: "main", order: 5 },
         "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 8 },
         "6724": { name: "Seercull", rate: 1 / 128, type: "main", order: 9 },
     },
-    "dagannoth_prime": {
+    dagannoth_prime: {
         "12644": { name: "Pet dagannoth prime", rate: 1 / 5000, type: "tertiary", order: 1 },
         "6731": { name: "Seers ring", rate: 1 / 128, type: "main", order: 6 },
         "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 8 },
         "6562": { name: "Mud battlestaff", rate: 1 / 128, type: "main", order: 10 },
     },
-    "deranged_archaeologist": {
+    deranged_archaeologist: {
         "30895": { name: "Steel ring", rate: 1 / 43.67, type: "main", order: 1 },
     },
-    "doom_of_mokhaiotl": {
-        "31130": { name: "Dom", rate: 1/250, type: "tertiary", order: 1 },
-        "31088": { name: "Avernic treads", rate: 1/540, type: "main", order: 2 },
-        "31115": { name: "Eye of ayak (uncharged)", rate: 1/540, type: "main", order: 3 },
-        "31109": { name: "Mokhaiotl cloth", rate: 1/540, type: "main", order: 4 }
+    doom_of_mokhaiotl: {
+        "31130": { name: "Dom", rate: 1 / 250, type: "tertiary", order: 1 },
+        "31088": { name: "Avernic treads", rate: 1 / 540, type: "main", order: 2 },
+        "31115": { name: "Eye of ayak (uncharged)", rate: 1 / 540, type: "main", order: 3 },
+        "31109": { name: "Mokhaiotl cloth", rate: 1 / 540, type: "main", order: 4 },
     },
-    "duke_sucellus": {
+    duke_sucellus: {
         "28250": { name: "Baron", rate: 1 / 2500, type: "tertiary", order: 1 },
         "28321": { name: "Eye of the duke", rate: 1 / 720, type: "main", order: 2 },
         "26241": { name: "Virtus mask", rate: 1 / 2160, type: "main", order: 3 },
         "26243": { name: "Virtus robe top", rate: 1 / 2160, type: "main", order: 4 },
         "26245": { name: "Virtus robe bottom", rate: 1 / 2160, type: "main", order: 5 },
         "28281": { name: "Magus vestige", rate: 1 / 240, type: "main", pieces: 3, order: 6 },
-        "28276": { name: "Chromium ingot", rate: 1 / 240, type: "main", order: 7 }
+        "28276": { name: "Chromium ingot", rate: 1 / 240, type: "main", order: 7 },
     },
-    "the_fight_caves": {
+    the_fight_caves: {
         "13225": { name: "Tzrek-jad", rate: 1 / 200, type: "tertiary", order: 1 },
         "6570": { name: "Fire cape", rate: 1 / 1, type: "main", order: 2 },
     },
-    "fortis_colosseum": {
-        "28960": { name: "Smol heredit", rate: 1/200, type: "tertiary", order: 1 },
-        "28947": { name: "Dizana's quiver (uncharged)", rate: 1/1, type: "main", order: 2 },
-        "28936": { name: "Sunfire fanatic cuirass", rate: 1/64, type: "main", pool: "sunfire", order: 3 },
-        "28939": { name: "Sunfire fanatic chausses", rate: 1/64, type: "main", pool: "sunfire", order: 4 },
-        "28933": { name: "Sunfire fanatic helm", rate: 1/64, type: "main", pool: "sunfire", order: 5 },
-        "28942": { name: "Echo crystal", rate: 1/32, type: "main", order: 6 },
-        "28919": { name: "Tonalztics of ralos (uncharged)", rate: 1/192, type: "main", order: 7 }
+    fortis_colosseum: {
+        "28960": { name: "Smol heredit", rate: 1 / 200, type: "tertiary", order: 1 },
+        "28947": { name: "Dizana's quiver (uncharged)", rate: 1 / 1, type: "main", order: 2 },
+        "28936": { name: "Sunfire fanatic cuirass", rate: 1 / 64, type: "main", pool: "sunfire", order: 3 },
+        "28939": { name: "Sunfire fanatic chausses", rate: 1 / 64, type: "main", pool: "sunfire", order: 4 },
+        "28933": { name: "Sunfire fanatic helm", rate: 1 / 64, type: "main", pool: "sunfire", order: 5 },
+        "28942": { name: "Echo crystal", rate: 1 / 32, type: "main", order: 6 },
+        "28919": { name: "Tonalztics of ralos (uncharged)", rate: 1 / 192, type: "main", order: 7 },
     },
-    "the_corrupted_gauntlet": {
+    the_corrupted_gauntlet: {
         "23757": { name: "Youngllef", rate: 1 / 800, type: "main", order: 1 },
         "23956": { name: "Crystal armour seed", rate: 1 / 50, type: "main", order: 2 },
         "4207": { name: "Crystal weapon seed", rate: 1 / 50, type: "main", order: 3 },
         "25859": { name: "Enhanced crystal weapon seed", rate: 1 / 400, type: "main", order: 4 },
         "23859": { name: "Gauntlet cape", rate: 1 / 1, type: "main", order: 5 },
     },
-    "general_graardor": {
+    general_graardor: {
         "12650": { name: "Pet general graardor", rate: 1 / 5000, type: "tertiary", order: 1 },
         "11832": { name: "Bandos chestplate", rate: 1 / 381, type: "main", order: 2 },
         "11834": { name: "Bandos tassets", rate: 1 / 381, type: "main", order: 3 },
@@ -232,10 +233,10 @@ export const RAW_BOSS_DATA = {
         "11820": { name: "Godsword shard 2", rate: 1 / 762, type: "main", order: 7 },
         "11822": { name: "Godsword shard 3", rate: 1 / 762, type: "main", order: 8 },
     },
-    "giant_mole": {
+    giant_mole: {
         "12646": { name: "Baby mole", rate: 1 / 3000, type: "tertiary", order: 1 },
     },
-    "grotesque_guardians": {
+    grotesque_guardians: {
         "21748": { name: "Noon", rate: 1 / 3000, type: "tertiary", order: 1 },
         "21730": { name: "Black tourmaline core", rate: 1 / 1000, type: "main", order: 2 },
         "21736": { name: "Granite gloves", rate: 1 / 500, type: "main", order: 3 },
@@ -244,20 +245,20 @@ export const RAW_BOSS_DATA = {
         "21745": { name: "Jar of stone", rate: 1 / 5000, type: "tertiary", order: 6 },
         "21726": { name: "Granite maul", rate: 1 / 250, type: "main", order: 7 },
     },
-    "hespori": {
+    hespori: {
         "22994": { name: "Bottomless compost bucket", rate: 1 / 35, type: "main", order: 1 },
     },
-    "hueycoatl": {
+    hueycoatl: {
         "30152": { name: "Huberte", rate: 1 / 400, type: "tertiary", order: 1 },
         "30070": { name: "Dragon hunter wand", rate: 1 / 105, type: "main", order: 2 },
         "30066": { name: "Tome of earth (empty)", rate: 1 / 90, type: "main", order: 3 },
         "30085": { name: "Hueycoatl hide", rate: 1 / 28.64, type: "main", order: 5 },
     },
-    "the_inferno": {
+    the_inferno: {
         "21291": { name: "Jal-nib-rek", rate: 1 / 100, type: "tertiary", order: 1 },
         "21295": { name: "Infernal cape", rate: 1 / 1, type: "main", order: 2 },
     },
-    "kalphite_queen": {
+    kalphite_queen: {
         "12647": { name: "Kalphite princess", rate: 1 / 3000, type: "tertiary", order: 1 },
         "7981": { name: "Kq head", rate: 1 / 128, type: "tertiary", order: 2 },
         "12885": { name: "Jar of sand", rate: 1 / 2000, type: "tertiary", order: 3 },
@@ -265,19 +266,19 @@ export const RAW_BOSS_DATA = {
         "3140": { name: "Dragon chainbody", rate: 1 / 128, type: "tertiary", order: 5 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 400, type: "tertiary", order: 6 },
     },
-    "king_black_dragon": {
+    king_black_dragon: {
         "12653": { name: "Prince black dragon", rate: 1 / 3000, type: "tertiary", order: 1 },
         "7980": { name: "Kbd heads", rate: 1 / 128, type: "tertiary", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 1000, type: "tertiary", order: 3 },
         "11286": { name: "Draconic visage", rate: 1 / 5000, type: "tertiary", order: 4 },
     },
-    "kraken": {
+    kraken: {
         "12655": { name: "Pet kraken", rate: 1 / 3000, type: "tertiary", order: 1 },
         "12004": { name: "Kraken tentacle", rate: 1 / 400, type: "other", order: 2 },
         "11905": { name: "Trident of the seas (full)", rate: 1 / 512, type: "main", order: 3 },
         "12007": { name: "Jar of dirt", rate: 1 / 1000, type: "tertiary", order: 4 },
     },
-    "kree_arra": {
+    kree_arra: {
         "12649": { name: "Pet kree'arra", rate: 1 / 5000, type: "tertiary", order: 1 },
         "11826": { name: "Armadyl helmet", rate: 1 / 381, type: "main", order: 2 },
         "11828": { name: "Armadyl chestplate", rate: 1 / 381, type: "main", order: 3 },
@@ -287,7 +288,7 @@ export const RAW_BOSS_DATA = {
         "11820": { name: "Godsword shard 2", rate: 1 / 762, type: "main", order: 7 },
         "11822": { name: "Godsword shard 3", rate: 1 / 762, type: "main", order: 8 },
     },
-    "kril_tsutsaroth": {
+    kril_tsutsaroth: {
         "12652": { name: "Pet k'ril tsutsaroth", rate: 1 / 5000, type: "tertiary", order: 1 },
         "11791": { name: "Staff of the dead", rate: 1 / 508, type: "main", order: 2 },
         "11824": { name: "Zamorakian spear", rate: 1 / 127, type: "main", order: 3 },
@@ -297,16 +298,16 @@ export const RAW_BOSS_DATA = {
         "11820": { name: "Godsword shard 2", rate: 1 / 762, type: "main", order: 7 },
         "11822": { name: "Godsword shard 3", rate: 1 / 762, type: "main", order: 8 },
     },
-    "the_leviathan": {
+    the_leviathan: {
         "28252": { name: "Lil'viathan", rate: 1 / 2500, type: "tertiary", order: 1 },
         "28325": { name: "Leviathan's lure", rate: 1 / 768, type: "main", order: 2 },
         "26241": { name: "Virtus mask", rate: 1 / 2304, type: "main", order: 3 },
         "26243": { name: "Virtus robe top", rate: 1 / 2304, type: "main", order: 4 },
         "26245": { name: "Virtus robe bottom", rate: 1 / 2304, type: "main", order: 5 },
         "28283": { name: "Venator vestige", rate: 1 / 256, type: "main", pieces: 3, order: 6 },
-        "28276": { name: "Chromium ingot", rate: 1 / 256, type: "main", order: 7 }
+        "28276": { name: "Chromium ingot", rate: 1 / 256, type: "main", order: 7 },
     },
-    "moons_of_peril": {
+    moons_of_peril: {
         "29000": { name: "Eclipse atlatl", rate: 1 / 56, type: "main", pool: "eclipse", order: 1 },
         "29010": { name: "Eclipse moon helm", rate: 1 / 56, type: "main", pool: "eclipse", order: 2 },
         "29004": { name: "Eclipse moon chestplate", rate: 1 / 56, type: "main", pool: "eclipse", order: 3 },
@@ -318,9 +319,9 @@ export const RAW_BOSS_DATA = {
         "28997": { name: "Dual macuahuitl", rate: 1 / 56, type: "main", pool: "blood", order: 9 },
         "29028": { name: "Blood moon helm", rate: 1 / 56, type: "main", pool: "blood", order: 10 },
         "29022": { name: "Blood moon chestplate", rate: 1 / 56, type: "main", pool: "blood", order: 11 },
-        "29025": { name: "Blood moon tassets", rate: 1 / 56, type: "main", pool: "blood", order: 12 }
+        "29025": { name: "Blood moon tassets", rate: 1 / 56, type: "main", pool: "blood", order: 12 },
     },
-    "nex": {
+    nex: {
         "26348": { name: "Nexling", rate: 1 / 500, type: "tertiary", order: 1 },
         "26370": { name: "Ancient hilt", rate: 1 / 516, type: "main", order: 2 },
         "26372": { name: "Nihil horn", rate: 1 / 258, type: "main", order: 3 },
@@ -329,65 +330,65 @@ export const RAW_BOSS_DATA = {
         "26378": { name: "Torva platebody (damaged)", rate: 1 / 258, type: "main", order: 6 },
         "26380": { name: "Torva platelegs (damaged)", rate: 1 / 258, type: "main", order: 7 },
     },
-    "the_nightmare": {
-        "24491": { name: "Little nightmare", rate: 1/800, type: "tertiary", order: 1 },
-        "24417": { name: "Inquisitor's mace", rate: 1/750, type: "main", order: 2 },
-        "24419": { name: "Inquisitor's great helm", rate: 1/420, type: "main", order: 3 },
-        "24420": { name: "Inquisitor's hauberk", rate: 1/420, type: "main", order: 4 },
-        "24421": { name: "Inquisitor's plateskirt", rate: 1/420, type: "main", order: 5 },
-        "24422": { name: "Nightmare staff", rate: 1/300, type: "main", order: 6 },
-        "24514": { name: "Volatile orb", rate: 1/960, type: "main", order: 7 },
-        "24511": { name: "Harmonised orb", rate: 1/960, type: "main", order: 8 },
-        "24517": { name: "Eldritch orb", rate: 1/960, type: "main", order: 9 },
-        "24495": { name: "Jar of dreams", rate: 1/2000, type: "tertiary", order: 10 },
-        "25837": { name: "Slepey tablet", rate: 1/100, type: "tertiary", order: 11 },
-        "25838": { name: "Parasitic egg", rate: 1/200, type: "tertiary", order: 12 }
+    the_nightmare: {
+        "24491": { name: "Little nightmare", rate: 1 / 800, type: "tertiary", order: 1 },
+        "24417": { name: "Inquisitor's mace", rate: 1 / 750, type: "main", order: 2 },
+        "24419": { name: "Inquisitor's great helm", rate: 1 / 420, type: "main", order: 3 },
+        "24420": { name: "Inquisitor's hauberk", rate: 1 / 420, type: "main", order: 4 },
+        "24421": { name: "Inquisitor's plateskirt", rate: 1 / 420, type: "main", order: 5 },
+        "24422": { name: "Nightmare staff", rate: 1 / 300, type: "main", order: 6 },
+        "24514": { name: "Volatile orb", rate: 1 / 960, type: "main", order: 7 },
+        "24511": { name: "Harmonised orb", rate: 1 / 960, type: "main", order: 8 },
+        "24517": { name: "Eldritch orb", rate: 1 / 960, type: "main", order: 9 },
+        "24495": { name: "Jar of dreams", rate: 1 / 2000, type: "tertiary", order: 10 },
+        "25837": { name: "Slepey tablet", rate: 1 / 100, type: "tertiary", order: 11 },
+        "25838": { name: "Parasitic egg", rate: 1 / 200, type: "tertiary", order: 12 },
     },
-    "obor": {
+    obor: {
         "20756": { name: "Hill giant club", rate: 1 / 118, type: "main", order: 1 },
     },
-    "phantom_muspah": {
+    phantom_muspah: {
         "27590": { name: "Muphin", rate: 1 / 2500, type: "tertiary", order: 1 },
         "27614": { name: "Venator shard", rate: 1 / 100, type: "main", order: 2 },
         "27627": { name: "Ancient icon", rate: 1 / 50, type: "main", order: 3 },
     },
-    "royal_titans": {
-        "30622": { name: "Bran", rate: 1/3000, type: "tertiary", order: 1 },
-        "30626": { name: "Deadeye prayer scroll", rate: 1/75, type: "main", order: 2 },
-        "30627": { name: "Mystic vigour prayer scroll", rate: 1/75, type: "main", order: 3 },
-        "30637": { name: "Giantsoul amulet", rate: 1/16, type: "main", order: 4 },
-        "30628": { name: "Ice element staff crown", rate: 1/75, type: "main", order: 5 },
-        "30631": { name: "Fire element staff crown", rate: 1/75, type: "main", order: 6 },
+    royal_titans: {
+        "30622": { name: "Bran", rate: 1 / 3000, type: "tertiary", order: 1 },
+        "30626": { name: "Deadeye prayer scroll", rate: 1 / 75, type: "main", order: 2 },
+        "30627": { name: "Mystic vigour prayer scroll", rate: 1 / 75, type: "main", order: 3 },
+        "30637": { name: "Giantsoul amulet", rate: 1 / 16, type: "main", order: 4 },
+        "30628": { name: "Ice element staff crown", rate: 1 / 75, type: "main", order: 5 },
+        "30631": { name: "Fire element staff crown", rate: 1 / 75, type: "main", order: 6 },
     },
-    "sarachnis": {
+    sarachnis: {
         "23495": { name: "Sraracha", rate: 1 / 3000, type: "tertiary", order: 1 },
         "23525": { name: "Jar of eyes", rate: 1 / 2000, type: "tertiary", order: 2 },
         "23517": { name: "Dragon med helm", rate: 1 / 192, type: "main", order: 3 },
         "23528": { name: "Sarachnis cudgel", rate: 1 / 384, type: "main", order: 4 },
         "33133": { name: "Pristine spider silk", rate: 1 / 50, type: "tertiary", order: 5 },
     },
-    "scorpia": {
+    scorpia: {
         "13181": { name: "Scorpia's offspring", rate: 1 / 2016, type: "tertiary", order: 1 },
         "11930": { name: "Odium shard 3", rate: 1 / 256, type: "main", order: 2 },
         "11933": { name: "Malediction shard 3", rate: 1 / 256, type: "main", order: 3 },
     },
-    "scurrius": {
+    scurrius: {
         "28801": { name: "Scurry", rate: 1 / 3000, type: "tertiary", order: 1 },
         "28798": { name: "Scurrius' spine", rate: 1 / 33, type: "tertiary", order: 2 },
     },
-    "shellbane_gryphon": {
+    shellbane_gryphon: {
         "31285": { name: "Gull", rate: 1 / 3000, type: "tertiary", order: 1 },
         "31245": { name: "Belle's folly (tarnished)", rate: 1 / 256, type: "main", order: 2 },
         "32921": { name: "Jar of feathers", rate: 1 / 2000, type: "tertiary", order: 4 },
     },
-    "skotizo": {
-        "21273": { name: "Skotos", rate: 1/ 65, type: "main", order: 1 },
-        "19701": { name: "Jar of darkness", rate: 1/ 200, type: "main", order: 2 },
+    skotizo: {
+        "21273": { name: "Skotos", rate: 1 / 65, type: "main", order: 1 },
+        "19701": { name: "Jar of darkness", rate: 1 / 200, type: "main", order: 2 },
         "21275": { name: "Dark claw", rate: 1 / 25, type: "main", order: 3 },
         "19685": { name: "Dark totem", rate: 1 / 128, type: "main", order: 4 },
         "6571": { name: "Uncut onyx", rate: 1 / 1000, type: "main", order: 5 },
     },
-    "spindel": {
+    spindel: {
         "13177": { name: "Venenatis spiderling", rate: 1 / 2800, type: "tertiary", order: 1 },
         "12605": { name: "Treasonous ring", rate: 1 / 716, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 358, type: "main", order: 3 },
@@ -395,34 +396,34 @@ export const RAW_BOSS_DATA = {
         "27670": { name: "Fangs of venenatis", rate: 1 / 618, type: "main", order: 5 },
         "27687": { name: "Voidwaker gem", rate: 1 / 912, type: "main", order: 6 },
     },
-    "tempoross": {
-        "25602": { name: "Tiny tempor", rate: 1/8000, type: "main", order: 1 },
-        "25559": { name: "Big harpoonfish", rate: 1/1600, type: "main", order: 2 },
-        "25576": { name: "Tome of water (empty)", rate: 1/1600, type: "main", order: 3 },
-        "25580": { name: "Tackle box", rate: 1/400, type: "main", order: 4 },
-        "25582": { name: "Fish barrel", rate: 1/400, type: "main", order: 5 },
-        "21028": { name: "Dragon harpoon", rate: 1/8000, type: "main", order: 6 },
-        "25578": { name: "Soaked page", rate: 149/8000, type: "main", hidden: true, order: 7 },
-        "25588": { name: "Spirit flakes", rate: 1/4, type: "main", hidden: true, order: 8 },
-        "20546": { name: "Casket (Reward pool)", rate: 1/20, type: "main", hidden: true, order: 9 }
+    tempoross: {
+        "25602": { name: "Tiny tempor", rate: 1 / 8000, type: "main", order: 1 },
+        "25559": { name: "Big harpoonfish", rate: 1 / 1600, type: "main", order: 2 },
+        "25576": { name: "Tome of water (empty)", rate: 1 / 1600, type: "main", order: 3 },
+        "25580": { name: "Tackle box", rate: 1 / 400, type: "main", order: 4 },
+        "25582": { name: "Fish barrel", rate: 1 / 400, type: "main", order: 5 },
+        "21028": { name: "Dragon harpoon", rate: 1 / 8000, type: "main", order: 6 },
+        "25578": { name: "Soaked page", rate: 149 / 8000, type: "main", hidden: true, order: 7 },
+        "25588": { name: "Spirit flakes", rate: 1 / 4, type: "main", hidden: true, order: 8 },
+        "20546": { name: "Casket (Reward pool)", rate: 1 / 20, type: "main", hidden: true, order: 9 },
     },
-    "thermonuclear_smoke_devil": {
+    thermonuclear_smoke_devil: {
         "12648": { name: "Pet smoke devil", rate: 1 / 3000, type: "tertiary", order: 1 },
         "12002": { name: "Occult necklace", rate: 1 / 350, type: "main", order: 2 },
         "11998": { name: "Smoke battlestaff", rate: 1 / 512, type: "main", order: 3 },
         "3140": { name: "Dragon chainbody", rate: 1 / 2000, type: "main", order: 4 },
         "25524": { name: "Jar of smoke", rate: 1 / 2000, type: "tertiary", order: 5 },
     },
-    "vardorvis": {
+    vardorvis: {
         "28248": { name: "Butch", rate: 1 / 3000, type: "tertiary", order: 1 },
         "28319": { name: "Executioner's axe head", rate: 1 / 1088, type: "main", order: 2 },
         "26241": { name: "Virtus mask", rate: 1 / 3264, type: "main", order: 3 },
         "26243": { name: "Virtus robe top", rate: 1 / 3264, type: "main", order: 4 },
         "26245": { name: "Virtus robe bottom", rate: 1 / 3264, type: "main", order: 5 },
         "28285": { name: "Ultor vestige", rate: 1 / 362.66, type: "main", pieces: 3, order: 6 },
-        "28276": { name: "Chromium ingot", rate: 1 / 362.66, type: "main", order: 7 }
+        "28276": { name: "Chromium ingot", rate: 1 / 362.66, type: "main", order: 7 },
     },
-    "venenatis": {
+    venenatis: {
         "13177": { name: "Venenatis spiderling", rate: 1 / 1500, type: "main", order: 1 },
         "12605": { name: "Treasonous ring", rate: 1 / 512, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 256, type: "main", order: 3 },
@@ -430,7 +431,7 @@ export const RAW_BOSS_DATA = {
         "27670": { name: "Fangs of venenatis", rate: 1 / 196, type: "main", order: 5 },
         "27687": { name: "Voidwaker gem", rate: 1 / 360, type: "main", order: 6 },
     },
-    "vetion": {
+    vetion: {
         "13179": { name: "Vet'ion jr.", rate: 1 / 1500, type: "main", order: 1 },
         "12601": { name: "Ring of the gods", rate: 1 / 512, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 256, type: "main", order: 3 },
@@ -438,7 +439,7 @@ export const RAW_BOSS_DATA = {
         "27673": { name: "Skull of vet'ion", rate: 1 / 196, type: "main", order: 5 },
         "27684": { name: "Voidwaker blade", rate: 1 / 360, type: "main", order: 6 },
     },
-    "vorkath": {
+    vorkath: {
         "21992": { name: "Vorki", rate: 1 / 3000, type: "tertiary", order: 1 },
         "21907": { name: "Vorkath's head", rate: 1 / 50, type: "tertiary", order: 2 },
         "11286": { name: "Draconic visage", rate: 1 / 5000, type: "tertiary", order: 3 },
@@ -446,45 +447,45 @@ export const RAW_BOSS_DATA = {
         "22106": { name: "Jar of decay", rate: 1 / 3000, type: "tertiary", order: 5 },
         "22111": { name: "Dragonbone necklace", rate: 1 / 1000, type: "tertiary", order: 6 },
     },
-    "the_whisperer": {
+    the_whisperer: {
         "28246": { name: "Wisp", rate: 1 / 2000, type: "tertiary", order: 1 },
         "28323": { name: "Siren's staff", rate: 1 / 512, type: "main", order: 2 },
         "26241": { name: "Virtus mask", rate: 1 / 1536, type: "main", order: 3 },
         "26243": { name: "Virtus robe top", rate: 1 / 1536, type: "main", order: 4 },
         "26245": { name: "Virtus robe bottom", rate: 1 / 1536, type: "main", order: 5 },
         "28279": { name: "Bellator vestige", rate: 1 / 170.66, type: "main", pieces: 3, order: 6 },
-        "28276": { name: "Chromium ingot", rate: 1 / 170.66, type: "main", order: 7 }
+        "28276": { name: "Chromium ingot", rate: 1 / 170.66, type: "main", order: 7 },
     },
-    "wintertodt": {
-        "20693": { name: "Phoenix", rate: 1/5000, type: "tertiary", order: 1 },
-        "6739": { name: "Dragon axe", rate: 1/10000, type: "main", order: 2 },
-        "20716": { name: "Tome of fire (empty)", rate: 1/1000, type: "main", order: 3 },
-        "20712": { name: "Warm gloves", rate: 1/150, type: "main", order: 4 },
-        "20720": { name: "Bruma torch", rate: 1/150, type: "main", order: 5 },
-        "20704": { name: "Pyromancer garb", rate: 1/150, type: "main", pool: "pyromancer", order: 6 },
-        "20708": { name: "Pyromancer hood", rate: 1/150, type: "main", pool: "pyromancer", order: 7 },
-        "20706": { name: "Pyromancer robe", rate: 1/150, type: "main", pool: "pyromancer", order: 8 },
-        "20710": { name: "Pyromancer boots", rate: 1/150, type: "main", pool: "pyromancer", order: 9 },
-        "20718": { name: "Burnt page", rate: 1/45, type: "main", hidden: true, order: 10 }
+    wintertodt: {
+        "20693": { name: "Phoenix", rate: 1 / 5000, type: "tertiary", order: 1 },
+        "6739": { name: "Dragon axe", rate: 1 / 10000, type: "main", order: 2 },
+        "20716": { name: "Tome of fire (empty)", rate: 1 / 1000, type: "main", order: 3 },
+        "20712": { name: "Warm gloves", rate: 1 / 150, type: "main", order: 4 },
+        "20720": { name: "Bruma torch", rate: 1 / 150, type: "main", order: 5 },
+        "20704": { name: "Pyromancer garb", rate: 1 / 150, type: "main", pool: "pyromancer", order: 6 },
+        "20708": { name: "Pyromancer hood", rate: 1 / 150, type: "main", pool: "pyromancer", order: 7 },
+        "20706": { name: "Pyromancer robe", rate: 1 / 150, type: "main", pool: "pyromancer", order: 8 },
+        "20710": { name: "Pyromancer boots", rate: 1 / 150, type: "main", pool: "pyromancer", order: 9 },
+        "20718": { name: "Burnt page", rate: 1 / 45, type: "main", hidden: true, order: 10 },
     },
-    "yama": {
-        "30888": { name: "Yami", rate: 1/2500, type: "tertiary", order: 1 },
-        "30750": { name: "Oathplate helm", rate: 1/600, type: "main", order: 3 },
-        "30753": { name: "Oathplate chest", rate: 1/600, type: "main", order: 4 },
-        "30756": { name: "Oathplate legs", rate: 1/600, type: "main", order: 5 },
-        "30759": { name: "Soulflame horn", rate: 1/300, type: "main", order: 6 },
-        "30765": { name: "Oathplate shards", rate: 1/17.07, type: "main", order: 7 },
-        "30763": { name: "Forgotten lockbox", rate: 1/33, type: "main", order: 9 },
-        "30805": { name: "Dossier", rate: 1/12.1, type: "main", hidden: true, order: 10 },
-        "30795": { name: "Barrel of demonic tallow (full)", rate: 5/78, type: "main", hidden: true, order: 11 }
+    yama: {
+        "30888": { name: "Yami", rate: 1 / 2500, type: "tertiary", order: 1 },
+        "30750": { name: "Oathplate helm", rate: 1 / 600, type: "main", order: 3 },
+        "30753": { name: "Oathplate chest", rate: 1 / 600, type: "main", order: 4 },
+        "30756": { name: "Oathplate legs", rate: 1 / 600, type: "main", order: 5 },
+        "30759": { name: "Soulflame horn", rate: 1 / 300, type: "main", order: 6 },
+        "30765": { name: "Oathplate shards", rate: 1 / 17.07, type: "main", order: 7 },
+        "30763": { name: "Forgotten lockbox", rate: 1 / 33, type: "main", order: 9 },
+        "30805": { name: "Dossier", rate: 1 / 12.1, type: "main", hidden: true, order: 10 },
+        "30795": { name: "Barrel of demonic tallow (full)", rate: 5 / 78, type: "main", hidden: true, order: 11 },
     },
-    "zalcano": {
-        "23760": { name: "Smolcano", rate: 1/2250, type: "tertiary", order: 1 },
-        "23953": { name: "Crystal tool seed", rate: 39/8000, type: "main", order: 2 },
-        "6571": { name: "Uncut onyx", rate: 1/8000, type: "main", hidden: true, order: 3 },
-        "23908": { name: "Zalcano shard", rate: 1/750, type: "main", order: 4 }
+    zalcano: {
+        "23760": { name: "Smolcano", rate: 1 / 2250, type: "tertiary", order: 1 },
+        "23953": { name: "Crystal tool seed", rate: 39 / 8000, type: "main", order: 2 },
+        "6571": { name: "Uncut onyx", rate: 1 / 8000, type: "main", hidden: true, order: 3 },
+        "23908": { name: "Zalcano shard", rate: 1 / 750, type: "main", order: 4 },
     },
-    "zulrah": {
+    zulrah: {
         "12921": { name: "Pet snakeling", rate: 1 / 4000, type: "tertiary", order: 1 },
         "13200": { name: "Tanzanite mutagen", rate: 1 / 13107.2, type: "main", order: 2 },
         "13201": { name: "Magma mutagen", rate: 1 / 13107.2, type: "main", order: 3 },
@@ -494,7 +495,7 @@ export const RAW_BOSS_DATA = {
         "12922": { name: "Tanzanite fang", rate: 1 / 1024, type: "main", order: 7 },
         "6571": { name: "Uncut onyx", rate: 1 / 1024, type: "main", order: 9 },
     },
-    "chambers_of_xeric": {
+    chambers_of_xeric: {
         "20851": { name: "Olmlet", rate: 1 / 53, type: "tertiary", order: 1 },
         "20997": { name: "Twisted bow", rate: 2, type: "main", order: 3 },
         "21003": { name: "Elder maul", rate: 2, type: "main", order: 4 },
@@ -508,9 +509,9 @@ export const RAW_BOSS_DATA = {
         "21000": { name: "Twisted buckler", rate: 4, type: "main", order: 12 },
         "21034": { name: "Dexterous prayer scroll", rate: 20, type: "main", hidden: true, order: 13 },
         "21079": { name: "Arcane prayer scroll", rate: 20, type: "main", hidden: true, order: 14 },
-        "21047": { name: "Torn prayer scroll", rate: 2 / 33, type: "tertiary", hidden: true, order: 15 }
+        "21047": { name: "Torn prayer scroll", rate: 2 / 33, type: "tertiary", hidden: true, order: 15 },
     },
-    "theatre_of_blood": {
+    theatre_of_blood: {
         "22473": { name: "Lil' zik", rate: 1 / 650, type: "tertiary", order: 1 },
         "22486": { name: "Scythe of vitur (uncharged)", rate: 1, type: "main", order: 2 },
         "22324": { name: "Ghrazi rapier", rate: 2, type: "main", order: 3 },
@@ -518,9 +519,9 @@ export const RAW_BOSS_DATA = {
         "22326": { name: "Justiciar faceguard", rate: 2, type: "main", order: 5 },
         "22327": { name: "Justiciar chestguard", rate: 2, type: "main", order: 6 },
         "22328": { name: "Justiciar legguards", rate: 2, type: "main", order: 7 },
-        "22477": { name: "Avernic defender hilt", rate: 8, type: "main", order: 8 }
+        "22477": { name: "Avernic defender hilt", rate: 8, type: "main", order: 8 },
     },
-    "tombs_of_amascut": {
+    tombs_of_amascut: {
         "27352": { name: "Tumeken's guardian", rate: 1, type: "tertiary", order: 1 },
         "27277": { name: "Tumeken's shadow (uncharged)", rate: 10, type: "main", order: 2 },
         "27226": { name: "Masori mask", rate: 20, type: "main", order: 4 },
@@ -528,6 +529,6 @@ export const RAW_BOSS_DATA = {
         "27232": { name: "Masori chaps", rate: 20, type: "main", order: 6 },
         "25985": { name: "Elidinis' ward", rate: 30, type: "main", order: 3 },
         "26219": { name: "Osmumten's fang", rate: 70, type: "main", order: 8 },
-        "25975": { name: "Lightbearer", rate: 70, type: "main", order: 7 }
+        "25975": { name: "Lightbearer", rate: 70, type: "main", order: 7 },
     }
 };

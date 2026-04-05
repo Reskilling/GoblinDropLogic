@@ -10,9 +10,8 @@ const BARROWS = {
 
 /**
  * Helper to manage multi-dimensional state spaces for our Markov chains.
- * We extract this because flattening n-dimensional item combinations into a single 
- * 1D array index (and vice versa) is complex math, and repeating it in both 
- * Master and Moons matrices makes the code hard to maintain.
+ * Uses base-n arithmetic to encode and decode multi-dimensional counts 
+ * directly from a single integer index.
  */
 function buildStateSpace(groups) {
     let totalStates = 1;
@@ -25,28 +24,22 @@ function buildStateSpace(groups) {
 
     return {
         totalStates,
-        // Reduces a specific [0, 1, 0, 2...] state array back into a single matrix index
-        getIndex: (counts) => counts.reduce((sum, count, i) => sum + count * multipliers[i], 0),
-        // Expands a single matrix index back into its multi-dimensional counts
-        getCounts: (index) => {
-            let temp = index;
-            return groups.map(g => {
-                const size = g.target + 1;
-                const count = temp % size;
-                temp = Math.floor(temp / size);
-                return count;
-            });
-        }
+        // Extracts the specific item count from a flattened 1D matrix index
+        getGroupCount: (stateIndex, groupIdx) => {
+            const size = groups[groupIdx].target + 1;
+            return Math.floor(stateIndex / multipliers[groupIdx]) % size;
+        },
+        // Incrementing a specific group's count simply means adding its multiplier
+        getNextState: (stateIndex, groupIdx) => stateIndex + multipliers[groupIdx]
     };
 }
 
 /**
  * Specialized Hypergeometric Engine for Barrows.
- * Barrows enforces intra-chest duplicate protection (you cannot get the same item twice in one chest).
- * To model this, we calculate the transition probabilities of a single loot roll, 
- * then compound it 7 times into a single atomic "chest" transition matrix.
- * * @param {number} targetCount - Total number of unique Barrows items selected.
- * @returns {Array<Float64Array>} A 2D transition matrix for a full chest opening.
+ * Barrows enforces intra-chest duplicate protection. We calculate the transition 
+ * probabilities of a single roll, then compound it 7 times into a "chest" matrix.
+ * @param {number} targetCount - Total number of unique Barrows items selected.
+ * @returns {Array<Array<Object>>} A SPARSE 2D transition matrix for a full chest opening.
  */
 export function createBarrowsMatrix(targetCount) {
     const size = targetCount + 1;
@@ -54,17 +47,14 @@ export function createBarrowsMatrix(targetCount) {
 
     // 1. Build the base probability matrix for a single roll
     for (let i = 0; i < size; i++) {
-        // Absorbing state: we have all the targeted items
         if (i === targetCount) {
             baseMatrix[i][i] = 1.0; 
             continue;
         }
         
-        // Chance to hit one of the items we WANT that we don't ALREADY HAVE
         const pNew = BARROWS.UNIQUE_RATE * ((targetCount - i) / BARROWS.TOTAL_ITEMS);
         
-        // The chance to NOT progress is simply 100% minus the chance of getting a new item.
-        // This perfectly encompasses dupes, blanks, AND unwanted Barrows items.
+        // The chance to NOT progress encompasses dupes, blanks, AND unwanted Barrows items.
         baseMatrix[i][i] = 1 - pNew;
         
         if (i + 1 < size) {
@@ -72,39 +62,58 @@ export function createBarrowsMatrix(targetCount) {
         }
     }
 
-    let chestMatrix = baseMatrix;
+    // Double buffering for our matrix multiplication to prevent allocating a new 2D array every loop
+    let currentMatrix = baseMatrix;
+    let nextMatrix = Array.from({length: size}, () => new Float64Array(size));
     
     // 2. Compound the matrix for the remaining rolls.
-    // This implicit matrix multiplication naturally handles the shifting conditional 
-    // probability of the intra-chest dupe protection.
     for (let r = 1; r < BARROWS.ROLLS_PER_CHEST; r++) {
-        const nextMatrix = Array.from({length: size}, () => new Float64Array(size));
+        for (let i = 0; i < size; i++) nextMatrix[i].fill(0);
         
         for (let row = 0; row < size; row++) {
             for (let col = row; col < size; col++) {
-                if (chestMatrix[row][col] === 0) continue;
+                const currentProb = currentMatrix[row][col];
+                if (currentProb === 0) continue;
                 
-                // Upper triangular constraint (k = col) because you can't "lose" an item you already obtained
+                // Upper triangular constraint: you can't "lose" an item you already obtained
                 for (let k = col; k <= Math.min(col + 1, targetCount); k++) {
-                    if (baseMatrix[col][k] > 0) {
-                        nextMatrix[row][k] += chestMatrix[row][col] * baseMatrix[col][k];
+                    const transProb = baseMatrix[col][k];
+                    if (transProb > 0) {
+                        nextMatrix[row][k] += currentProb * transProb;
                     }
                 }
             }
         }
-        chestMatrix = nextMatrix;
+        
+        let temp = currentMatrix;
+        currentMatrix = nextMatrix;
+        nextMatrix = temp;
     }
 
-    return chestMatrix;
+    // 3. Convert the final dense probability grid into an efficient Sparse Matrix format
+    const sparseMatrix = Array.from({length: size}, () => []);
+    
+    for (let row = 0; row < size; row++) {
+        for (let col = row; col < size; col++) {
+            if (currentMatrix[row][col] > 0) {
+                sparseMatrix[row].push({
+                    target: col,
+                    prob: currentMatrix[row][col]
+                });
+            }
+        }
+    }
+
+    return sparseMatrix;
 }
 
 /**
  * The Master Markov Chain.
  * Models combined probability spaces for mutually exclusive items (Main) 
  * and independent concurrent drops (Tertiary/Pets).
- * * @param {Array<Object>} selectedItems - Items to track in the simulation.
+ * @param {Array<Object>} selectedItems - Items to track in the simulation.
  * @param {number} [rollCount=1] - Number of mutually exclusive loot rolls per KC.
- * @returns {Array<Float64Array>} Transition matrix representing a single KC.
+ * @returns {Array<Array<Object>>} A SPARSE Transition matrix representing a single KC.
  */
 export function createMasterMatrix(selectedItems, rollCount = 1) {
     const groups = [];
@@ -130,93 +139,110 @@ export function createMasterMatrix(selectedItems, rollCount = 1) {
         }
     });
 
-    // Tag with original index before separating so the state array maps back correctly
     groups.forEach((g, idx) => g.index = idx);
     
     const mainGroups = groups.filter(g => g.type === "main");
     const tertGroups = groups.filter(g => g.type !== "main");
 
-    const { totalStates, getIndex, getCounts } = buildStateSpace(groups);
-    const matrix = Array.from({length: totalStates}, () => new Float64Array(totalStates));
+    const { totalStates, getGroupCount, getNextState } = buildStateSpace(groups);
+    
+    // Create the Sparse Matrix foundation (an array of arrays, no zero-bloat)
+    const sparseMatrix = Array.from({length: totalStates}, () => []);
+
+    // Pre-allocate our transition buffers for internal calculation
+    let currentProbs = new Float64Array(totalStates);
+    let nextProbs = new Float64Array(totalStates);
 
     for (let stateIdx = 0; stateIdx < totalStates; stateIdx++) {
-        const counts = getCounts(stateIdx);
+        // Absorbing state check: Are all item counts equal to their targets?
+        let isAbsorbing = true;
+        for (let i = 0; i < groups.length; i++) {
+            if (getGroupCount(stateIdx, i) !== groups[i].target) {
+                isAbsorbing = false;
+                break;
+            }
+        }
         
-        // Absorbing state fallback
-        if (counts.every((c, i) => c === groups[i].target)) {
-            matrix[stateIdx][stateIdx] = 1.0; 
+        if (isAbsorbing) {
+            sparseMatrix[stateIdx].push({ target: stateIdx, prob: 1.0 });
             continue;
         }
 
-        let stateProbs = new Float64Array(totalStates);
-        stateProbs[stateIdx] = 1.0;
+        currentProbs.fill(0);
+        currentProbs[stateIdx] = 1.0;
 
-        // Apply mutually exclusive rolls. An item from MainGroup A prevents receiving an item from MainGroup B.
+        // Apply mutually exclusive rolls.
         for (let r = 0; r < rollCount; r++) {
-            const nextRoll = new Float64Array(totalStates);
+            nextProbs.fill(0);
             
             for (let currState = 0; currState < totalStates; currState++) {
-                if (stateProbs[currState] === 0) continue;
+                const prob = currentProbs[currState];
+                if (prob === 0) continue;
                 
-                const currCounts = getCounts(currState);
                 let probHitAnyMain = 0;
 
                 for (const mg of mainGroups) {
-                    const count = currCounts[mg.index];
+                    const count = getGroupCount(currState, mg.index);
                     if (count < mg.target) {
                         const effectiveRate = mg.isSequential ? mg.rate : (mg.target - count) * mg.rate;
                         
-                        const nextCounts = [...currCounts];
-                        nextCounts[mg.index]++;
-                        
-                        nextRoll[getIndex(nextCounts)] += stateProbs[currState] * effectiveRate;
+                        nextProbs[getNextState(currState, mg.index)] += prob * effectiveRate;
                         probHitAnyMain += effectiveRate;
                     }
                 }
-                nextRoll[currState] += stateProbs[currState] * (1 - probHitAnyMain);
+                nextProbs[currState] += prob * (1 - probHitAnyMain);
             }
-            stateProbs = nextRoll;
+            
+            // Swap buffers
+            let temp = currentProbs;
+            currentProbs = nextProbs;
+            nextProbs = temp;
         }
 
-        // Apply independent rolls. Tertiary items roll concurrently without diminishing each other.
+        // Apply independent rolls (Tertiary items roll concurrently).
         for (const tg of tertGroups) {
-            const nextProbs = new Float64Array(totalStates);
+            nextProbs.fill(0);
             
             for (let midState = 0; midState < totalStates; midState++) {
-                if (stateProbs[midState] === 0) continue;
+                const prob = currentProbs[midState];
+                if (prob === 0) continue;
                 
-                const midCounts = getCounts(midState);
-                const count = midCounts[tg.index];
+                const count = getGroupCount(midState, tg.index);
 
                 if (count < tg.target) {
                     const effectiveRate = tg.isSequential ? tg.rate : (tg.target - count) * tg.rate;
                     
-                    nextProbs[midState] += stateProbs[midState] * (1 - effectiveRate);
-                    
-                    const nextCounts = [...midCounts];
-                    nextCounts[tg.index]++;
-                    nextProbs[getIndex(nextCounts)] += stateProbs[midState] * effectiveRate;
+                    nextProbs[midState] += prob * (1 - effectiveRate);
+                    nextProbs[getNextState(midState, tg.index)] += prob * effectiveRate;
                 } else {
-                    nextProbs[midState] += stateProbs[midState];
+                    nextProbs[midState] += prob;
                 }
             }
-            stateProbs = nextProbs;
+            
+            // Swap buffers
+            let temp = currentProbs;
+            currentProbs = nextProbs;
+            nextProbs = temp;
         }
 
+        // Commit the fully resolved permutations into the sparse array
         for (let finalState = 0; finalState < totalStates; finalState++) {
-            if (stateProbs[finalState] > 0) matrix[stateIdx][finalState] = stateProbs[finalState];
+            if (currentProbs[finalState] > 0) {
+                sparseMatrix[stateIdx].push({
+                    target: finalState,
+                    prob: currentProbs[finalState]
+                });
+            }
         }
     }
-    return matrix;
+    return sparseMatrix;
 }
 
 /**
  * Specialized Engine for Moons of Peril.
  * Models independent pools that enforce global duplicate protection.
- * Note: This accurately predicts full-set completion milestones, but partial set 
- * selections represent finding "ANY X pieces" rather than specific targeted items.
- * * @param {Array<Object>} selectedItems - Moons items with a valid 'pool' attribute.
- * @returns {Array<Float64Array>} Transition matrix for opening one Moons chest.
+ * @param {Array<Object>} selectedItems - Moons items with a valid 'pool' attribute.
+ * @returns {Array<Array<Object>>} A SPARSE Transition matrix for opening one Moons chest.
  */
 export function createMoonsMatrix(selectedItems) {
     const groups = [];
@@ -227,46 +253,62 @@ export function createMoonsMatrix(selectedItems) {
         else groups.push({ pool: item.pool, rate: item.rate, target: 1, index: groups.length });
     });
 
-    const { totalStates, getIndex, getCounts } = buildStateSpace(groups);
-    const matrix = Array.from({length: totalStates}, () => new Float64Array(totalStates));
+    const { totalStates, getGroupCount, getNextState } = buildStateSpace(groups);
+    const sparseMatrix = Array.from({length: totalStates}, () => []);
+
+    let currentProbs = new Float64Array(totalStates);
+    let nextProbs = new Float64Array(totalStates);
 
     for (let stateIdx = 0; stateIdx < totalStates; stateIdx++) {
-        const counts = getCounts(stateIdx);
+        let isAbsorbing = true;
+        for (let i = 0; i < groups.length; i++) {
+            if (getGroupCount(stateIdx, i) !== groups[i].target) {
+                isAbsorbing = false;
+                break;
+            }
+        }
         
-        if (counts.every((c, i) => c === groups[i].target)) {
-            matrix[stateIdx][stateIdx] = 1.0; 
+        if (isAbsorbing) {
+            sparseMatrix[stateIdx].push({ target: stateIdx, prob: 1.0 });
             continue;
         }
 
-        let stateProbs = new Float64Array(totalStates);
-        stateProbs[stateIdx] = 1.0;
+        currentProbs.fill(0);
+        currentProbs[stateIdx] = 1.0;
 
         // Moons rolls are siloed by boss pool. We process exactly one independent 
         // check per active boss pool concurrently, simulating a 3-boss KC.
         for (const g of groups) {
-            const nextProbs = new Float64Array(totalStates);
+            nextProbs.fill(0);
+            
             for (let midState = 0; midState < totalStates; midState++) {
-                if (stateProbs[midState] === 0) continue;
+                const prob = currentProbs[midState];
+                if (prob === 0) continue;
                 
-                const midCounts = getCounts(midState);
-                const count = midCounts[g.index];
+                const count = getGroupCount(midState, g.index);
 
                 if (count < g.target) {
-                    nextProbs[midState] += stateProbs[midState] * (1 - g.rate);
-                    
-                    const nextCounts = [...midCounts];
-                    nextCounts[g.index]++;
-                    nextProbs[getIndex(nextCounts)] += stateProbs[midState] * g.rate;
+                    nextProbs[midState] += prob * (1 - g.rate);
+                    nextProbs[getNextState(midState, g.index)] += prob * g.rate;
                 } else {
-                    nextProbs[midState] += stateProbs[midState];
+                    nextProbs[midState] += prob;
                 }
             }
-            stateProbs = nextProbs;
+            
+            let temp = currentProbs;
+            currentProbs = nextProbs;
+            nextProbs = temp;
         }
 
+        // Commit the final state calculations to the sparse matrix format
         for (let finalState = 0; finalState < totalStates; finalState++) {
-            if (stateProbs[finalState] > 0) matrix[stateIdx][finalState] = stateProbs[finalState];
+            if (currentProbs[finalState] > 0) {
+                sparseMatrix[stateIdx].push({
+                    target: finalState,
+                    prob: currentProbs[finalState]
+                });
+            }
         }
     }
-    return matrix;
+    return sparseMatrix;
 }
