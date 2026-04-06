@@ -163,23 +163,13 @@ export const RAW_BOSS_DATA = {
         "6724": { name: "Seercull", rate: 1 / 128, type: "main", order: 9 },
         "6562": { name: "Mud battlestaff", rate: 1 / 128, type: "main", order: 10 },
     },
-    dagannoth_rex: {
-        "12645": { name: "Pet dagannoth rex", rate: 1 / 5000, type: "tertiary", order: 3 },
-        "6737": { name: "Berserker ring", rate: 1 / 128, type: "main", order: 4 },
-        "6735": { name: "Warrior ring", rate: 1 / 128, type: "main", order: 7 },
-        "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 8 },
-    },
-    dagannoth_supreme: {
-        "12643": { name: "Pet dagannoth supreme", rate: 1 / 5000, type: "tertiary", order: 2 },
-        "6733": { name: "Archers ring", rate: 1 / 128, type: "main", order: 5 },
-        "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 8 },
-        "6724": { name: "Seercull", rate: 1 / 128, type: "main", order: 9 },
-    },
-    dagannoth_prime: {
-        "12644": { name: "Pet dagannoth prime", rate: 1 / 5000, type: "tertiary", order: 1 },
-        "6731": { name: "Seers ring", rate: 1 / 128, type: "main", order: 6 },
-        "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 8 },
-        "6562": { name: "Mud battlestaff", rate: 1 / 128, type: "main", order: 10 },
+    demonic_gorilla: {
+        "19529": { name: "Zenyte shard", rate: 1 / 300, type: "main", pieces: 4, order: 1 },
+        "19592": { name: "Ballista limbs", rate: 1 / 500, type: "main", order: 2 },
+        "19601": { name: "Ballista spring", rate: 1 / 500, type: "main", order: 2 },
+        "19586": { name: "Light frame", rate: 1 / 750, type: "main", order: 2 },
+        "19589": { name: "Heavy frame", rate: 1 / 1500, type: "main", order: 2 },
+        "19610": { name: "Monkey tail", rate: 1 / 1500, type: "main", order: 2 },
     },
     deranged_archaeologist: {
         "30895": { name: "Steel ring", rate: 1 / 43.67, type: "main", order: 1 },
@@ -409,6 +399,10 @@ export const RAW_BOSS_DATA = {
         "11998": { name: "Smoke battlestaff", rate: 1 / 512, type: "main", order: 3 },
         "3140": { name: "Dragon chainbody", rate: 1 / 2000, type: "main", order: 4 },
         "25524": { name: "Jar of smoke", rate: 1 / 2000, type: "tertiary", order: 5 },
+    },
+    tormented_demon: {
+        "29580": { name: "Tormented synapse", rate: 1 / 500, type: "main", pieces: 3, order: 1 },
+        "29574": { name: "Burning claw", rate: 1 / 501, type: "main", pieces: 2, order: 2 },
     },
     vardorvis: {
         "28248": { name: "Butch", rate: 1 / 3000, type: "tertiary", order: 1 },

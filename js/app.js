@@ -24,13 +24,10 @@ const COLORS = {
 
 const DT2_BOSSES = ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'];
 
-// Organized Boss Categories
-// We exclude 'Standard' from this map because anything not explicitly listed 
-// here will automatically fall through to the Standard bucket.
 const BOSS_CATEGORIES = {
     "Skilling": ['wintertodt', 'tempoross', 'zalcano'],
     "Minigame": ['the_corrupted_gauntlet', 'the_fight_caves', 'the_inferno', 'fortis_colosseum'],
-    "Slayer": ['abyssal_sire', 'alchemical_hydra', 'araxxor', 'cerberus', 'grotesque_guardians', 'kraken', 'thermonuclear_smoke_devil'],
+    "Slayer": ['abyssal_sire', 'alchemical_hydra', 'araxxor', 'cerberus', 'demonic_gorilla', 'grotesque_guardians', 'kraken', 'thermonuclear_smoke_devil', 'tormented_demon'],
     "Wilderness": ['artio', 'callisto', 'calvarion', 'chaos_elemental', 'chaos_fanatic', 'crazy_archaeologist', 'scorpia', 'spindel', 'venenatis', 'vetion'],
     "God Wars Dungeon": ['commander_zilyana', 'general_graardor', 'kree_arra', 'kril_tsutsaroth', 'nex'],
     "The Forgotten Four": ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'],
@@ -40,7 +37,6 @@ const BOSS_CATEGORIES = {
 let activeBossKey = "";
 let chartInstance = null;
 
-// Cache static DOM references to avoid repeated queries
 const DOM = {
     bossSelect: document.getElementById("boss-select"),
     itemGrid: document.getElementById("item-grid"),
@@ -91,9 +87,6 @@ DT2_BOSSES.forEach(boss => {
     STATE_EXTRACTORS[boss] = () => ({ isAwakened: isBtnTrue('dt2-awakened-btn') });
 });
 
-// ==========================================
-// SIMULATION CACHE
-// ==========================================
 let activeSimulationCache = { hash: null, rawResults: null };
 
 function generateStateHash(bossKey, items) {
@@ -118,8 +111,6 @@ function setupChartDefaults() {
 function populateBossSelect() {
     const defaultOption = '<option value="">Select Boss Intel...</option>';
     
-    // By defining the keys in this exact sequence, we force the JavaScript engine 
-    // to build the HTML elements in our desired account progression order.
     const categories = { 
         "Standard": [],
         "Skilling": [], 
@@ -131,7 +122,6 @@ function populateBossSelect() {
         "Raids": []
     };
     
-    // Sort bosses alphabetically, then drop them into their respective progression buckets
     Object.keys(BOSS_CONFIG).sort().forEach(key => {
         let placed = false;
         for (const [cat, bosses] of Object.entries(BOSS_CATEGORIES)) {
@@ -141,8 +131,6 @@ function populateBossSelect() {
                 break;
             }
         }
-        
-        // Safety net: Anything we didn't explicitly classify falls back to the top of the list
         if (!placed) categories["Standard"].push(key);
     });
 
@@ -406,9 +394,6 @@ function renderDynamicSettings(bossKey) {
     }
 }
 
-// ==========================================
-// CUSTOM UI TOAST
-// ==========================================
 function showToast(message, isError = true) {
     let toast = document.getElementById("custom-toast");
     
@@ -547,18 +532,70 @@ function updateKC(amount) {
     }
 }
 
+// ----------------------------------------------------
+// MULTI-PIECE TOGGLE LOGIC
+// ----------------------------------------------------
 function toggleItemSelection(e) { 
     const box = e.target.closest(".item-box"); 
     if (!box || isSacrificeModeActive()) return;
     
-    box.classList.toggle("selected"); 
+    const maxPieces = parseInt(box.dataset.maxPieces, 10) || 1;
+    
+    if (maxPieces === 1) {
+        box.classList.toggle("selected"); 
+    } else {
+        let current = parseInt(box.dataset.selectedPieces, 10);
+        
+        if (!box.classList.contains("selected")) {
+            box.classList.add("selected");
+            current = maxPieces;
+        } else {
+            current--;
+            if (current === 0) {
+                box.classList.remove("selected");
+                current = maxPieces; 
+            }
+        }
+        
+        box.dataset.selectedPieces = current;
+        const badge = box.querySelector('.item-badge');
+        if (badge) badge.innerText = `${current}/${maxPieces}`;
+    }
+    
+    // Feature Fix: Gracefully fold the dashboard away if they unclicked the last item 
+    // instead of trying to calculate an empty matrix and throwing an error.
+    if (!DOM.resultsSection.classList.contains("hidden")) {
+        if (getSelectedItems().length === 0) {
+            DOM.resultsSection.classList.add("hidden");
+        } else {
+            handleCalculation();
+        }
+    }
 }
 
 function setAllItemsSelection(select) { 
     if (isSacrificeModeActive()) return;
 
     const action = select ? 'add' : 'remove'; 
-    DOM.itemGrid.querySelectorAll(".item-box").forEach(b => b.classList[action]("selected")); 
+    DOM.itemGrid.querySelectorAll(".item-box").forEach(box => {
+        box.classList[action]("selected"); 
+        if (select) {
+            const max = parseInt(box.dataset.maxPieces, 10) || 1;
+            if (max > 1) {
+                box.dataset.selectedPieces = max;
+                const badge = box.querySelector('.item-badge');
+                if (badge) badge.innerText = `${max}/${max}`;
+            }
+        }
+    }); 
+    
+    if (!DOM.resultsSection.classList.contains("hidden")) {
+        if (getSelectedItems().length === 0) {
+            DOM.resultsSection.classList.add("hidden");
+        } else {
+            handleCalculation();
+        }
+    }
 }
 
 function isSacrificeModeActive() {
@@ -569,11 +606,16 @@ function renderItemGrid(items) {
     const visibleItems = items.filter(item => !item.hidden);
     const sortedItems = [...visibleItems].sort((a, b) => a.order - b.order);
     
-    DOM.itemGrid.innerHTML = sortedItems.map(item => `
-        <div class="item-box selected" data-id="${item.id}" data-rate="${item.rate}" data-type="${item.type}" data-pieces="${item.pieces || 1}" data-pool="${item.pool || ''}" title="${item.name}">
+    DOM.itemGrid.innerHTML = sortedItems.map(item => {
+        const maxPieces = item.pieces || 1;
+        const badge = maxPieces > 1 ? `<span class="item-badge">${maxPieces}/${maxPieces}</span>` : '';
+        
+        return `
+        <div class="item-box selected" data-id="${item.id}" data-rate="${item.rate}" data-type="${item.type}" data-max-pieces="${maxPieces}" data-selected-pieces="${maxPieces}" data-pool="${item.pool || ''}" title="${item.name}">
             <img src="${getWikiUrl(item.name)}" alt="${item.name}">
+            ${badge}
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function getSelectedItems() {
@@ -581,7 +623,7 @@ function getSelectedItems() {
         name: b.title, 
         rate: parseFloat(b.dataset.rate), 
         type: b.dataset.type, 
-        pieces: parseInt(b.dataset.pieces, 10) || 1, 
+        pieces: parseInt(b.dataset.selectedPieces, 10) || 1, 
         pool: b.dataset.pool 
     }));
 }
