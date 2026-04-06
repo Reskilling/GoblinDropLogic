@@ -62,8 +62,9 @@ export function createBarrowsMatrix(targetCount) {
         }
     }
 
-    // Double buffering for our matrix multiplication to prevent allocating a new 2D array every loop
-    let currentMatrix = baseMatrix;
+    // FIX: Deep copy the baseMatrix into currentMatrix so the buffer swaps 
+    // never accidentally overwrite our static single-roll probabilities.
+    let currentMatrix = Array.from({length: size}, (_, i) => new Float64Array(baseMatrix[i]));
     let nextMatrix = Array.from({length: size}, () => new Float64Array(size));
     
     // 2. Compound the matrix for the remaining rolls.
