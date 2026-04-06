@@ -24,6 +24,19 @@ const COLORS = {
 
 const DT2_BOSSES = ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'];
 
+// Organized Boss Categories
+// We exclude 'Standard' from this map because anything not explicitly listed 
+// here will automatically fall through to the Standard bucket.
+const BOSS_CATEGORIES = {
+    "Skilling": ['wintertodt', 'tempoross', 'zalcano'],
+    "Minigame": ['the_corrupted_gauntlet', 'the_fight_caves', 'the_inferno', 'fortis_colosseum'],
+    "Slayer": ['abyssal_sire', 'alchemical_hydra', 'araxxor', 'cerberus', 'grotesque_guardians', 'kraken', 'thermonuclear_smoke_devil'],
+    "Wilderness": ['artio', 'callisto', 'calvarion', 'chaos_elemental', 'chaos_fanatic', 'crazy_archaeologist', 'scorpia', 'spindel', 'venenatis', 'vetion'],
+    "God Wars Dungeon": ['commander_zilyana', 'general_graardor', 'kree_arra', 'kril_tsutsaroth', 'nex'],
+    "The Forgotten Four": ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'],
+    "Raids": ['chambers_of_xeric', 'theatre_of_blood', 'tombs_of_amascut']
+};
+
 let activeBossKey = "";
 let chartInstance = null;
 
@@ -52,7 +65,6 @@ const DOM = {
 // STATE EXTRACTION (UI -> Data)
 // ==========================================
 
-// Helper functions to keep our state extraction incredibly DRY and safe from NaN errors.
 const getIntVal = (id, fallback) => {
     const val = parseInt(document.getElementById(id)?.value, 10);
     return isNaN(val) ? fallback : val;
@@ -84,8 +96,6 @@ DT2_BOSSES.forEach(boss => {
 // ==========================================
 let activeSimulationCache = { hash: null, rawResults: null };
 
-// We hash the exact configuration of items, rates, and boss selection.
-// If the user calculates the exact same scenario twice, we bypass the heavy matrix math.
 function generateStateHash(bossKey, items) {
     return JSON.stringify({ 
         bossKey, 
@@ -107,10 +117,44 @@ function setupChartDefaults() {
 
 function populateBossSelect() {
     const defaultOption = '<option value="">Select Boss Intel...</option>';
-    const bossOptions = Object.keys(BOSS_CONFIG)
-        .sort()
-        .map(key => `<option value="${key}">${formatBossName(key)}</option>`)
-        .join('');
+    
+    // By defining the keys in this exact sequence, we force the JavaScript engine 
+    // to build the HTML elements in our desired account progression order.
+    const categories = { 
+        "Standard": [],
+        "Skilling": [], 
+        "Minigame": [], 
+        "Slayer": [], 
+        "Wilderness": [], 
+        "God Wars Dungeon": [],
+        "The Forgotten Four": [], 
+        "Raids": []
+    };
+    
+    // Sort bosses alphabetically, then drop them into their respective progression buckets
+    Object.keys(BOSS_CONFIG).sort().forEach(key => {
+        let placed = false;
+        for (const [cat, bosses] of Object.entries(BOSS_CATEGORIES)) {
+            if (bosses.includes(key)) {
+                categories[cat].push(key);
+                placed = true;
+                break;
+            }
+        }
+        
+        // Safety net: Anything we didn't explicitly classify falls back to the top of the list
+        if (!placed) categories["Standard"].push(key);
+    });
+
+    let bossOptions = '';
+    for (const [cat, keys] of Object.entries(categories)) {
+        if (keys.length === 0) continue;
+        bossOptions += `<optgroup label="${cat}">`;
+        keys.forEach(key => {
+            bossOptions += `<option value="${key}">${formatBossName(key)}</option>`;
+        });
+        bossOptions += `</optgroup>`;
+    }
         
     DOM.bossSelect.innerHTML = defaultOption + bossOptions;
 }
@@ -363,6 +407,35 @@ function renderDynamicSettings(bossKey) {
 }
 
 // ==========================================
+// CUSTOM UI TOAST
+// ==========================================
+function showToast(message, isError = true) {
+    let toast = document.getElementById("custom-toast");
+    
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "custom-toast";
+        toast.className = "toast";
+        document.body.appendChild(toast);
+    }
+    
+    const icon = isError ? "⚠️" : "ℹ️";
+    const color = isError ? "var(--accent-orange)" : "var(--accent-green)";
+    
+    toast.style.borderColor = color;
+    toast.style.boxShadow = `0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(var(--${isError ? 'accent-orange' : 'accent-green'}-rgb), 0.2)`;
+    toast.innerHTML = `<span style="color: ${color}; font-size: 18px;">${icon}</span> ${message}`;
+    
+    void toast.offsetWidth;
+    toast.classList.add("show");
+    
+    if (toast.timeoutId) clearTimeout(toast.timeoutId);
+    toast.timeoutId = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 4000);
+}
+
+// ==========================================
 // EVENT BINDINGS
 // ==========================================
 function bindEvents() {
@@ -373,7 +446,22 @@ function bindEvents() {
         btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
     });
 
-    if (DOM.kcResetBtn) DOM.kcResetBtn.addEventListener('click', () => { if (DOM.kcInput) DOM.kcInput.value = 0; });
+    if (DOM.kcInput) {
+        DOM.kcInput.addEventListener('input', () => {
+            if (!DOM.resultsSection.classList.contains("hidden")) {
+                handleCalculation();
+            }
+        });
+    }
+
+    if (DOM.kcResetBtn) {
+        DOM.kcResetBtn.addEventListener('click', () => { 
+            if (DOM.kcInput) {
+                DOM.kcInput.value = 0; 
+                if (!DOM.resultsSection.classList.contains("hidden")) handleCalculation();
+            }
+        });
+    }
     
     if (DOM.selectAllBtn) DOM.selectAllBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(true); });
     if (DOM.selectNoneBtn) DOM.selectNoneBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(false); });
@@ -452,7 +540,11 @@ function handleBossSelection(e) {
 
 function updateKC(amount) { 
     const currentVal = parseInt(DOM.kcInput.value, 10) || 0; 
-    DOM.kcInput.value = currentVal + amount; 
+    DOM.kcInput.value = Math.max(0, currentVal + amount);
+    
+    if (!DOM.resultsSection.classList.contains("hidden")) {
+        handleCalculation();
+    }
 }
 
 function toggleItemSelection(e) { 
@@ -469,7 +561,6 @@ function setAllItemsSelection(select) {
     DOM.itemGrid.querySelectorAll(".item-box").forEach(b => b.classList[action]("selected")); 
 }
 
-// Checks dynamically injected elements to see if we are in a forced-selection mode
 function isSacrificeModeActive() {
     return isBtnTrue('araxxor-sacrifice-btn') || getStrVal('titan-action-btn', '') === 'sacrifice';
 }
@@ -499,7 +590,7 @@ function handleCalculation() {
     const selectedItems = getSelectedItems();
     
     if (!selectedItems.length) { 
-        alert("Select at least one item!"); 
+        showToast("Please select at least one item from the log.", true); 
         return; 
     }
     
@@ -518,7 +609,6 @@ function executeSimulation(selectedItems, currentKC) {
 
     const adjuster = RATE_ADJUSTERS[activeBossKey];
     if (adjuster) {
-        // Extract the UI state securely and pass it into our pure math function
         const bossState = STATE_EXTRACTORS[activeBossKey] ? STATE_EXTRACTORS[activeBossKey]() : {};
         processedItems = adjuster(processedItems, bossState);
     }
@@ -526,7 +616,7 @@ function executeSimulation(selectedItems, currentKC) {
     const validItems = processedItems.filter(item => item.rate > 0);
 
     if (validItems.length === 0) {
-        alert("The current settings make it mathematically impossible to obtain the selected items. Please adjust your target or settings.");
+        showToast("The current settings make it mathematically impossible to obtain the selected items.", true);
         return null;
     }
 
@@ -572,7 +662,10 @@ function displayResults(results, currentKC) {
     DOM.phraseUser.innerHTML = formatStat(COLORS.user, "Current", "Your current progress in the log", currentKC.toLocaleString());
     
     renderChart(results.curveData, results, currentKC);
-    DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
+    
+    if (event && event.target && event.target.id === 'calculate-btn') {
+        DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 // --- CHART RENDERING ---
@@ -580,7 +673,6 @@ function formatAxisTick(val, reverseX) {
     let realKC = reverseX(val); 
     if (realKC < 1) return null; 
     
-    // Smooth out axis ticks based on magnitude
     if (realKC > 1000) realKC = Math.round(realKC / 100) * 100; 
     else if (realKC > 100) realKC = Math.round(realKC / 10) * 10; 
     else realKC = Math.round(realKC); 
@@ -596,7 +688,6 @@ function renderChart(data, stats, userKC) {
     const reverseX = (y) => Math.pow(y, 1 / CHART_CONFIG.xAxisPower);
     const xMaxRaw = Math.max(data[data.length - 1].x, userKC * 1.1);
     
-    // Leverage the guarantee from solvers.js that our exact statistical milestones exist in the dataset
     const modeY = data.find(d => d.x === stats.modeKC)?.pmf || 0;
     const medianY = data.find(d => d.x === stats.median)?.cdf || 0;
 

@@ -605,6 +605,41 @@ a:hover { color: var(--text); text-shadow: 0 0 8px rgba(var(--accent-green-rgb),
 .goal-subtext { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
 
 /* ==========================================
+   CUSTOM TOAST NOTIFICATIONS (Alert Replacement)
+   ========================================== */
+.toast {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 16px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    z-index: 9999;
+    
+    /* Bouncy spring effect for a premium feel */
+    transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+    
+    /* Mobile-friendly wrapping */
+    white-space: normal;
+    max-width: 90vw;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.toast.show {
+    bottom: 40px;
+}
+
+/* ==========================================
    VISIBILITY & MEDIA QUERIES
    ========================================== */
 .mobile-only { display: none; }
