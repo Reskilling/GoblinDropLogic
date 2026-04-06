@@ -6,6 +6,7 @@
 import { createMasterMatrix, createBarrowsMatrix, createMoonsMatrix } from './matrix.js';
 import { BOSS_CONFIG, getWikiUrl, formatBossName } from './data.js';
 import { runSimulation, buildChartData } from './solvers.js';
+import { RATE_ADJUSTERS } from './modifiers.js';
 
 const CHART_FONT = "'Inter', sans-serif";
 const CHART_TEXT_COLOR = '#a8a29e';
@@ -37,23 +38,34 @@ const DOM = {
 };
 
 // ==========================================
-// SIMULATION CACHE
+// STATE EXTRACTION (UI -> Data)
 // ==========================================
-let activeSimulationCache = {
-    hash: null,
-    rawResults: null
+const STATE_EXTRACTORS = {
+    'chambers_of_xeric': () => ({ points: parseInt(document.getElementById('raid-cox-pts')?.value, 10) || 30000 }),
+    'theatre_of_blood': () => ({ size: parseInt(document.getElementById('raid-tob-size')?.value, 10) || 3, deaths: parseInt(document.getElementById('raid-tob-deaths')?.value, 10) || 0 }),
+    'tombs_of_amascut': () => ({ level: parseInt(document.getElementById('raid-toa-level')?.value, 10) || 150, points: parseInt(document.getElementById('raid-toa-pts')?.value, 10) || 15000 }),
+    'doom_of_mokhaiotl': () => ({ delveLevel: parseInt(document.getElementById('doom-delve-level')?.value, 10) || 9 }),
+    'fortis_colosseum': () => ({ isSacrificing: document.getElementById('colo-sacrifice-btn')?.value === 'true' }),
+    'the_nightmare': () => ({ variant: document.getElementById('nightmare-variant-btn')?.value || 'standard', teamSize: parseInt(document.getElementById('nightmare-team-size')?.value, 10) || 5 }),
+    'yama': () => ({ contrib: parseInt(document.getElementById('yama-contribution')?.value, 10) ?? 100 }),
+    'tempoross': () => ({ points: parseInt(document.getElementById('tempoross-points')?.value, 10) || 4000 }),
+    'wintertodt': () => ({ points: parseInt(document.getElementById('wintertodt-points')?.value, 10) || 750 }),
+    'zalcano': () => ({ contrib: parseInt(document.getElementById('zalcano-contribution')?.value, 10) ?? 100 }),
+    'royal_titans': () => ({ target: document.getElementById('titan-target-btn')?.value || 'branda', action: document.getElementById('titan-action-btn')?.value || 'loot', contrib: parseInt(document.getElementById('titan-contribution')?.value, 10) ?? 100 }),
+    'araxxor': () => ({ isSacrificing: document.getElementById('araxxor-sacrifice-btn')?.value === 'true' })
 };
 
-/**
- * Generates a unique fingerprint based on the boss and the mathematically 
- * adjusted rates of the selected items. If raid inputs change, the rates 
- * change, which safely busts the cache.
- */
+DT2_BOSSES.forEach(boss => {
+    STATE_EXTRACTORS[boss] = () => ({ isAwakened: document.getElementById('dt2-awakened-btn')?.value === 'true' });
+});
+
+// ==========================================
+// SIMULATION CACHE
+// ==========================================
+let activeSimulationCache = { hash: null, rawResults: null };
+
 function generateStateHash(bossKey, items) {
-    return JSON.stringify({
-        bossKey,
-        items: items.map(i => `${i.name}|${i.rate}|${i.pieces}|${i.pool}`).sort()
-    });
+    return JSON.stringify({ bossKey, items: items.map(i => `${i.name}|${i.rate}|${i.pieces}|${i.pool}`).sort() });
 }
 
 function initApp() {
@@ -429,20 +441,6 @@ function isSacrificeModeActive() {
            (document.getElementById('titan-action-btn')?.value === 'sacrifice');
 }
 
-function handleCalculation() {
-    const selectedItems = getSelectedItems();
-    
-    if (!selectedItems.length) { 
-        alert("Select at least one item!"); 
-        return; 
-    }
-    
-    const currentKC = parseInt(DOM.kcInput.value, 10) || 0;
-    const results = executeSimulation(selectedItems, currentKC);
-    
-    if (results) displayResults(results, currentKC);
-}
-
 function renderItemGrid(items) {
     const visibleItems = items.filter(item => !item.hidden);
     const sortedItems = [...visibleItems].sort((a, b) => a.order - b.order);
@@ -464,331 +462,19 @@ function getSelectedItems() {
     }));
 }
 
-// ==========================================
-// RAID RATE ADJUSTMENT MATH 
-// ==========================================
-
-function adjustRatesForDoom(items) {
-    let rawLevel = parseInt(document.getElementById('doom-delve-level').value, 10) || 9;
-    const targetLevel = Math.min(Math.max(rawLevel, 2), 15);
+function handleCalculation() {
+    const selectedItems = getSelectedItems();
     
-    const floorRates = {
-        'Mokhaiotl cloth': { 2: 2500, 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
-        'Eye of ayak (uncharged)': { 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
-        'Avernic treads': { 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
-        'Dom': { 6: 1000, 7: 750, 8: 500, 9: 250 }
-    };
-
-    return items.map(item => {
-        const itemRates = floorRates[item.name];
-        if (!itemRates) return item;
-
-        let chanceToFailAll = 1.0;
-        let canRoll = false;
-
-        for (let floor = 2; floor <= targetLevel; floor++) {
-            const rateKey = floor >= 9 ? 9 : floor;
-            if (itemRates[rateKey]) {
-                canRoll = true;
-                chanceToFailAll *= (1 - (1 / itemRates[rateKey]));
-            }
-        }
-
-        return { ...item, rate: canRoll ? (1 - chanceToFailAll) : 0 };
-    });
-}
-
-function adjustRatesForAraxxor(items) {
-    const isSacrificing = document.getElementById('araxxor-sacrifice-btn')?.value === 'true';
-
-    return items.map(item => {
-        if (item.name === "Nid") {
-            return { ...item, rate: isSacrificing ? 1/1500 : 1/3000 };
-        }
-        if (isSacrificing && item.type === 'main') {
-            return { ...item, rate: 0 };
-        }
-        return item;
-    });
-}
-
-function adjustRatesForTitans(items) {
-    const target = document.getElementById('titan-target-btn').value;
-    const action = document.getElementById('titan-action-btn').value;
-    
-    let contrib = parseInt(document.getElementById('titan-contribution').value, 10);
-    if (isNaN(contrib) || contrib < 0) contrib = 0;
-    const cFrac = Math.min(contrib, 100) / 100;
-
-    return items.map(item => {
-        if (item.name === "Bran") {
-            return { ...item, rate: action === 'sacrifice' ? 1/1500 : 1/3000 };
-        }
-
-        if (action !== 'loot' || cFrac === 0) return { ...item, rate: 0 };
-
-        if (target === 'branda' && ["Deadeye prayer scroll", "Ice element staff crown"].includes(item.name)) return { ...item, rate: 0 };
-        if (target === 'eldric' && ["Mystic vigour prayer scroll", "Fire element staff crown"].includes(item.name)) return { ...item, rate: 0 };
-
-        return { ...item, rate: item.rate * cFrac };
-    });
-}
-
-function adjustRatesForTempoross(items) {
-    let pts = parseInt(document.getElementById('tempoross-points').value, 10);
-    if (isNaN(pts) || pts < 0) pts = 0;
-    
-    const rolls = pts >= 2000 ? 1 + (pts - 2000) / 700 : 0;
-
-    if (rolls === 0) return items.map(item => ({ ...item, rate: 0 }));
-
-    return items.map(item => ({
-        ...item,
-        rate: 1 - Math.pow(1 - item.rate, rolls),
-        type: "tertiary" 
-    }));
-}
-
-function adjustRatesForWintertodt(items) {
-    let pts = parseInt(document.getElementById('wintertodt-points').value, 10);
-    if (isNaN(pts) || pts < 500) pts = 500;
-    
-    const rolls = 1 + (pts / 500);
-
-    let runningProb = 1.0;
-    const rollRates = {};
-
-    const cascadeRates = [
-        { name: "Phoenix", rate: 1/5000 },
-        { name: "Dragon axe", rate: 1/10000 },
-        { name: "Tome of fire (empty)", rate: 1/1000 },
-        { name: "Warm gloves", rate: 1/150 },
-        { name: "Bruma torch", rate: 1/150 },
-        { name: "Pyromancer garb", rate: 1/150 }, 
-        { name: "Burnt page", rate: 1/45 }
-    ];
-
-    cascadeRates.forEach(drop => {
-        rollRates[drop.name] = drop.rate * runningProb;
-        runningProb *= (1 - drop.rate);
-    });
-
-    rollRates["Pyromancer hood"] = rollRates["Pyromancer garb"];
-    rollRates["Pyromancer robe"] = rollRates["Pyromancer garb"];
-    rollRates["Pyromancer boots"] = rollRates["Pyromancer garb"];
-
-    return items.map(item => {
-        const ratePerRoll = rollRates[item.name] || 0;
-        return {
-            ...item,
-            rate: 1 - Math.pow(1 - ratePerRoll, rolls),
-            type: "tertiary" 
-        };
-    });
-}
-
-function adjustRatesForZalcano(items) {
-    let contrib = parseInt(document.getElementById('zalcano-contribution').value, 10);
-    if (isNaN(contrib) || contrib < 0) contrib = 0;
-    const cFrac = Math.min(contrib, 100) / 100;
-
-    if (cFrac === 0) return items.map(item => ({ ...item, rate: 0 }));
-
-    const rates = {
-        "Smolcano": 1/2250,
-        "Crystal tool seed": (1/200) * (39/40) * cFrac,
-        "Uncut onyx": (1/200) * (1/40) * cFrac,
-        "Zalcano shard": 1 / (1500 - (750 * cFrac))
-    };
-
-    return items.map(item => ({
-        ...item,
-        rate: rates[item.name] ?? item.rate,
-        type: "tertiary"
-    }));
-}
-
-function adjustRatesForYama(items) {
-    let rawPoints = parseInt(document.getElementById('yama-contribution').value, 10);
-    if (isNaN(rawPoints)) rawPoints = 100;
-    const points = Math.min(Math.max(rawPoints, 0), 100) / 100;
-
-    if (points < 0.15) return items.map(item => ({ ...item, rate: 0 }));
-
-    let runningProb = 1.0;
-
-    const rareSum = (1/120) * points;
-    const helmRate = (1/600) * points * runningProb;
-    const chestRate = (1/600) * points * runningProb;
-    const legsRate = (1/600) * points * runningProb;
-    const hornRate = (1/300) * points * runningProb;
-    runningProb *= (1 - rareSum);
-
-    const dossierRate = (1/12) * points * runningProb;
-    runningProb *= (1 - ((1/12) * points));
-
-    const lockboxRate = (1/30) * runningProb;
-    runningProb *= (1 - (1/30));
-
-    const shardsRate = (1/15) * runningProb;
-    runningProb *= (1 - (1/15));
-
-    const tallowRate = (5/78) * runningProb;
-
-    const yamaRates = {
-        "Yami": 1/2500, 
-        "Oathplate helm": helmRate,
-        "Oathplate chest": chestRate,
-        "Oathplate legs": legsRate,
-        "Soulflame horn": hornRate,
-        "Dossier": dossierRate,
-        "Forgotten lockbox": lockboxRate,
-        "Oathplate shards": shardsRate,
-        "Barrel of demonic tallow (full)": tallowRate
-    };
-
-    return items.map(item => ({
-        ...item,
-        rate: yamaRates[item.name] ?? item.rate
-    }));
-}
-
-function adjustRatesForColosseum(items) {
-    const isSacrificing = document.getElementById('colo-sacrifice-btn')?.value === 'true';
-    
-    return items.map(item => {
-        if (item.name === 'Smol heredit' && isSacrificing) {
-            return { ...item, rate: 1 - Math.pow((1 - item.rate), 2) };
-        }
-        return item;
-    });
-}
-
-function adjustRatesForCox(items) {
-    const pts = parseInt(document.getElementById('raid-cox-pts').value, 10) || 30000;
-    const uniqueChance = pts / 867600; 
-    
-    return items.map(item => {
-        if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / 69) };
-        if (item.name === 'Olmlet') return { ...item, rate: uniqueChance * item.rate };
-        return item;
-    });
-}
-
-function adjustRatesForTob(items) {
-    const size = parseInt(document.getElementById('raid-tob-size').value, 10) || 3;
-    const deaths = parseInt(document.getElementById('raid-tob-deaths').value, 10) || 0;
-    const maxPts = (18 * size) + 14;
-    const earnedPts = Math.max(0, maxPts - (deaths * 4));
-    const uniqueChance = (1 / 9.1) * (earnedPts / maxPts);
-    
-    return items.map(item => {
-        if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / 19) };
-        return item;
-    });
-}
-
-function adjustRatesForToa(items) {
-    const level = parseInt(document.getElementById('raid-toa-level').value, 10) || 150;
-    const pts = parseInt(document.getElementById('raid-toa-pts').value, 10) || 15000;
-    
-    let adjLevel = level;
-    if (adjLevel > 310) { 
-        if (adjLevel > 430) adjLevel = 430 + Math.floor((adjLevel - 430) / 2); 
-        adjLevel = 310 + Math.floor((adjLevel - 310) / 3); 
+    if (!selectedItems.length) { 
+        alert("Select at least one item!"); 
+        return; 
     }
     
-    const denom = 100 * (10500 - 20 * adjLevel);
-    const uniqueChance = pts / denom;
-
-    let fangW = 70; let lbW = 70;
-    if (level >= 500) { fangW = 30; lbW = 35; }
-    else if (level >= 450) { fangW = 40 - Math.floor((level - 450) * 0.2); lbW = 40 - Math.floor((level - 450) * 0.1); }
-    else if (level >= 400) { fangW = 40; lbW = 50 - Math.floor((level - 400) * 0.2); }
-    else if (level >= 350) { fangW = 60 - Math.floor((level - 350) * 0.4); lbW = 60 - Math.floor((level - 350) * 0.2); }
-    else if (level >= 300) { fangW = 70 - Math.floor((level - 300) * 0.2); lbW = 70 - Math.floor((level - 300) * 0.2); }
-
-    const totalWeight = 10 + 20 + 20 + 20 + 30 + fangW + lbW;
+    const currentKC = parseInt(DOM.kcInput.value, 10) || 0;
+    const results = executeSimulation(selectedItems, currentKC);
     
-    return items.map(item => {
-        if (item.type === 'main') {
-            let w = item.rate;
-            if (item.name === "Osmumten's fang") w = fangW;
-            if (item.name === "Lightbearer") w = lbW;
-            if (level < 150 && !["Osmumten's fang", "Lightbearer"].includes(item.name)) w /= 50;
-            return { ...item, rate: uniqueChance * (w / totalWeight) };
-        }
-        if (item.name === "Tumeken's guardian") {
-            const petDenom = 100 * (350000 - 700 * Math.min(adjLevel, 466));
-            return { ...item, rate: pts / petDenom };
-        }
-        return item;
-    });
+    if (results) displayResults(results, currentKC);
 }
-
-function adjustRatesForDT2(items) {
-    const isAwakened = document.getElementById('dt2-awakened-btn')?.value === 'true';
-    if (!isAwakened) return items;
-
-    return items.map(item => {
-        if (item.type === 'main') return { ...item, rate: item.rate * 3 };
-        return item;
-    });
-}
-
-function adjustRatesForNightmare(items) {
-    const variant = document.getElementById('nightmare-variant-btn').value;
-    let teamSize = parseInt(document.getElementById('nightmare-team-size').value, 10) || 1;
-    teamSize = Math.min(Math.max(teamSize, 1), 80);
-
-    if (variant === 'phosani') {
-        const phosaniRates = {
-            "Little nightmare": 1 / 1400, "Inquisitor's mace": 1 / 1129, "Inquisitor's great helm": 1 / 700,
-            "Inquisitor's hauberk": 1 / 700, "Inquisitor's plateskirt": 1 / 700, "Nightmare staff": 1 / 507.2,
-            "Volatile orb": 1 / 1600, "Harmonised orb": 1 / 1600, "Eldritch orb": 1 / 1600,
-            "Jar of dreams": 1 / 4000, "Slepey tablet": 1 / 25, "Parasitic egg": 1 / 200
-        };
-        
-        return items.map(item => ({ ...item, rate: phosaniRates[item.name] || item.rate }));
-    } else {
-        const BASE_PET_RATE = 800;
-        const MAX_PET_RATE = 4000;
-        const JAR_RATE = 2000;
-
-        const scale = 1 + (Math.max(0, Math.min(teamSize - 5, 75)) / 100);
-        
-        return items.map(item => {
-            if (item.name === "Slepey tablet" || item.name === "Parasitic egg") return { ...item, rate: 0 }; 
-            
-            if (item.name === "Little nightmare") {
-                return { ...item, rate: teamSize <= 5 ? 1 / (BASE_PET_RATE * teamSize) : 1 / MAX_PET_RATE };
-            }
-            if (item.name === "Jar of dreams") {
-                return { ...item, rate: 1 / (JAR_RATE * teamSize) };
-            }
-            if (item.type === "main") {
-                return { ...item, rate: (item.rate * scale) / teamSize };
-            }
-            return item;
-        });
-    }
-}
-
-const RATE_ADJUSTERS = {
-    'chambers_of_xeric': adjustRatesForCox,
-    'theatre_of_blood': adjustRatesForTob,
-    'tombs_of_amascut': adjustRatesForToa,
-    'doom_of_mokhaiotl': adjustRatesForDoom,
-    'fortis_colosseum': adjustRatesForColosseum,
-    'the_nightmare': adjustRatesForNightmare,
-    'yama': adjustRatesForYama,
-    'tempoross': adjustRatesForTempoross,
-    'wintertodt': adjustRatesForWintertodt,
-    'zalcano': adjustRatesForZalcano,
-    'royal_titans': adjustRatesForTitans,
-    'araxxor': adjustRatesForAraxxor
-};
-DT2_BOSSES.forEach(boss => RATE_ADJUSTERS[boss] = adjustRatesForDT2);
 
 // --- SIMULATION EXECUTION ---
 function executeSimulation(selectedItems, currentKC) {
@@ -797,7 +483,9 @@ function executeSimulation(selectedItems, currentKC) {
 
     const adjuster = RATE_ADJUSTERS[activeBossKey];
     if (adjuster) {
-        processedItems = adjuster(processedItems);
+        // Extract the UI state securely and pass it into our pure math function
+        const bossState = STATE_EXTRACTORS[activeBossKey] ? STATE_EXTRACTORS[activeBossKey]() : {};
+        processedItems = adjuster(processedItems, bossState);
     }
 
     const validItems = processedItems.filter(item => item.rate > 0);
@@ -807,7 +495,6 @@ function executeSimulation(selectedItems, currentKC) {
         return null;
     }
 
-    // Smart Caching: Only recalculate the matrix if the mathematical inputs changed
     const currentHash = generateStateHash(activeBossKey, validItems);
     let rawResults;
 
@@ -829,7 +516,6 @@ function executeSimulation(selectedItems, currentKC) {
         activeSimulationCache = { hash: currentHash, rawResults };
     }
 
-    // Attach dynamic real-time target metrics based on user's input KC
     const targetP = rawResults.historyCDF[currentKC] ?? (currentKC >= rawResults.finalK ? 1 : 0);
     const curveData = buildChartData(rawResults.historyPMF, rawResults.historyCDF, rawResults.finalK, currentKC, rawResults.modeKC, rawResults.median);
 
