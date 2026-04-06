@@ -516,16 +516,20 @@ function handleBossSelection(e) {
     activeBossKey = e.target.value;
     
     if (DOM.kcInput) DOM.kcInput.value = 0;
-    DOM.resultsSection.classList.add("hidden");
 
     if (!activeBossKey) { 
         DOM.bossPreview.classList.add("hidden"); 
+        DOM.resultsSection.classList.add("hidden");
         return; 
     }
     
     renderItemGrid(BOSS_CONFIG[activeBossKey].items);
     renderDynamicSettings(activeBossKey);
     DOM.bossPreview.classList.remove("hidden");
+    
+    if (!DOM.resultsSection.classList.contains("hidden")) {
+        handleCalculation();
+    }
 }
 
 function updateKC(amount) { 
