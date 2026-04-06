@@ -562,8 +562,6 @@ function toggleItemSelection(e) {
         if (badge) badge.innerText = `${current}/${maxPieces}`;
     }
     
-    // Feature Fix: Gracefully fold the dashboard away if they unclicked the last item 
-    // instead of trying to calculate an empty matrix and throwing an error.
     if (!DOM.resultsSection.classList.contains("hidden")) {
         if (getSelectedItems().length === 0) {
             DOM.resultsSection.classList.add("hidden");
@@ -609,10 +607,12 @@ function renderItemGrid(items) {
     DOM.itemGrid.innerHTML = sortedItems.map(item => {
         const maxPieces = item.pieces || 1;
         const badge = maxPieces > 1 ? `<span class="item-badge">${maxPieces}/${maxPieces}</span>` : '';
+        const fallbackFilename = item.name.replaceAll(' ', '_') + '.png';
+        const liveUrl = `https://oldschool.runescape.wiki/w/Special:Redirect/file/${fallbackFilename}?width=120`;
         
         return `
         <div class="item-box selected" data-id="${item.id}" data-rate="${item.rate}" data-type="${item.type}" data-max-pieces="${maxPieces}" data-selected-pieces="${maxPieces}" data-pool="${item.pool || ''}" title="${item.name}">
-            <img src="${getWikiUrl(item.name)}" alt="${item.name}">
+            <img src="${getWikiUrl(item.name)}" alt="${item.name}" onerror="this.onerror=null; this.src='${liveUrl}';">
             ${badge}
         </div>
     `}).join('');

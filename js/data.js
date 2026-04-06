@@ -71,5 +71,6 @@ export function getWikiUrl(name) {
     
     // Check our manual overrides list first, otherwise fallback to standard Wiki file formatting
     const filename = IMAGE_OVERRIDES[name] ?? `${name.replaceAll(' ', '_')}.png`;
-    return `https://oldschool.runescape.wiki/w/Special:Redirect/file/${filename}?width=120`;
+    
+    return `assets/items/${filename}`;
 }
