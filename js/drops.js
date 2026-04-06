@@ -14,10 +14,6 @@
  * (e.g., Moons of Peril where you can't roll a dupe until the pool is empty).
  */
 
-// We use this for bosses that haven't had their accurate Wiki drop rates mapped yet.
-// Extracting this makes it instantly obvious which rates are real vs. which need updating.
-const PLACEHOLDER_RATE = 1 / 1;
-
 export const RAW_BOSS_DATA = {
     abyssal_sire: {
         "13262": { name: "Abyssal orphan", rate: 5 / 12800, type: "main", order: 1 },

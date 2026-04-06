@@ -17,7 +17,7 @@
 <body>
 
     <div id="hero-view" class="view-container active-view">
-        <div class="hero-backdrop">
+        <div class="hero-backdrop" aria-hidden="true">
             <div class="glow-orb green-orb"></div>
             <div class="glow-orb orange-orb"></div>
         </div>
@@ -54,7 +54,7 @@
             </nav>
 
             <div class="mobile-menu-wrapper mobile-only">
-                <button id="mobile-sections-btn" class="premium-btn-sm">Sections ▾</button>
+                <button id="mobile-sections-btn" class="premium-btn-sm" aria-haspopup="true" aria-expanded="false">Sections ▾</button>
                 <div id="mobile-dropdown" class="mobile-dropdown hidden">
                     <button class="mobile-nav-item" data-tab="droplogic">DropLogic</button>
                     <button class="mobile-nav-item" data-tab="guides">Guides</button>
@@ -172,7 +172,7 @@
                                 <span class="step-num">03</span>
                                 <div class="step-content">
                                     <p><strong>Open Gearscape</strong></p>
-                                    <p class="sub-text">Navigate to <a href="https://gearscape.net" target="_blank" style="color: var(--accent-green);">Gearscape.net</a></p>
+                                    <p class="sub-text">Navigate to <a href="https://gearscape.net" target="_blank" rel="noopener noreferrer" style="color: var(--accent-green);">Gearscape.net</a></p>
                                 </div>
                             </div>
                             <div class="step">
@@ -215,23 +215,23 @@
                         
                         <h4 class="category-label">Gear and Equipment</h4>
                         <div class="plugin-directory">
-                            <a href="https://tools.runescape.wiki/osrs-dps/" target="_blank" class="resource-card">
+                            <a href="https://tools.runescape.wiki/osrs-dps/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Wiki DPS Calc</span>
                                 <p class="resource-desc">Official, in-depth DPS calculations for high-level combat.</p>
                             </a>
-                            <a href="https://oldschool.tools/calculators/equipment-compare" target="_blank" class="resource-card">
+                            <a href="https://oldschool.tools/calculators/equipment-compare" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Equipment Compare</span>
                                 <p class="resource-desc">Compare stats across different items and specific equipment slots.</p>
                             </a>
-                            <a href="https://www.osrsbestinslot.com/best-in-slot-gear/" target="_blank" class="resource-card">
+                            <a href="https://www.osrsbestinslot.com/best-in-slot-gear/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">OSRS Best in Slot</span>
                                 <p class="resource-desc">Displays the current BiS gear for every combat style.</p>
                             </a>
-                            <a href="https://gearscape.net/" target="_blank" class="resource-card">
+                            <a href="https://gearscape.net/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Gearscape</span>
                                 <p class="resource-desc">Recommends gear setups based on NPCs and player-defined preferences.</p>
                             </a>
-                            <a href="https://scape.fashion/" target="_blank" class="resource-card">
+                            <a href="https://scape.fashion/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Scape Fashion</span>
                                 <p class="resource-desc">Search for items based on visual aesthetics and color matching.</p>
                             </a>
@@ -239,19 +239,19 @@
 
                         <h4 class="category-label">Tools and Utilities</h4>
                         <div class="plugin-directory">
-                            <a href="https://osrsportal.com/tools" target="_blank" class="resource-card">
+                            <a href="https://osrsportal.com/tools" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">OSRS Portal Tools</span>
                                 <p class="resource-desc">Aggregated utilities for the most common daily OSRS activities.</p>
                             </a>
-                            <a href="https://07.gg/" target="_blank" class="resource-card">
+                            <a href="https://07.gg/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">07.GG</span>
                                 <p class="resource-desc">Efficient calculators, interactive tools, and shooting star tracking.</p>
                             </a>
-                            <a href="https://osrs.world/" target="_blank" class="resource-card">
+                            <a href="https://osrs.world/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">OSRS World</span>
                                 <p class="resource-desc">Explore the world map across different game versions and eras.</p>
                             </a>
-                            <a href="https://abextm.github.io/cache2/#/viewer/sprite" target="_blank" class="resource-card">
+                            <a href="https://abextm.github.io/cache2/#/viewer/sprite" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Cache2 Viewer</span>
                                 <p class="resource-desc">Direct view of in-game cache assets including sprites and icons.</p>
                             </a>
@@ -259,15 +259,15 @@
 
                         <h4 class="category-label">Simulators</h4>
                         <div class="plugin-directory">
-                            <a href="https://colosim.com/" target="_blank" class="resource-card">
+                            <a href="https://colosim.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Colosim</span>
                                 <p class="resource-desc">High-fidelity training for the Colosseum, Inferno, and Verzik.</p>
                             </a>
-                            <a href="https://downthecrop.github.io/JS-OSRS-Jad-Simulator/" target="_blank" class="resource-card">
+                            <a href="https://downthecrop.github.io/JS-OSRS-Jad-Simulator/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Jad Simulator</span>
                                 <p class="resource-desc">Practice timing and prayer swaps for the TzTok-Jad fight.</p>
                             </a>
-                            <a href="https://gx.games/games/6f00u8/last-row-sim/" target="_blank" class="resource-card">
+                            <a href="https://gx.games/games/6f00u8/last-row-sim/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Warden P4</span>
                                 <p class="resource-desc">Specialized simulator for the final ToA Warden "Last Row" phase.</p>
                             </a>
@@ -275,15 +275,15 @@
 
                         <h4 class="category-label">Ironman-Specific Tools</h4>
                         <div class="plugin-directory">
-                            <a href="https://www.ladlorchart.com/index.html" target="_blank" class="resource-card">
+                            <a href="https://www.ladlorchart.com/index.html" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Ladlor’s Chart</span>
                                 <p class="resource-desc">Interactive progression planner and visualizer for Ironman accounts.</p>
                             </a>
-                            <a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank" class="resource-card">
+                            <a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Slayer Task Summary</span>
                                 <p class="resource-desc">Detailed guidance on which Slayer tasks to complete, skip, or block.</p>
                             </a>
-                            <a href="https://oldschool.runescape.wiki/w/Hunters'_Rumours/Strategies#Recommended_block_lists" target="_blank" class="resource-card">
+                            <a href="https://oldschool.runescape.wiki/w/Hunters'_Rumours/Strategies#Recommended_block_lists" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Hunter Block List</span>
                                 <p class="resource-desc">Mathematically recommended blocks for optimal Hunters' Rumours.</p>
                             </a>
@@ -291,19 +291,19 @@
 
                         <h4 class="category-label">Efficient Ironman Guides</h4>
                         <div class="plugin-directory">
-                            <a href="https://umkyzn.github.io/BRUHsailer/" target="_blank" class="resource-card">
+                            <a href="https://umkyzn.github.io/BRUHsailer/" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Bruhsailor’s Guide</span>
                                 <p class="resource-desc">The gold standard for efficient Ironman account progression.</p>
                             </a>
-                            <a href="https://oldschool.runescape.wiki/w/Guide:B0aty_HCIM_Guide_V2" target="_blank" class="resource-card">
+                            <a href="https://oldschool.runescape.wiki/w/Guide:B0aty_HCIM_Guide_V2" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Boaty's HCIM v2</span>
                                 <p class="resource-desc">A comprehensive hardcore path optimized for survival and speed.</p>
                             </a>
-                            <a href="https://oldschool.runescape.wiki/w/Optimal_quest_guide/Ironman" target="_blank" class="resource-card">
+                            <a href="https://oldschool.runescape.wiki/w/Optimal_quest_guide/Ironman" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Optimal Questing</span>
                                 <p class="resource-desc">The most efficient path to the Quest Point Cape for Ironmen.</p>
                             </a>
-                            <a href="https://oldschool.runescape.wiki/w/Ironman_guide" target="_blank" class="resource-card">
+                            <a href="https://oldschool.runescape.wiki/w/Ironman_guide" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <span class="resource-title">Wiki Ironman Guide</span>
                                 <p class="resource-desc">The definitive, community-maintained general guide.</p>
                             </a>
@@ -326,64 +326,66 @@
 
                         <h4 class="category-label">Combat & Bossing</h4>
                         <ul class="compact-plugin-list">
-                            <li><a href="https://runelite.net/plugin-hub/show/better-npc-highlight" target="_blank">Better NPC Highlight</a> - Replaces NPC Indicators with advanced ID tagging.</li>
-                            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); margin-top: 6px; padding-left: 12px; line-height: 1.5;">
-                                <li><b>Wiki Method:</b> Find any Mob ID by creating an OSRS Wiki account and enabling "Display advanced data in infoboxes".</li>
-                                <li><b>In-Game Method:</b> Use the <a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank" style="font-size: 1em; border: none; padding: 0;">NPC ID</a> plugin to display IDs directly over monsters.</li>
-                            </ul>
-                            <li><a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank">NPC ID</a> - Displays identification info above NPCs for easy marking.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/menuhp" target="_blank">Monster Menu HP</a> - Displays the hitpoints of monsters in their right-click menu entry</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/consumable-cooldowns" target="_blank">Consumable Cooldowns</a> - Displays cooldowns on food & drink items in your inventory</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/radius-markers" target="_blank">Radius Markers</a> - Allows you to see NPC radius regions</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/target-true-tile" target="_blank">Target True Tile</a> - Dynamically displays the true tile of an NPC.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/attacktimer" target="_blank">Attack Timer</a> - A plugin to countdown until your next attack.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/tile-packs" target="_blank">Tile Packs</a> - Curated community tile markers for most bosses.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/death-inventory" target="_blank">Death Inventory</a> - Captures inventory state on death to re-gear easily.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/poison-moo" target="_blank">Poison Moo</a> - Audible warning when you are poisoned.</li>
+                            <li>
+                                <a href="https://runelite.net/plugin-hub/show/better-npc-highlight" target="_blank" rel="noopener noreferrer">Better NPC Highlight</a> - Replaces NPC Indicators with advanced ID tagging.
+                                <ul style="list-style: none; font-size: 13px; color: var(--text-dim); margin-top: 6px; padding-left: 12px; line-height: 1.5;">
+                                    <li><b>Wiki Method:</b> Find any Mob ID by creating an OSRS Wiki account and enabling "Display advanced data in infoboxes".</li>
+                                    <li><b>In-Game Method:</b> Use the <a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank" rel="noopener noreferrer" style="font-size: 1em; border: none; padding: 0;">NPC ID</a> plugin to display IDs directly over monsters.</li>
+                                </ul>
+                            </li>
+                            <li><a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank" rel="noopener noreferrer">NPC ID</a> - Displays identification info above NPCs for easy marking.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/menuhp" target="_blank" rel="noopener noreferrer">Monster Menu HP</a> - Displays the hitpoints of monsters in their right-click menu entry</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/consumable-cooldowns" target="_blank" rel="noopener noreferrer">Consumable Cooldowns</a> - Displays cooldowns on food & drink items in your inventory</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/radius-markers" target="_blank" rel="noopener noreferrer">Radius Markers</a> - Allows you to see NPC radius regions</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/target-true-tile" target="_blank" rel="noopener noreferrer">Target True Tile</a> - Dynamically displays the true tile of an NPC.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/attacktimer" target="_blank" rel="noopener noreferrer">Attack Timer</a> - A plugin to countdown until your next attack.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/tile-packs" target="_blank" rel="noopener noreferrer">Tile Packs</a> - Curated community tile markers for most bosses.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/death-inventory" target="_blank" rel="noopener noreferrer">Death Inventory</a> - Captures inventory state on death to re-gear easily.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/poison-moo" target="_blank" rel="noopener noreferrer">Poison Moo</a> - Audible warning when you are poisoned.</li>
                         </ul>
 
                         <h4 class="category-label">Skilling, Clues & Navigation</h4>
                         <ul class="compact-plugin-list">
-                            <li><a href="https://runelite.net/plugin-hub/show/green-thumb" target="_blank">Green Thumb</a> - Displays useful information for farming.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/herblorerecipes" target="_blank">Herblore Recipes</a> - Tooltips for primary and secondary Herblore ingredients.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/emote-clue-items" target="_blank">Emote Clue Items</a> - Displays required clue items and STASH unit status.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/obelisk-reminder" target="_blank">Obelisk Reminder</a> - Shows your current wilderness obelisk redirect.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/easy-pharaoh-sceptre" target="_blank">Easy Teleports</a> - Renames teleport destinations to colloquial/custom locations.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/normal-ancient-teleports" target="_blank">Normal Ancient Teleports</a> - Replaces Ancient spellbook names with logical names.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/better-teleport-menu" target="_blank">Better Teleport Menu</a> - Replaces standard interfaces with hotkeys.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/fairy-rings" target="_blank">Fairy Rings</a> - Enhances the interface with search and favorites.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/wilderness-lines" target="_blank">Wilderness Lines</a> - Clear visual boundary for escaping PKers.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/shortest-path" target="_blank">Shortest Path</a> - Draws the shortest path to a chosen destination on the map.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/shortest-clue" target="_blank">Shortest Clue</a> - Draws the shortest path to a clue.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/herbi-afk" target="_blank">Herbi AFK</a> - Mega simplification for the Herbiboar hunt.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/port-roberts-thieving" target="_blank">Port Roberts Thieving</a> - Turns a solid thieving method into a braindead clicker.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/brimhaven-agility" target="_blank">Brimhaven Agility</a> - Highlights paths and avoids traps automatically.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/tree-count" target="_blank">Tree Count</a> - Essential for Forestry; indicates players hitting a specific tree.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/green-thumb" target="_blank" rel="noopener noreferrer">Green Thumb</a> - Displays useful information for farming.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/herblorerecipes" target="_blank" rel="noopener noreferrer">Herblore Recipes</a> - Tooltips for primary and secondary Herblore ingredients.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/emote-clue-items" target="_blank" rel="noopener noreferrer">Emote Clue Items</a> - Displays required clue items and STASH unit status.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/obelisk-reminder" target="_blank" rel="noopener noreferrer">Obelisk Reminder</a> - Shows your current wilderness obelisk redirect.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/easy-pharaoh-sceptre" target="_blank" rel="noopener noreferrer">Easy Teleports</a> - Renames teleport destinations to colloquial/custom locations.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/normal-ancient-teleports" target="_blank" rel="noopener noreferrer">Normal Ancient Teleports</a> - Replaces Ancient spellbook names with logical names.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/better-teleport-menu" target="_blank" rel="noopener noreferrer">Better Teleport Menu</a> - Replaces standard interfaces with hotkeys.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/fairy-rings" target="_blank" rel="noopener noreferrer">Fairy Rings</a> - Enhances the interface with search and favorites.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/wilderness-lines" target="_blank" rel="noopener noreferrer">Wilderness Lines</a> - Clear visual boundary for escaping PKers.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/shortest-path" target="_blank" rel="noopener noreferrer">Shortest Path</a> - Draws the shortest path to a chosen destination on the map.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/shortest-clue" target="_blank" rel="noopener noreferrer">Shortest Clue</a> - Draws the shortest path to a clue.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/herbi-afk" target="_blank" rel="noopener noreferrer">Herbi AFK</a> - Mega simplification for the Herbiboar hunt.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/port-roberts-thieving" target="_blank" rel="noopener noreferrer">Port Roberts Thieving</a> - Turns a solid thieving method into a braindead clicker.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/brimhaven-agility" target="_blank" rel="noopener noreferrer">Brimhaven Agility</a> - Highlights paths and avoids traps automatically.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/tree-count" target="_blank" rel="noopener noreferrer">Tree Count</a> - Essential for Forestry; indicates players hitting a specific tree.</li>
                         </ul>
 
                         <h4 class="category-label">UI Enhancements & Utility</h4>
                         <ul class="compact-plugin-list">
-                            <li><a href="https://runelite.net/plugin-hub/show/one-tick-flick" target="_blank">1 Tick Flick</a> - Visual tick bar and combo counter to teach prayer flicking.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/visual-metronome" target="_blank">Visual Metronome</a> - Alternative visual tick counter for prayer flicking.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/inventory-count" target="_blank">Inventory Count</a> - Shows a count of open inventory spaces.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/not-enough-runes" target="_blank">Not Enough Runes</a> - Sources and products for every item in the game.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/inventory-setups" target="_blank">Inventory Setups</a> - Save gear setups for specific activities.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/defaulttab" target="_blank">Default Tab</a> - Set and load a specific tab on every login.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/no-examine" target="_blank">No Examine</a> - Removes examine menu options.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/equipment-screenshot" target="_blank">Equipment Screenshot</a> - Takes inventory and equipment screenshots from the equipment tab.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/relative-tile-markers" target="_blank">Relative Tile Markers</a> - Highlights tiles based on your character’s current position.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/alch-blocker" target="_blank">Alch Blocker</a> - Prevents alching untradeables or high-value gear.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/inventory-grid" target="_blank">Inventory Grid</a> - Draws a faint grid over dead space for faster clicking.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/anti-drag" target="_blank">Anti Drag</a> - Prevents accidentally moving items during fast clicks.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/ground-markers" target="_blank">Ground Markers</a> - Essential plugin for marking specific tiles.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/corner-tile-indicators" target="_blank">Corner Tile Indicators</a> - Cleaner alternative to full tile markers.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/annoyance-mute" target="_blank">Annoyance Mute</a> - Mutes annoying game sounds.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/inventory-summary" target="_blank">Inventory Summary</a> - Shows a non-interactive summary of your inventory.</li>   
+                            <li><a href="https://runelite.net/plugin-hub/show/one-tick-flick" target="_blank" rel="noopener noreferrer">1 Tick Flick</a> - Visual tick bar and combo counter to teach prayer flicking.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/visual-metronome" target="_blank" rel="noopener noreferrer">Visual Metronome</a> - Alternative visual tick counter for prayer flicking.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-count" target="_blank" rel="noopener noreferrer">Inventory Count</a> - Shows a count of open inventory spaces.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/not-enough-runes" target="_blank" rel="noopener noreferrer">Not Enough Runes</a> - Sources and products for every item in the game.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-setups" target="_blank" rel="noopener noreferrer">Inventory Setups</a> - Save gear setups for specific activities.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/defaulttab" target="_blank" rel="noopener noreferrer">Default Tab</a> - Set and load a specific tab on every login.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/no-examine" target="_blank" rel="noopener noreferrer">No Examine</a> - Removes examine menu options.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/equipment-screenshot" target="_blank" rel="noopener noreferrer">Equipment Screenshot</a> - Takes inventory and equipment screenshots from the equipment tab.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/relative-tile-markers" target="_blank" rel="noopener noreferrer">Relative Tile Markers</a> - Highlights tiles based on your character’s current position.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/alch-blocker" target="_blank" rel="noopener noreferrer">Alch Blocker</a> - Prevents alching untradeables or high-value gear.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-grid" target="_blank" rel="noopener noreferrer">Inventory Grid</a> - Draws a faint grid over dead space for faster clicking.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/anti-drag" target="_blank" rel="noopener noreferrer">Anti Drag</a> - Prevents accidentally moving items during fast clicks.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/ground-markers" target="_blank" rel="noopener noreferrer">Ground Markers</a> - Essential plugin for marking specific tiles.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/corner-tile-indicators" target="_blank" rel="noopener noreferrer">Corner Tile Indicators</a> - Cleaner alternative to full tile markers.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/annoyance-mute" target="_blank" rel="noopener noreferrer">Annoyance Mute</a> - Mutes annoying game sounds.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-summary" target="_blank" rel="noopener noreferrer">Inventory Summary</a> - Shows a non-interactive summary of your inventory.</li>   
                         </ul>
 
                         <h4 class="category-label">Social & Profile Tools</h4>
                         <ul class="compact-plugin-list">
-                            <li><a href="https://runelite.net/plugin-hub/show/runeprofile" target="_blank">RuneProfile</a> - Share achievements and stats with a custom profile page.</li>
+                            <li><a href="https://runelite.net/plugin-hub/show/runeprofile" target="_blank" rel="noopener noreferrer">RuneProfile</a> - Share achievements and stats with a custom profile page.</li>
                         </ul>
                     </div>
 
@@ -431,7 +433,7 @@
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
-                            <ul class="goal-list">
+                            <div class="goal-list">
                                 <label class="goal-item">
                                     <input type="checkbox">
                                     <div class="custom-checkbox"></div>
@@ -617,7 +619,7 @@
                                         <span class="goal-subtext">Herb Run Teleport</span>
                                     </div>
                                 </label>
-                            </ul>
+                            </div>
                         </div>
 
                         <div class="card">
@@ -628,7 +630,7 @@
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
-                            <ul class="goal-list">
+                            <div class="goal-list">
                                 <label class="goal-item">
                                     <input type="checkbox">
                                     <div class="custom-checkbox"></div>
@@ -841,7 +843,7 @@
                                         <span class="goal-name">Karambwan Fishing</span>
                                     </div>
                                 </label>
-                            </ul>
+                            </div>
                         </div>
 
                         <div class="card">
@@ -852,7 +854,7 @@
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
-                            <ul class="goal-list">
+                            <div class="goal-list">
                                 <label class="goal-item">
                                     <input type="checkbox">
                                     <div class="custom-checkbox"></div>
@@ -996,7 +998,7 @@
                                         <span class="goal-name">Ava's Assembler</span>
                                     </div>
                                 </label>
-                            </ul>
+                            </div>
                         </div>
 
                         <div class="card">
@@ -1007,7 +1009,7 @@
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
-                            <ul class="goal-list">
+                            <div class="goal-list">
                                 <label class="goal-item">
                                     <input type="checkbox">
                                     <div class="custom-checkbox"></div>
@@ -1113,7 +1115,7 @@
                                         <span class="goal-subtext">Most Completed</span>
                                     </div>
                                 </label>
-                            </ul>
+                            </div>
                         </div>
 
                         <div class="card">
@@ -1124,7 +1126,7 @@
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
-                            <ul class="goal-list">
+                            <div class="goal-list">
                                 <label class="goal-item">
                                     <input type="checkbox">
                                     <div class="custom-checkbox"></div>
@@ -1140,7 +1142,7 @@
                                         <span class="goal-name">Achievment Diary Cape</span>
                                     </div>
                                 </label>
-                            </ul>
+                            </div>
                         </div>
 
                     </div>
@@ -1158,7 +1160,7 @@
                         <div class="header-row"><h3>Skilling</h3></div>
                         
                         <ul class="compact-plugin-list" style="margin-bottom: 25px;">
-                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_guide#Skill_training" target="_blank">Skill Training Guides</a> - Detailed guidance on skill training for every Ironman stage.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_guide#Skill_training" target="_blank" rel="noopener noreferrer">Skill Training Guides</a> - Detailed guidance on skill training for every Ironman stage.</li>
                         </ul>
 
                         <h4 class="category-label">Crafting: Seaweed/Mining Sand Loop</h4>
@@ -1181,7 +1183,7 @@
                             <p><strong>Deployment Sequence:</strong> Morytania Hard Diary &rarr; Medium Combat Achievements &rarr; Barrows (Tank Gear) &rarr; Moons of Peril (Mid-tier sets) &rarr; Royal Titans.</p>
                         </div>
                         <ul class="compact-plugin-list" style="margin-top: 15px;">
-                            <li><a href="https://oldschool.runescape.wiki/w/Combat_Achievements/Strategies" target="_blank">Combat Achievement Strategies</a> - Simplified pathing for tier rewards.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Combat_Achievements/Strategies" target="_blank" rel="noopener noreferrer">Combat Achievement Strategies</a> - Simplified pathing for tier rewards.</li>
                         </ul>
                         <h4 class="category-label">Slayer Optimization</h4>
                         
@@ -1200,7 +1202,7 @@
                         </div>
 
                         <ul class="compact-plugin-list">
-                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank">Ironman Slayer Task Summary</a> - Detailed guidance on tasks to complete, skip, or block.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank" rel="noopener noreferrer">Ironman Slayer Task Summary</a> - Detailed guidance on tasks to complete, skip, or block.</li>
                         </ul>
                     </div> 
                     
@@ -1235,19 +1237,19 @@
                         
                         <h4 class="category-label">Early-Game Food Directory</h4>
                         <div class="food-list">
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Jug_of_wine" target="_blank">Jugs of Wine</a> (Draynor - Fortunato) - <span class="val">1 GP</span></span> <span class="val">11 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cake" target="_blank">Cakes</a> (Ardougne/Kourend Stalls) - <span class="val">3 Bites</span></span> <span class="val">12 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Lobster" target="_blank">Lobsters</a> (Brimhaven - Shrimp and Parrot)</span> <span class="val">12 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Plain_pizza" target="_blank">Plain Pizzas</a> (Warriors Guild) - <span class="val">2 Bites</span></span> <span class="val">14 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Swordfish" target="_blank">Swordfish</a> (Brimhaven - Shrimp and Parrot)</span> <span class="val">14 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Snowy_knight" target="_blank">Snowy Knights</a> (Early Hunter)</span> <span class="val">15 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Potato_with_cheese" target="_blank">Potatoes with Cheese</a> (Warriors Guild)</span> <span class="val">16 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_kyatt" target="_blank">Kyatt Meat</a> (Hunted Early) - <span class="val">9+8 Over Time</span></span> <span class="val">17 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_karambwan" target="_blank">Karambwan</a> (Tai Bwo Wannai / Brimhaven)</span> <span class="val">18 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_pyre_fox" target="_blank">Pyre Fox Meat</a> (Hunted Early) - <span class="val">11+8 Over Time</span></span> <span class="val">19 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Shark" target="_blank">Sharks</a> (Frankie's Emporium / 81 Fishing)</span> <span class="val">20 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_sunlight_antelope" target="_blank">Sunlight Antelope Meat</a> - <span class="val">12+9 Over Time</span></span> <span class="val">21 HP</span></div>
-                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Pineapple_pizza" target="_blank">Pineapple Pizzas</a> (Plain + Pineapple) - <span class="val">2 Bites</span></span> <span class="val">22 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Jug_of_wine" target="_blank" rel="noopener noreferrer">Jugs of Wine</a> (Draynor - Fortunato) - <span class="val">1 GP</span></span> <span class="val">11 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cake" target="_blank" rel="noopener noreferrer">Cakes</a> (Ardougne/Kourend Stalls) - <span class="val">3 Bites</span></span> <span class="val">12 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Lobster" target="_blank" rel="noopener noreferrer">Lobsters</a> (Brimhaven - Shrimp and Parrot)</span> <span class="val">12 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Plain_pizza" target="_blank" rel="noopener noreferrer">Plain Pizzas</a> (Warriors Guild) - <span class="val">2 Bites</span></span> <span class="val">14 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Swordfish" target="_blank" rel="noopener noreferrer">Swordfish</a> (Brimhaven - Shrimp and Parrot)</span> <span class="val">14 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Snowy_knight" target="_blank" rel="noopener noreferrer">Snowy Knights</a> (Early Hunter)</span> <span class="val">15 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Potato_with_cheese" target="_blank" rel="noopener noreferrer">Potatoes with Cheese</a> (Warriors Guild)</span> <span class="val">16 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_kyatt" target="_blank" rel="noopener noreferrer">Kyatt Meat</a> (Hunted Early) - <span class="val">9+8 Over Time</span></span> <span class="val">17 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_karambwan" target="_blank" rel="noopener noreferrer">Karambwan</a> (Tai Bwo Wannai / Brimhaven)</span> <span class="val">18 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_pyre_fox" target="_blank" rel="noopener noreferrer">Pyre Fox Meat</a> (Hunted Early) - <span class="val">11+8 Over Time</span></span> <span class="val">19 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Shark" target="_blank" rel="noopener noreferrer">Sharks</a> (Frankie's Emporium / 81 Fishing)</span> <span class="val">20 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Cooked_sunlight_antelope" target="_blank" rel="noopener noreferrer">Sunlight Antelope Meat</a> - <span class="val">12+9 Over Time</span></span> <span class="val">21 HP</span></div>
+                            <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Pineapple_pizza" target="_blank" rel="noopener noreferrer">Pineapple Pizzas</a> (Plain + Pineapple) - <span class="val">2 Bites</span></span> <span class="val">22 HP</span></div>
                         </div>
 
                         <h4 class="category-label" style="margin-top: 40px;">Early-Game Capital (GP)</h4>
@@ -1259,7 +1261,7 @@
                             </ul>
                         </div>
                         <ul class="compact-plugin-list">
-                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_money_making_guide" target="_blank">Money Making Wiki</a> - Detailed guidance on early money making.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Ironman_money_making_guide" target="_blank" rel="noopener noreferrer">Money Making Wiki</a> - Detailed guidance on early money making.</li>
                         </ul>
                     </div> 
                     
@@ -1278,10 +1280,10 @@
 
                         <h4 class="category-label">Farm Routes</h4>
                         <ul class="compact-plugin-list">
-                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Herb_run_sequence" target="_blank">Optimal Herb Run Sequence</a> - Teleports for all herb patches.</li>
-                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Example_combined_tree_run_sequence" target="_blank">Optimal Tree Run Sequence</a> - Teleports for all tree patches.</li>
-                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Hardwood_tree_run_sequence" target="_blank">Optimal Hard Tree Run Sequence</a> - Teleports for hard tree patches.</li>
-                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs" target="_blank">Full Farm Run Data</a> - Detailed info on quests, requirements, and equipment.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Herb_run_sequence" target="_blank" rel="noopener noreferrer">Optimal Herb Run Sequence</a> - Teleports for all herb patches.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Example_combined_tree_run_sequence" target="_blank" rel="noopener noreferrer">Optimal Tree Run Sequence</a> - Teleports for all tree patches.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs#Hardwood_tree_run_sequence" target="_blank" rel="noopener noreferrer">Optimal Hard Tree Run Sequence</a> - Teleports for hard tree patches.</li>
+                            <li><a href="https://oldschool.runescape.wiki/w/Farming_runs" target="_blank" rel="noopener noreferrer">Full Farm Run Data</a> - Detailed info on quests, requirements, and equipment.</li>
                         </ul>
                     </div>
                 </div>
@@ -1291,27 +1293,18 @@
     </div>
 
     <script>
-        // Centralize magic numbers and configuration
         const UI_CONFIG = {
-            // Matches the CSS transition duration for .fade-out to prevent layout snapping
             ANIMATION_DURATION_MS: 300 
         };
 
         document.addEventListener("DOMContentLoaded", () => {
-            
-            // --- DOM Elements ---
-            // Grouping these prevents redundant DOM queries during interactions
             const DOM = {
                 heroView: document.getElementById("hero-view"),
                 mainView: document.getElementById("main-view"),
-                btnHome: document.getElementById("btn-home"),
-                heroBtns: document.querySelectorAll(".premium-nav button.premium-btn"),
-                // Fixed: Restored .mobile-nav-item so mobile dropdown buttons work again
-                miniNavBtns: document.querySelectorAll(".tab-link, .mobile-nav-item"),
-                tabPanels: document.querySelectorAll(".tab-panel")
+                tabPanels: document.querySelectorAll(".tab-panel"),
+                miniNavBtns: document.querySelectorAll(".tab-link, .mobile-nav-item") // Cached to quickly update active states
             };
 
-            // --- View Transitions ---
             const transitionView = (hideEl, showEl) => {
                 hideEl.classList.add("fade-out");
                 
@@ -1325,42 +1318,48 @@
             };
 
             const switchTab = (targetId) => {
-                // Update navigation button states
                 DOM.miniNavBtns.forEach(btn => {
                     btn.classList.toggle("active", btn.getAttribute("data-tab") === targetId);
                 });
                 
-                // Update panel visibility
                 DOM.tabPanels.forEach(panel => {
                     const isActive = panel.id === targetId;
                     panel.classList.toggle("active-panel", isActive);
                     panel.classList.toggle("hidden-view", !isActive);
                 });
 
-                // Smoothly scroll to the top of the page so the user doesn't end up halfway down a new tab
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
-            // --- Event Listeners ---
-            DOM.heroBtns.forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    switchTab(e.currentTarget.getAttribute("data-target"));
-                    transitionView(DOM.heroView, DOM.mainView);
-                });
-            });
+            // Event Delegation: We listen for clicks on the document rather than attaching 
+            // an individual listener to every single navigation button. This drastically 
+            // cleans up memory allocation and initialization times.
+            document.addEventListener("click", (e) => {
+                
+                // Hero Section Navigation
+                const heroBtn = e.target.closest('.premium-nav .premium-btn');
+                if (heroBtn) {
+                    if (heroBtn.hasAttribute("data-target")) {
+                        switchTab(heroBtn.getAttribute("data-target"));
+                        transitionView(DOM.heroView, DOM.mainView);
+                    }
+                    return;
+                }
 
-            DOM.miniNavBtns.forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    switchTab(e.currentTarget.getAttribute("data-tab"));
-                });
-            });
+                // Header Navigation (Desktop Tabs & Mobile Dropdown)
+                const navBtn = e.target.closest('.tab-link, .mobile-nav-item');
+                if (navBtn) {
+                    switchTab(navBtn.getAttribute("data-tab"));
+                    return;
+                }
 
-            if (DOM.btnHome) {
-                DOM.btnHome.addEventListener("click", () => {
+                // Return to Home
+                if (e.target.closest('#btn-home')) {
                     transitionView(DOM.mainView, DOM.heroView);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            }
+                    return;
+                }
+            });
         });
     </script>
 

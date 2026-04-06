@@ -8,15 +8,26 @@ import { BOSS_CONFIG, getWikiUrl, formatBossName } from './data.js';
 import { runSimulation, buildChartData } from './solvers.js';
 import { RATE_ADJUSTERS } from './modifiers.js';
 
-const CHART_FONT = "'Inter', sans-serif";
-const CHART_TEXT_COLOR = '#a8a29e';
-const COLORS = { mode: '#ef4444', progress: '#3b82f6', mean: '#f97316', user: '#22c55e' };
-const X_AXIS_POWER = 0.4;
+// --- CONFIGURATION ---
+const CHART_CONFIG = {
+    font: "'Inter', sans-serif",
+    textColor: '#a8a29e',
+    xAxisPower: 0.4
+};
+
+const COLORS = { 
+    mode: '#ef4444', 
+    progress: '#3b82f6', 
+    mean: '#f97316', 
+    user: '#22c55e' 
+};
+
 const DT2_BOSSES = ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'];
 
 let activeBossKey = "";
 let chartInstance = null;
 
+// Cache static DOM references to avoid repeated queries
 const DOM = {
     bossSelect: document.getElementById("boss-select"),
     itemGrid: document.getElementById("item-grid"),
@@ -40,23 +51,32 @@ const DOM = {
 // ==========================================
 // STATE EXTRACTION (UI -> Data)
 // ==========================================
+
+// Helper functions to keep our state extraction incredibly DRY and safe from NaN errors.
+const getIntVal = (id, fallback) => {
+    const val = parseInt(document.getElementById(id)?.value, 10);
+    return isNaN(val) ? fallback : val;
+};
+const getStrVal = (id, fallback) => document.getElementById(id)?.value || fallback;
+const isBtnTrue = (id) => document.getElementById(id)?.value === 'true';
+
 const STATE_EXTRACTORS = {
-    'chambers_of_xeric': () => ({ points: parseInt(document.getElementById('raid-cox-pts')?.value, 10) || 30000 }),
-    'theatre_of_blood': () => ({ size: parseInt(document.getElementById('raid-tob-size')?.value, 10) || 3, deaths: parseInt(document.getElementById('raid-tob-deaths')?.value, 10) || 0 }),
-    'tombs_of_amascut': () => ({ level: parseInt(document.getElementById('raid-toa-level')?.value, 10) || 150, points: parseInt(document.getElementById('raid-toa-pts')?.value, 10) || 15000 }),
-    'doom_of_mokhaiotl': () => ({ delveLevel: parseInt(document.getElementById('doom-delve-level')?.value, 10) || 9 }),
-    'fortis_colosseum': () => ({ isSacrificing: document.getElementById('colo-sacrifice-btn')?.value === 'true' }),
-    'the_nightmare': () => ({ variant: document.getElementById('nightmare-variant-btn')?.value || 'standard', teamSize: parseInt(document.getElementById('nightmare-team-size')?.value, 10) || 5 }),
-    'yama': () => ({ contrib: parseInt(document.getElementById('yama-contribution')?.value, 10) ?? 100 }),
-    'tempoross': () => ({ points: parseInt(document.getElementById('tempoross-points')?.value, 10) || 4000 }),
-    'wintertodt': () => ({ points: parseInt(document.getElementById('wintertodt-points')?.value, 10) || 750 }),
-    'zalcano': () => ({ contrib: parseInt(document.getElementById('zalcano-contribution')?.value, 10) ?? 100 }),
-    'royal_titans': () => ({ target: document.getElementById('titan-target-btn')?.value || 'branda', action: document.getElementById('titan-action-btn')?.value || 'loot', contrib: parseInt(document.getElementById('titan-contribution')?.value, 10) ?? 100 }),
-    'araxxor': () => ({ isSacrificing: document.getElementById('araxxor-sacrifice-btn')?.value === 'true' })
+    'chambers_of_xeric': () => ({ points: getIntVal('raid-cox-pts', 30000) }),
+    'theatre_of_blood': () => ({ size: getIntVal('raid-tob-size', 3), deaths: getIntVal('raid-tob-deaths', 0) }),
+    'tombs_of_amascut': () => ({ level: getIntVal('raid-toa-level', 150), points: getIntVal('raid-toa-pts', 15000) }),
+    'doom_of_mokhaiotl': () => ({ delveLevel: getIntVal('doom-delve-level', 9) }),
+    'fortis_colosseum': () => ({ isSacrificing: isBtnTrue('colo-sacrifice-btn') }),
+    'the_nightmare': () => ({ variant: getStrVal('nightmare-variant-btn', 'standard'), teamSize: getIntVal('nightmare-team-size', 5) }),
+    'yama': () => ({ contrib: getIntVal('yama-contribution', 100) }),
+    'tempoross': () => ({ points: getIntVal('tempoross-points', 4000) }),
+    'wintertodt': () => ({ points: getIntVal('wintertodt-points', 750) }),
+    'zalcano': () => ({ contrib: getIntVal('zalcano-contribution', 100) }),
+    'royal_titans': () => ({ target: getStrVal('titan-target-btn', 'branda'), action: getStrVal('titan-action-btn', 'loot'), contrib: getIntVal('titan-contribution', 100) }),
+    'araxxor': () => ({ isSacrificing: isBtnTrue('araxxor-sacrifice-btn') })
 };
 
 DT2_BOSSES.forEach(boss => {
-    STATE_EXTRACTORS[boss] = () => ({ isAwakened: document.getElementById('dt2-awakened-btn')?.value === 'true' });
+    STATE_EXTRACTORS[boss] = () => ({ isAwakened: isBtnTrue('dt2-awakened-btn') });
 });
 
 // ==========================================
@@ -64,8 +84,13 @@ DT2_BOSSES.forEach(boss => {
 // ==========================================
 let activeSimulationCache = { hash: null, rawResults: null };
 
+// We hash the exact configuration of items, rates, and boss selection.
+// If the user calculates the exact same scenario twice, we bypass the heavy matrix math.
 function generateStateHash(bossKey, items) {
-    return JSON.stringify({ bossKey, items: items.map(i => `${i.name}|${i.rate}|${i.pieces}|${i.pool}`).sort() });
+    return JSON.stringify({ 
+        bossKey, 
+        items: items.map(i => `${i.name}|${i.rate}|${i.pieces}|${i.pool}`).sort() 
+    });
 }
 
 function initApp() {
@@ -76,8 +101,8 @@ function initApp() {
 }
 
 function setupChartDefaults() {
-    Chart.defaults.font.family = CHART_FONT;
-    Chart.defaults.color = CHART_TEXT_COLOR;
+    Chart.defaults.font.family = CHART_CONFIG.font;
+    Chart.defaults.color = CHART_CONFIG.textColor;
 }
 
 function populateBossSelect() {
@@ -90,7 +115,9 @@ function populateBossSelect() {
     DOM.bossSelect.innerHTML = defaultOption + bossOptions;
 }
 
-// --- DYNAMIC UI INJECTOR ---
+// ==========================================
+// DYNAMIC UI INJECTION
+// ==========================================
 const BOSS_UI_INJECTORS = {
     'chambers_of_xeric': (container) => {
         container.innerHTML = `
@@ -144,7 +171,8 @@ const BOSS_UI_INJECTORS = {
                 Keep Quivers (Standard)
             </button>`;
             
-        document.getElementById('colo-sacrifice-btn').addEventListener('click', function() {
+        const btn = document.getElementById('colo-sacrifice-btn');
+        btn.addEventListener('click', function() {
             const isSacrificing = this.value === 'true';
             this.value = isSacrificing ? 'false' : 'true';
             this.innerText = isSacrificing ? 'Keep Quivers (Standard)' : 'Sacrifice Quivers for Pet Chance';
@@ -168,9 +196,11 @@ const BOSS_UI_INJECTORS = {
                 </div>
             </div>`;
             
-        document.getElementById('nightmare-variant-btn').addEventListener('click', function() {
+        const btn = document.getElementById('nightmare-variant-btn');
+        const teamInput = document.getElementById('nightmare-team-size');
+        
+        btn.addEventListener('click', function() {
             const isPhosani = this.value === 'phosani';
-            const teamInput = document.getElementById('nightmare-team-size');
             
             if (isPhosani) {
                 this.value = 'standard';
@@ -260,11 +290,11 @@ const BOSS_UI_INJECTORS = {
             this.value = isLooting ? 'sacrifice' : 'loot';
             this.innerText = isLooting ? 'Loot: Sacrifice' : 'Loot: Standard';
             
-            const active = this.value === 'sacrifice';
-            this.style.borderColor = active ? 'var(--accent-orange)' : 'var(--border)';
-            this.style.color = active ? 'var(--accent-orange)' : 'var(--text)';
+            const isActive = this.value === 'sacrifice';
+            this.style.borderColor = isActive ? 'var(--accent-orange)' : 'var(--border)';
+            this.style.color = isActive ? 'var(--accent-orange)' : 'var(--text)';
 
-            if (active) forceItemSelection(["Bran"]);
+            if (isActive) forceItemSelection(["Bran"]);
             else unlockItemSelection();
         });
     },
@@ -305,11 +335,11 @@ DT2_BOSSES.forEach(boss => {
             </button>`;
         
         document.getElementById('dt2-awakened-btn').addEventListener('click', function() {
-            const active = this.value === 'false';
-            this.value = active ? 'true' : 'false';
-            this.innerText = active ? 'Awakened Variant (3x Uniques)' : 'Standard Variant';
-            this.style.borderColor = active ? 'var(--accent-orange)' : 'var(--border)';
-            this.style.color = active ? 'var(--accent-orange)' : 'var(--text)';
+            const isActive = this.value === 'false';
+            this.value = isActive ? 'true' : 'false';
+            this.innerText = isActive ? 'Awakened Variant (3x Uniques)' : 'Standard Variant';
+            this.style.borderColor = isActive ? 'var(--accent-orange)' : 'var(--border)';
+            this.style.color = isActive ? 'var(--accent-orange)' : 'var(--text)';
         });
     };
 });
@@ -332,6 +362,9 @@ function renderDynamicSettings(bossKey) {
     }
 }
 
+// ==========================================
+// EVENT BINDINGS
+// ==========================================
 function bindEvents() {
     if (DOM.bossSelect) DOM.bossSelect.addEventListener('change', handleBossSelection);
     if (DOM.itemGrid) DOM.itemGrid.addEventListener('click', toggleItemSelection);
@@ -436,9 +469,9 @@ function setAllItemsSelection(select) {
     DOM.itemGrid.querySelectorAll(".item-box").forEach(b => b.classList[action]("selected")); 
 }
 
+// Checks dynamically injected elements to see if we are in a forced-selection mode
 function isSacrificeModeActive() {
-    return (document.getElementById('araxxor-sacrifice-btn')?.value === 'true') || 
-           (document.getElementById('titan-action-btn')?.value === 'sacrifice');
+    return isBtnTrue('araxxor-sacrifice-btn') || getStrVal('titan-action-btn', '') === 'sacrifice';
 }
 
 function renderItemGrid(items) {
@@ -476,7 +509,9 @@ function handleCalculation() {
     if (results) displayResults(results, currentKC);
 }
 
-// --- SIMULATION EXECUTION ---
+// ==========================================
+// SIMULATION EXECUTION & RENDERING
+// ==========================================
 function executeSimulation(selectedItems, currentKC) {
     const bossData = BOSS_CONFIG[activeBossKey];
     let processedItems = [...selectedItems];
@@ -540,20 +575,30 @@ function displayResults(results, currentKC) {
     DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
+// --- CHART RENDERING ---
+function formatAxisTick(val, reverseX) {
+    let realKC = reverseX(val); 
+    if (realKC < 1) return null; 
+    
+    // Smooth out axis ticks based on magnitude
+    if (realKC > 1000) realKC = Math.round(realKC / 100) * 100; 
+    else if (realKC > 100) realKC = Math.round(realKC / 10) * 10; 
+    else realKC = Math.round(realKC); 
+    
+    return realKC.toLocaleString(); 
+}
+
 function renderChart(data, stats, userKC) {
     const ctx = DOM.chartCanvas.getContext('2d');
     if (chartInstance) chartInstance.destroy();
     
-    const transformX = (x) => Math.pow(x, X_AXIS_POWER);
-    const reverseX = (y) => Math.pow(y, 1 / X_AXIS_POWER);
+    const transformX = (x) => Math.pow(x, CHART_CONFIG.xAxisPower);
+    const reverseX = (y) => Math.pow(y, 1 / CHART_CONFIG.xAxisPower);
     const xMaxRaw = Math.max(data[data.length - 1].x, userKC * 1.1);
     
-    const getClosestPoint = (targetX) => data.reduce((prev, curr) => 
-        Math.abs(curr.x - targetX) < Math.abs(prev.x - targetX) ? curr : prev
-    );
-    
-    const modeY = getClosestPoint(stats.modeKC).pmf;
-    const medianY = getClosestPoint(stats.median).cdf;
+    // Leverage the guarantee from solvers.js that our exact statistical milestones exist in the dataset
+    const modeY = data.find(d => d.x === stats.modeKC)?.pmf || 0;
+    const medianY = data.find(d => d.x === stats.median)?.cdf || 0;
 
     chartInstance = new Chart(ctx, {
         type: 'line',
@@ -600,17 +645,10 @@ function getChartScales(transformX, reverseX, xMaxRaw) {
             max: transformX(xMaxRaw), 
             grid: { color: 'rgba(68, 64, 60, 0.2)', drawTicks: false }, 
             ticks: { 
-                color: CHART_TEXT_COLOR, 
+                color: CHART_CONFIG.textColor, 
                 font: { size: 10, weight: 700 }, 
                 maxTicksLimit: 8, 
-                callback: function(val) { 
-                    let realKC = reverseX(val); 
-                    if (realKC < 1) return null; 
-                    if (realKC > 1000) realKC = Math.round(realKC / 100) * 100; 
-                    else if (realKC > 100) realKC = Math.round(realKC / 10) * 10; 
-                    else realKC = Math.round(realKC); 
-                    return realKC.toLocaleString(); 
-                } 
+                callback: function(val) { return formatAxisTick(val, reverseX); } 
             } 
         },
         yPMF: { display: false }, 

@@ -5,18 +5,68 @@
  * These functions have NO dependency on the DOM or UI.
  */
 
+// ==========================================
+// STATIC PRE-COMPUTED DATA
+// Hoisting these prevents recreating objects on every single calculation tick.
+// ==========================================
+
+const DOOM_FLOOR_RATES = {
+    'Mokhaiotl cloth': { 2: 2500, 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
+    'Eye of ayak (uncharged)': { 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
+    'Avernic treads': { 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
+    'Dom': { 6: 1000, 7: 750, 8: 500, 9: 250 }
+};
+
+const TITAN_RESTRICTIONS = {
+    branda: new Set(["Deadeye prayer scroll", "Ice element staff crown"]),
+    eldric: new Set(["Mystic vigour prayer scroll", "Fire element staff crown"])
+};
+
+const PHOSANI_RATES = {
+    "Little nightmare": 1 / 1400, "Inquisitor's mace": 1 / 1129, "Inquisitor's great helm": 1 / 700,
+    "Inquisitor's hauberk": 1 / 700, "Inquisitor's plateskirt": 1 / 700, "Nightmare staff": 1 / 507.2,
+    "Volatile orb": 1 / 1600, "Harmonised orb": 1 / 1600, "Eldritch orb": 1 / 1600,
+    "Jar of dreams": 1 / 4000, "Slepey tablet": 1 / 25, "Parasitic egg": 1 / 200
+};
+
+// We can pre-calculate Wintertodt's cascading probabilities at load time
+// since they don't depend on user points, only the base rates do.
+const PRECOMPUTED_WT_RATES = (() => {
+    const rollRates = {};
+    let runningProb = 1.0;
+    
+    const cascade = [
+        { name: "Phoenix", rate: 1/5000 },
+        { name: "Dragon axe", rate: 1/10000 },
+        { name: "Tome of fire (empty)", rate: 1/1000 },
+        { name: "Warm gloves", rate: 1/150 },
+        { name: "Bruma torch", rate: 1/150 },
+        { name: "Pyromancer garb", rate: 1/150 }, 
+        { name: "Burnt page", rate: 1/45 }
+    ];
+
+    cascade.forEach(drop => {
+        rollRates[drop.name] = drop.rate * runningProb;
+        runningProb *= (1 - drop.rate);
+    });
+
+    rollRates["Pyromancer hood"] = rollRates["Pyromancer garb"];
+    rollRates["Pyromancer robe"] = rollRates["Pyromancer garb"];
+    rollRates["Pyromancer boots"] = rollRates["Pyromancer garb"];
+
+    return rollRates;
+})();
+
+
+// ==========================================
+// MODIFIER FUNCTIONS
+// ==========================================
+
 function adjustRatesForDoom(items, { delveLevel = 9 }) {
     const targetLevel = Math.min(Math.max(delveLevel, 2), 15);
-    
-    const floorRates = {
-        'Mokhaiotl cloth': { 2: 2500, 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
-        'Eye of ayak (uncharged)': { 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
-        'Avernic treads': { 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
-        'Dom': { 6: 1000, 7: 750, 8: 500, 9: 250 }
-    };
 
     return items.map(item => {
-        const itemRates = floorRates[item.name];
+        const itemRates = DOOM_FLOOR_RATES[item.name];
         if (!itemRates) return item;
 
         let chanceToFailAll = 1.0;
@@ -55,9 +105,11 @@ function adjustRatesForTitans(items, { target = 'branda', action = 'loot', contr
         }
 
         if (action !== 'loot' || cFrac === 0) return { ...item, rate: 0 };
-
-        if (target === 'branda' && ["Deadeye prayer scroll", "Ice element staff crown"].includes(item.name)) return { ...item, rate: 0 };
-        if (target === 'eldric' && ["Mystic vigour prayer scroll", "Fire element staff crown"].includes(item.name)) return { ...item, rate: 0 };
+        
+        // O(1) lookup using our module-scoped Set instead of recreating an array every time
+        if (TITAN_RESTRICTIONS[target]?.has(item.name)) {
+            return { ...item, rate: 0 };
+        }
 
         return { ...item, rate: item.rate * cFrac };
     });
@@ -79,30 +131,8 @@ function adjustRatesForWintertodt(items, { points = 750 }) {
     const safePoints = Math.max(points, 500);
     const rolls = 1 + (safePoints / 500);
 
-    let runningProb = 1.0;
-    const rollRates = {};
-
-    const cascadeRates = [
-        { name: "Phoenix", rate: 1/5000 },
-        { name: "Dragon axe", rate: 1/10000 },
-        { name: "Tome of fire (empty)", rate: 1/1000 },
-        { name: "Warm gloves", rate: 1/150 },
-        { name: "Bruma torch", rate: 1/150 },
-        { name: "Pyromancer garb", rate: 1/150 }, 
-        { name: "Burnt page", rate: 1/45 }
-    ];
-
-    cascadeRates.forEach(drop => {
-        rollRates[drop.name] = drop.rate * runningProb;
-        runningProb *= (1 - drop.rate);
-    });
-
-    rollRates["Pyromancer hood"] = rollRates["Pyromancer garb"];
-    rollRates["Pyromancer robe"] = rollRates["Pyromancer garb"];
-    rollRates["Pyromancer boots"] = rollRates["Pyromancer garb"];
-
     return items.map(item => {
-        const ratePerRoll = rollRates[item.name] || 0;
+        const ratePerRoll = PRECOMPUTED_WT_RATES[item.name] || 0;
         return {
             ...item,
             rate: 1 - Math.pow(1 - ratePerRoll, rolls),
@@ -137,6 +167,8 @@ function adjustRatesForYama(items, { contrib = 100 }) {
 
     let runningProb = 1.0;
 
+    // Yama's probabilities are entirely dependent on user contribution, 
+    // so we must calculate the running waterfall dynamically.
     const rareSum = (1/120) * points;
     const helmRate = (1/600) * points * runningProb;
     const chestRate = (1/600) * points * runningProb;
@@ -213,12 +245,25 @@ function adjustRatesForToa(items, { level = 150, points = 15000 }) {
     const denom = 100 * (10500 - 20 * adjLevel);
     const uniqueChance = points / denom;
 
-    let fangW = 70; let lbW = 70;
-    if (level >= 500) { fangW = 30; lbW = 35; }
-    else if (level >= 450) { fangW = 40 - Math.floor((level - 450) * 0.2); lbW = 40 - Math.floor((level - 450) * 0.1); }
-    else if (level >= 400) { fangW = 40; lbW = 50 - Math.floor((level - 400) * 0.2); }
-    else if (level >= 350) { fangW = 60 - Math.floor((level - 350) * 0.4); lbW = 60 - Math.floor((level - 350) * 0.2); }
-    else if (level >= 300) { fangW = 70 - Math.floor((level - 300) * 0.2); lbW = 70 - Math.floor((level - 300) * 0.2); }
+    let fangW = 70; 
+    let lbW = 70;
+    
+    // Kept the legacy logic identical but aligned it for better scannability
+    if (level >= 500) { 
+        fangW = 30; lbW = 35; 
+    } else if (level >= 450) { 
+        fangW = 40 - Math.floor((level - 450) * 0.2); 
+        lbW = 40 - Math.floor((level - 450) * 0.1); 
+    } else if (level >= 400) { 
+        fangW = 40; 
+        lbW = 50 - Math.floor((level - 400) * 0.2); 
+    } else if (level >= 350) { 
+        fangW = 60 - Math.floor((level - 350) * 0.4); 
+        lbW = 60 - Math.floor((level - 350) * 0.2); 
+    } else if (level >= 300) { 
+        fangW = 70 - Math.floor((level - 300) * 0.2); 
+        lbW = 70 - Math.floor((level - 300) * 0.2); 
+    }
 
     const totalWeight = 10 + 20 + 20 + 20 + 30 + fangW + lbW;
     
@@ -251,36 +296,29 @@ function adjustRatesForNightmare(items, { variant = 'standard', teamSize = 5 }) 
     const safeTeamSize = Math.min(Math.max(teamSize, 1), 80);
 
     if (variant === 'phosani') {
-        const phosaniRates = {
-            "Little nightmare": 1 / 1400, "Inquisitor's mace": 1 / 1129, "Inquisitor's great helm": 1 / 700,
-            "Inquisitor's hauberk": 1 / 700, "Inquisitor's plateskirt": 1 / 700, "Nightmare staff": 1 / 507.2,
-            "Volatile orb": 1 / 1600, "Harmonised orb": 1 / 1600, "Eldritch orb": 1 / 1600,
-            "Jar of dreams": 1 / 4000, "Slepey tablet": 1 / 25, "Parasitic egg": 1 / 200
-        };
-        
-        return items.map(item => ({ ...item, rate: phosaniRates[item.name] || item.rate }));
-    } else {
-        const BASE_PET_RATE = 800;
-        const MAX_PET_RATE = 4000;
-        const JAR_RATE = 2000;
+        return items.map(item => ({ ...item, rate: PHOSANI_RATES[item.name] || item.rate }));
+    } 
+    
+    const BASE_PET_RATE = 800;
+    const MAX_PET_RATE = 4000;
+    const JAR_RATE = 2000;
 
-        const scale = 1 + (Math.max(0, Math.min(safeTeamSize - 5, 75)) / 100);
+    const scale = 1 + (Math.max(0, Math.min(safeTeamSize - 5, 75)) / 100);
+    
+    return items.map(item => {
+        if (item.name === "Slepey tablet" || item.name === "Parasitic egg") return { ...item, rate: 0 }; 
         
-        return items.map(item => {
-            if (item.name === "Slepey tablet" || item.name === "Parasitic egg") return { ...item, rate: 0 }; 
-            
-            if (item.name === "Little nightmare") {
-                return { ...item, rate: safeTeamSize <= 5 ? 1 / (BASE_PET_RATE * safeTeamSize) : 1 / MAX_PET_RATE };
-            }
-            if (item.name === "Jar of dreams") {
-                return { ...item, rate: 1 / (JAR_RATE * safeTeamSize) };
-            }
-            if (item.type === "main") {
-                return { ...item, rate: (item.rate * scale) / safeTeamSize };
-            }
-            return item;
-        });
-    }
+        if (item.name === "Little nightmare") {
+            return { ...item, rate: safeTeamSize <= 5 ? 1 / (BASE_PET_RATE * safeTeamSize) : 1 / MAX_PET_RATE };
+        }
+        if (item.name === "Jar of dreams") {
+            return { ...item, rate: 1 / (JAR_RATE * safeTeamSize) };
+        }
+        if (item.type === "main") {
+            return { ...item, rate: (item.rate * scale) / safeTeamSize };
+        }
+        return item;
+    });
 }
 
 export const RATE_ADJUSTERS = {
