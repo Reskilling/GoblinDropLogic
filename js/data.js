@@ -25,6 +25,9 @@ const parseBossItems = (items) => {
     const parsed = [];
     
     for (const id in items) {
+        // Protect against prototype pollution/injection when using for...in
+        if (!Object.prototype.hasOwnProperty.call(items, id)) continue;
+
         const { name, rate, type, order, pieces, pool, hidden } = items[id];
         
         parsed.push({
@@ -51,6 +54,8 @@ const buildBossConfig = (rawData) => {
         // Pre-allocating the object directly bypasses the need to create 
         // nested arrays just to feed `Object.fromEntries()`.
         for (const bossKey in rawData) {
+            if (!Object.prototype.hasOwnProperty.call(rawData, bossKey)) continue;
+
             config[bossKey] = {
                 rolls: SPECIAL_ROLLS[bossKey] ?? 1,
                 items: parseBossItems(rawData[bossKey])
