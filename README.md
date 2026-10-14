@@ -2,7 +2,7 @@
 
 Welcome to the central intelligence hub for the **Wise Goblin** clan. This project serves as a comprehensive resource for Old School RuneScape (OSRS) players, combining curated progression guides, advanced plugin configurations, and our flagship mathematical tool: **DropLogic**.
 
-## 🗂️ Hub Features
+## Hub Features
 
 The hub is divided into six primary branches:
 
@@ -15,7 +15,7 @@ The hub is divided into six primary branches:
 
 ---
 
-## 🎲 DropLogic: Advanced Forecasting
+## DropLogic: Advanced Forecasting
 
 Most OSRS calculators rely on basic binomial probability. That works fine for simple, single-roll drops like a Dragon Defender, but it completely falls apart on modern bosses. When you introduce complex mechanics like duplicate protection, hidden sequential rolls, and multiple siloed loot tables, standard calculators produce wildly inaccurate estimates. 
 
@@ -30,7 +30,7 @@ DropLogic solves this by utilizing state-driven mathematics to perfectly simulat
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## Architecture & Tech Stack
 
 This project is built with strict adherence to Clean Code principles, utilizing a lightweight, vanilla web stack to ensure lightning-fast load times and zero dependency bloat.
 
@@ -53,7 +53,7 @@ This project is built with strict adherence to Clean Code principles, utilizing 
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Because the Wise Goblin Hub is built entirely in vanilla web technologies, there are no build steps, bundlers, or heavy frameworks required. You can run the app locally in seconds.
 
