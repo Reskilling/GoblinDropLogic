@@ -30,7 +30,8 @@ A single drop rate is enough for one item, like a Dragon Defender. It isn't enou
 
 ### Assumptions
 Results are only as good as the inputs, and a few mechanics are simplified:
-* Drop rates come from the OSRS Wiki and may change with game updates.
+* Drop rates and item names come from the OSRS Wiki and may change with game updates.
+* Each boss covers its notable uniques and pet, not every collection log slot. Common supplies and minor items (Zulrah's scales, teleport scrolls and the like) are usually obtained long before the uniques, and completion-count rewards such as raid shrouds aren't drops.
 * Raid results are personal: CoX and ToA use your own points, and ToB assumes an even share of the team's points.
 * CoX extra uniques past the 65.7% cap, and Barrows' rule against duplicates within one chest, aren't modelled.
 * Fortis Colosseum counts one full 12-wave run as one kill.

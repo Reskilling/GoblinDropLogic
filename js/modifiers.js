@@ -12,7 +12,7 @@
 
 const DOOM_FLOOR_RATES = {
     'Mokhaiotl cloth': { 2: 2500, 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
-    'Eye of ayak (uncharged)': { 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
+    'Eye of Ayak (uncharged)': { 3: 2000, 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
     'Avernic treads': { 4: 1350, 5: 810, 6: 765, 7: 720, 8: 630, 9: 540 },
     'Dom': { 6: 1000, 7: 750, 8: 500, 9: 250 }
 };
@@ -23,10 +23,10 @@ const TITAN_RESTRICTIONS = {
 };
 
 const PHOSANI_RATES = {
-    "Little nightmare": 1 / 1400, "Inquisitor's mace": 1 / 1129, "Inquisitor's great helm": 1 / 700,
+    "Little Nightmare": 1 / 1400, "Inquisitor's mace": 1 / 1129, "Inquisitor's great helm": 1 / 700,
     "Inquisitor's hauberk": 1 / 700, "Inquisitor's plateskirt": 1 / 700, "Nightmare staff": 1 / 507.2,
     "Volatile orb": 1 / 1600, "Harmonised orb": 1 / 1600, "Eldritch orb": 1 / 1600,
-    "Jar of dreams": 1 / 4000, "Slepey tablet": 1 / 25, "Parasitic egg": 1 / 200
+    "Jar of Dreams": 1 / 4000, "Slepey tablet": 1 / 25, "Parasitic egg": 1 / 200
 };
 
 // We can pre-calculate Wintertodt's cascading probabilities at load time
@@ -38,7 +38,7 @@ const PRECOMPUTED_WT_RATES = (() => {
     const cascade = [
         { name: "Phoenix", rate: 1/5000 },
         { name: "Dragon axe", rate: 1/10000 },
-        { name: "Tome of fire (empty)", rate: 1/1000 },
+        { name: "Tome of Fire (empty)", rate: 1/1000 },
         { name: "Warm gloves", rate: 1/150 },
         { name: "Bruma torch", rate: 1/150 },
         { name: "Pyromancer garb", rate: 1/150 }, 
@@ -201,7 +201,7 @@ export function adjustRatesForYama(items, { contrib }) {
 
 export function adjustRatesForColosseum(items, { isSacrificing }) {
     return items.map(item => {
-        if (item.name === 'Smol heredit' && isSacrificing) {
+        if (item.name === 'Smol Heredit' && isSacrificing) {
             return { ...item, rate: 1 - Math.pow((1 - item.rate), 2) };
         }
         return item;
@@ -314,11 +314,11 @@ export function adjustRatesForNightmare(items, { variant, teamSize }) {
         // Phosani's-only drops
         if (item.name === "Slepey tablet" || item.name === "Parasitic egg") return { ...item, rate: 0 };
 
-        if (item.name === "Little nightmare") {
+        if (item.name === "Little Nightmare") {
             const denominator = safeTeamSize <= 5 ? NIGHTMARE_PET_DENOMINATOR_PER_PLAYER * safeTeamSize : NIGHTMARE_MAX_PET_DENOMINATOR;
             return { ...item, rate: 1 / denominator };
         }
-        if (item.name === "Jar of dreams") {
+        if (item.name === "Jar of Dreams") {
             return { ...item, rate: 1 / (NIGHTMARE_JAR_DENOMINATOR_PER_PLAYER * safeTeamSize) };
         }
         if (item.type === "main") {

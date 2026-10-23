@@ -110,8 +110,8 @@ check('boss display names', ['Theatre of Blood', "Kree'arra", "Vet'ion"].every(n
 
 await page.selectOption('#boss-select', 'theatre_of_blood');
 check('selecting a boss waits for Calculate', await isHidden('#results'));
-await page.hover('.item-box[data-name="Scythe of vitur (uncharged)"]');
-check('hover caption names the item', (await text('#item-caption')).startsWith('Scythe of vitur'));
+await page.hover('.item-box[data-name="Scythe of Vitur (uncharged)"]');
+check('hover caption names the item', (await text('#item-caption')).startsWith('Scythe of Vitur'));
 await page.click('#calculate-btn');
 check('Calculate shows results', !(await isHidden('#results')) && !(await page.isVisible('.empty-state')));
 check('Calculate button hides once results update live', await isHidden('#calculate-btn'));
@@ -176,7 +176,7 @@ await page.dispatchEvent('#setting-points', 'change');
 check('odds beyond the KC limit say so', await page.waitForFunction(() => document.getElementById('stat-chance').textContent.includes('+'), null, { timeout: 15000 }).then(() => true, () => false) && await showsMessage());
 
 await page.selectOption('#boss-select', 'the_fight_caves');
-await page.click('.item-box[data-name="Tzrek-jad"]');
+await page.click('.item-box[data-name="TzRek-Jad"]');
 check('guaranteed drops explain instead of charting', (await text('#stat-chance-label')) === 'Guaranteed on your first kill' && await showsMessage());
 
 check('CDN scripts carry integrity hashes', await page.$$eval('script[src^="https://"]', ss => ss.every(s => s.integrity.startsWith('sha384-'))));

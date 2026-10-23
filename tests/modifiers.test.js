@@ -10,8 +10,8 @@ const assertClose = (actual, expected, relTolerance, label) =>
 
 test('ToB gives a personal chance: a five-player team member gets a fifth of a solo chance', () => {
     const items = BOSS_ITEMS.theatre_of_blood;
-    const solo = rateOf(modifiers.adjustRatesForTob(items, { size: 1, deaths: 0 }), 'Scythe of vitur (uncharged)');
-    const fiveMan = rateOf(modifiers.adjustRatesForTob(items, { size: 5, deaths: 0 }), 'Scythe of vitur (uncharged)');
+    const solo = rateOf(modifiers.adjustRatesForTob(items, { size: 1, deaths: 0 }), 'Scythe of Vitur (uncharged)');
+    const fiveMan = rateOf(modifiers.adjustRatesForTob(items, { size: 5, deaths: 0 }), 'Scythe of Vitur (uncharged)');
 
     assertClose(solo, (1 / 9.1) / 19, 1e-9, 'solo scythe');
     assertClose(fiveMan, solo / 5, 1e-9, 'five-man scythe');
@@ -43,7 +43,7 @@ test('Yama tallow matches the wiki overall rate of 5/95.11', () => {
 });
 
 test('Nightmare pet is 1/(800 x team) up to five players, then 1/4000', () => {
-    const pet = (teamSize) => rateOf(modifiers.adjustRatesForNightmare(BOSS_ITEMS.the_nightmare, { variant: 'standard', teamSize }), 'Little nightmare');
+    const pet = (teamSize) => rateOf(modifiers.adjustRatesForNightmare(BOSS_ITEMS.the_nightmare, { variant: 'standard', teamSize }), 'Little Nightmare');
     assertClose(pet(3), 1 / 2400, 1e-9, 'team of 3');
     assertClose(pet(10), 1 / 4000, 1e-9, 'team of 10');
 });

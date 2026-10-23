@@ -9,7 +9,7 @@ const DEFAULT_SORT_ORDER = 99;
 
 // Items whose wiki image name differs from "<Item_name>.png"
 const IMAGE_OVERRIDES = {
-    "Ikkle hydra": "Ikkle_hydra_(serpentine).png",
+    "Ikkle Hydra": "Ikkle_hydra_(serpentine).png",
     "Gull": "Gull_(pet).png",
     "Muphin": "Muphin_(ranged).png"
 };
