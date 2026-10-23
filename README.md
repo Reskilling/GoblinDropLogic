@@ -50,14 +50,16 @@ This project is built with strict adherence to Clean Code principles, utilizing 
 │   ├── 📄 drops.js       # Boss loot tables and drop rates
 │   ├── 📄 data.js        # Normalised item lists and icon paths
 │   ├── 📄 modifiers.js   # Pure functions that adjust rates from boss settings
-│   ├── 📄 matrix.js      # Markov chain transition matrices (Master, Barrows, Moons)
+│   ├── 📄 matrix.js      # Markov chain transition matrices (Master and Barrows)
 │   ├── 📄 solvers.js     # Simulation loop and statistics (PMF/CDF)
+│   ├── 📄 item-grid.js   # Collection log grid: selection, piece counts, captions
 │   ├── 📄 settings.js    # Renders boss settings and reads them back
 │   ├── 📄 chart.js       # Chart.js rendering
 │   ├── 📄 nav.js         # Hash-based navigation (#droplogic, #guides, ...)
 │   ├── 📄 checklist.js   # Zugrot's Checklist progress
 │   └── 📄 toast.js       # Notifications
-└── 📁 tests              # node:test suites for the maths, modifiers and data
+├── 📁 assets             # Item icons and resized brand images
+└── 📁 tests              # node:test suites for the maths, modifiers and data, plus e2e/ browser checks
 ```
 
 ### Adding a boss
@@ -92,7 +94,9 @@ Because the Wise Goblin Hub is built entirely in vanilla web technologies, there
    # Then open http://localhost:8000 in your browser
    ```
 
-4. **Run the tests** (Node.js 20 or later, no install needed):
+4. **Run the tests** (Node.js 20 or later):
    ```bash
-   npm test
+   npm test            # maths, modifiers and data; no install needed
+   npm install         # once, for the browser tests
+   npm run test:e2e    # drives the site in your installed Chrome or Edge
    ```

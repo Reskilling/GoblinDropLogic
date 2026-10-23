@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createMasterMatrix, createMoonsMatrix, createBarrowsMatrix } from '../js/matrix.js';
+import { createMasterMatrix, createBarrowsMatrix } from '../js/matrix.js';
 import { runSimulation, buildChartData } from '../js/solvers.js';
 
 const item = (overrides) => ({ name: 'Item', rate: 1 / 100, type: 'main', pieces: 1, ...overrides });
@@ -41,8 +41,13 @@ test('tertiary drops roll independently of the main table', () => {
 });
 
 test('one Moons of Peril set of four at 1/56 averages 224 chests', () => {
-    const set = ['A', 'B', 'C', 'D'].map(name => item({ name, rate: 1 / 56, pool: 'blood' }));
-    assertClose(runSimulation(createMoonsMatrix(set)).mean, 224, 0.5, 'mean');
+    const set = ['A', 'B', 'C', 'D'].map(name => item({ name, rate: 1 / 56, type: 'tertiary', pool: 'blood' }));
+    assertClose(simulate(set).mean, 224, 0.5, 'mean');
+});
+
+test('each moon rolls independently, so all three sets average 320 chests', () => {
+    const moon = (pool) => ['A', 'B', 'C', 'D'].map(name => item({ name: `${pool} ${name}`, rate: 1 / 56, type: 'tertiary', pool }));
+    assertClose(simulate([...moon('blood'), ...moon('blue'), ...moon('eclipse')]).mean, 320.04, 0.05, 'mean');
 });
 
 test('a full Barrows set averages about 1,321 chests', () => {

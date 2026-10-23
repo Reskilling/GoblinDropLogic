@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 import { BOSS_ITEMS, getItemImagePath } from '../js/data.js';
 import { DEFINED_BOSS_KEYS, getBossDefinition, getDefaultState } from '../js/bosses.js';
@@ -48,6 +48,36 @@ test('number setting defaults sit inside their own limits', () => {
         .forEach(([key, { key: settingKey, default: value, min = -Infinity, max = Infinity }]) => {
             assert.ok(value >= min && value <= max, `${key}.${settingKey} default ${value} outside ${min}..${max}`);
         });
+});
+
+const allItemNames = new Set(bossKeys.flatMap(key => BOSS_ITEMS[key].map(item => item.name)));
+
+// Modifiers single out items by name; a typo would silently stop the adjustment applying
+test('every item name used in modifiers.js exists in a drop table', () => {
+    const source = readFileSync(new URL('../js/modifiers.js', import.meta.url), 'utf8').replace(/\/\/.*$/gm, '');
+    const quoted = [...source.matchAll(/["']([A-Z][^"'\n]*?)["']\s*[:,)\]]/g)].map(m => m[1]);
+    const unknown = [...new Set(quoted)].filter(name => !allItemNames.has(name));
+    assert.ok(quoted.length > 30, `expected to find item names, found ${quoted.length}`);
+    assert.deepEqual(unknown, []);
+});
+
+test('every item a setting can lock to exists in that boss', () => {
+    bossKeys.map(key => [key, getBossDefinition(key)]).filter(([, def]) => def.lockItems).forEach(([key, def]) => {
+        const toggles = def.settings.filter(s => s.type === 'toggle');
+        // Try every combination of toggle options
+        const states = toggles.reduce((acc, t) => acc.flatMap(state => t.options.map(o => ({ ...state, [t.key]: o.value }))), [getDefaultState(def)]);
+        const names = new Set(BOSS_ITEMS[key].map(item => item.name));
+
+        states.forEach(state => (def.lockItems(state) ?? []).forEach(name => assert.ok(names.has(name), `${key} locks to unknown item ${name}`)));
+    });
+});
+
+test('raid uniques use a weight, not a rate', () => {
+    ['chambers_of_xeric', 'theatre_of_blood', 'tombs_of_amascut'].forEach(key => {
+        BOSS_ITEMS[key].filter(item => item.type === 'main').forEach(item => {
+            assert.ok(item.weight > 0 && item.rate === undefined, `${key}: ${item.name}`);
+        });
+    });
 });
 
 test('display names are readable', () => {

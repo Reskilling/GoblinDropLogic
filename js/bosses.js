@@ -42,7 +42,6 @@ const forgottenFour = {
 const DEFINITIONS = {
     // Bosses
     barrows_chests: { name: 'Barrows', matrix: 'barrows' },
-    moons_of_peril: { matrix: 'moons' },
     hueycoatl: { name: 'The Hueycoatl' },
     royal_titans: {
         name: 'The Royal Titans',

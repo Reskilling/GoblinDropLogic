@@ -87,6 +87,17 @@ export function createBarrowsMatrix(targetCount) {
     return currentMatrix.map(rowProbs => extractSparseTransitions(rowProbs));
 }
 
+// Sequential groups (pools, multi-piece items) advance at a fixed rate. A group of N identical
+// independent drops advances when any of the remaining ones drops, so its rate scales with what's left.
+function effectiveRate(group, count) {
+    return group.isSequential ? group.rate : (group.target - count) * group.rate;
+}
+
+/**
+ * Builds the per-kill transition matrix. `main` items are outcomes of one shared roll (made
+ * `rollCount` times); every other item rolls independently once per kill. A duplicate-protected
+ * `pool` (e.g. bludgeon pieces, one moon's armour set) advances by one piece per hit.
+ */
 export function createMasterMatrix(selectedItems, rollCount = 1) {
     const groups = [];
     
@@ -142,11 +153,9 @@ export function createMasterMatrix(selectedItems, rollCount = 1) {
                 for (const mg of mainGroups) {
                     const count = getGroupCount(currState, mg.index);
                     if (count < mg.target) {
-                        // If items drop sequentially (like Venator shards), the rate is static.
-                        // If they are independent identical drops, getting any 1 of N remaining increases the effective rate.
-                        const effectiveRate = mg.isSequential ? mg.rate : (mg.target - count) * mg.rate;
-                        nextProbs[getNextState(currState, mg.index)] += prob * effectiveRate;
-                        probHitAnyMain += effectiveRate;
+                        const rate = effectiveRate(mg, count);
+                        nextProbs[getNextState(currState, mg.index)] += prob * rate;
+                        probHitAnyMain += rate;
                     }
                 }
                 
@@ -168,60 +177,9 @@ export function createMasterMatrix(selectedItems, rollCount = 1) {
                 const count = getGroupCount(midState, tg.index);
 
                 if (count < tg.target) {
-                    const effectiveRate = tg.isSequential ? tg.rate : (tg.target - count) * tg.rate;
-                    nextProbs[midState] += prob * (1 - effectiveRate);
-                    nextProbs[getNextState(midState, tg.index)] += prob * effectiveRate;
-                } else {
-                    nextProbs[midState] += prob;
-                }
-            }
-            
-            [currentProbs, nextProbs] = [nextProbs, currentProbs];
-        }
-
-        sparseMatrix[stateIdx] = extractSparseTransitions(currentProbs);
-    }
-    return sparseMatrix;
-}
-
-export function createMoonsMatrix(selectedItems) {
-    const groups = [];
-    
-    selectedItems.forEach(item => {
-        const existingGroup = groups.find(g => g.pool === item.pool);
-        if (existingGroup) existingGroup.target++;
-        else groups.push({ pool: item.pool, rate: item.rate, target: 1, index: groups.length });
-    });
-
-    const { totalStates, getGroupCount, getNextState } = buildStateSpace(groups);
-    const sparseMatrix = Array.from({length: totalStates}, () => []);
-
-    let currentProbs = new Float64Array(totalStates);
-    let nextProbs = new Float64Array(totalStates);
-
-    for (let stateIdx = 0; stateIdx < totalStates; stateIdx++) {
-        const isAbsorbing = groups.every((g, i) => getGroupCount(stateIdx, i) === g.target);
-        
-        if (isAbsorbing) {
-            sparseMatrix[stateIdx].push({ target: stateIdx, prob: 1.0 });
-            continue;
-        }
-
-        currentProbs.fill(0);
-        currentProbs[stateIdx] = 1.0;
-
-        for (const g of groups) {
-            nextProbs.fill(0);
-            
-            for (let midState = 0; midState < totalStates; midState++) {
-                const prob = currentProbs[midState];
-                if (prob === 0) continue;
-                
-                const count = getGroupCount(midState, g.index);
-
-                if (count < g.target) {
-                    nextProbs[midState] += prob * (1 - g.rate);
-                    nextProbs[getNextState(midState, g.index)] += prob * g.rate;
+                    const rate = effectiveRate(tg, count);
+                    nextProbs[midState] += prob * (1 - rate);
+                    nextProbs[getNextState(midState, tg.index)] += prob * rate;
                 } else {
                     nextProbs[midState] += prob;
                 }

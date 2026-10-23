@@ -25,8 +25,8 @@ function saveFlag(key, value) {
     } catch { /* storage unavailable */ }
 }
 
-function setupTier(card) {
-    const heading = card.querySelector('h3');
+function setupTier(card, repeatedNames) {
+    const heading = card.querySelector('h3[data-tier]');
     const checkAllBox = card.querySelector('.check-all-box');
     const checkAllWrapper = card.querySelector('.check-all-wrapper');
     const goals = [...card.querySelectorAll('.goal-item')].map(item => ({
@@ -36,10 +36,11 @@ function setupTier(card) {
 
     if (!heading || !checkAllBox || goals.length === 0) return;
 
-    const tier = heading.textContent;
-    // Keys include the tier because goal names repeat across tiers (e.g. Construction)
-    const storageKey = (name) => `goal-${slugify(tier)}-${slugify(name)}`;
-    const legacyStorageKey = (name) => `goal-${slugify(name)}`;
+    const tierName = heading.textContent;
+    // Keys include the tier because goal names repeat across tiers (e.g. Construction).
+    // Old keys had no tier, so they're only trusted for names that appear in a single tier.
+    const storageKey = (name) => `goal-${heading.dataset.tier}-${slugify(name)}`;
+    const legacyStorageKeys = (name) => repeatedNames.has(name) ? [] : [`goal-${slugify(name)}`];
 
     const progress = document.createElement('span');
     progress.className = 'tier-progress';
@@ -60,7 +61,7 @@ function setupTier(card) {
     };
 
     goals.forEach(goal => {
-        goal.checkbox.checked = loadFlag(storageKey(goal.name), legacyStorageKey(goal.name));
+        goal.checkbox.checked = loadFlag(storageKey(goal.name), ...legacyStorageKeys(goal.name));
         goal.checkbox.addEventListener('change', () => {
             save(goal);
             updateSummary();
@@ -77,7 +78,7 @@ function setupTier(card) {
         });
         updateSummary();
 
-        showToast(`${isChecked ? 'Ticked' : 'Cleared'} every ${tier.toLowerCase()} goal.`, {
+        showToast(`${isChecked ? 'Ticked' : 'Cleared'} every ${tierName.toLowerCase()} goal.`, {
             tone: 'info',
             action: {
                 label: 'Undo',
@@ -95,6 +96,18 @@ function setupTier(card) {
     updateSummary();
 }
 
+function findRepeatedGoalNames() {
+    const seen = new Set();
+    const repeated = new Set();
+    document.querySelectorAll('#ironman-goals .goal-name').forEach(el => {
+        const name = el.textContent;
+        if (seen.has(name)) repeated.add(name);
+        seen.add(name);
+    });
+    return repeated;
+}
+
 export function initChecklist() {
-    document.querySelectorAll('#ironman-goals .card').forEach(setupTier);
+    const repeatedNames = findRepeatedGoalNames();
+    document.querySelectorAll('#ironman-goals .card').forEach(card => setupTier(card, repeatedNames));
 }

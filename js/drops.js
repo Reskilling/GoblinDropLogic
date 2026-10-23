@@ -12,11 +12,13 @@
  * - `defaultPieces`:
  * How many of `pieces` the tile starts with (defaults to all of them). Use 1 when a single
  * drop completes the collection log but players may want more (e.g., 4 Zenyte shards for gear).
+ * - `weight`:
+ * Raid uniques (CoX, ToB, ToA) use a unique-table weight instead of `rate`; the raid's
+ * adjuster in modifiers.js turns it into a rate from points, team size or raid level.
  * - `pool`:
  * Marks a duplicate-protected set: every hit on the pool awards a piece the player is missing
- * (e.g., Sire bludgeon pieces, Moons of Peril armour). Handled by createMasterMatrix, or
- * createMoonsMatrix for Moons. Each item's `rate` must be the chance of ANY piece from the
- * pool, not a per-piece rate. The wiki is inconsistent here: Unsired lists the combined 62/128
+ * (e.g., Sire bludgeon pieces; Moons of Peril armour, where each moon is its own tertiary pool).
+ * Each item's `rate` must be the chance of ANY piece from the pool, not a per-piece rate. The wiki is inconsistent here: Unsired lists the combined 62/128
  * on each piece's row, while Lunar Chest lists a per-item 1/224 for Moons' combined 1/56.
  * - Barrows chests ignore `rate`; createBarrowsMatrix uses its own BARROWS constants.
  */
@@ -309,18 +311,18 @@ export const RAW_BOSS_DATA = {
         "28276": { name: "Chromium ingot", rate: 1 / 256, type: "main", order: 7 },
     },
     moons_of_peril: {
-        "29000": { name: "Eclipse atlatl", rate: 1 / 56, type: "main", pool: "eclipse", order: 1 },
-        "29010": { name: "Eclipse moon helm", rate: 1 / 56, type: "main", pool: "eclipse", order: 2 },
-        "29004": { name: "Eclipse moon chestplate", rate: 1 / 56, type: "main", pool: "eclipse", order: 3 },
-        "29007": { name: "Eclipse moon tassets", rate: 1 / 56, type: "main", pool: "eclipse", order: 4 },
-        "28988": { name: "Blue moon spear", rate: 1 / 56, type: "main", pool: "blue", order: 5 },
-        "29019": { name: "Blue moon helm", rate: 1 / 56, type: "main", pool: "blue", order: 6 },
-        "29013": { name: "Blue moon chestplate", rate: 1 / 56, type: "main", pool: "blue", order: 7 },
-        "29016": { name: "Blue moon tassets", rate: 1 / 56, type: "main", pool: "blue", order: 8 },
-        "28997": { name: "Dual macuahuitl", rate: 1 / 56, type: "main", pool: "blood", order: 9 },
-        "29028": { name: "Blood moon helm", rate: 1 / 56, type: "main", pool: "blood", order: 10 },
-        "29022": { name: "Blood moon chestplate", rate: 1 / 56, type: "main", pool: "blood", order: 11 },
-        "29025": { name: "Blood moon tassets", rate: 1 / 56, type: "main", pool: "blood", order: 12 },
+        "29000": { name: "Eclipse atlatl", rate: 1 / 56, type: "tertiary", pool: "eclipse", order: 1 },
+        "29010": { name: "Eclipse moon helm", rate: 1 / 56, type: "tertiary", pool: "eclipse", order: 2 },
+        "29004": { name: "Eclipse moon chestplate", rate: 1 / 56, type: "tertiary", pool: "eclipse", order: 3 },
+        "29007": { name: "Eclipse moon tassets", rate: 1 / 56, type: "tertiary", pool: "eclipse", order: 4 },
+        "28988": { name: "Blue moon spear", rate: 1 / 56, type: "tertiary", pool: "blue", order: 5 },
+        "29019": { name: "Blue moon helm", rate: 1 / 56, type: "tertiary", pool: "blue", order: 6 },
+        "29013": { name: "Blue moon chestplate", rate: 1 / 56, type: "tertiary", pool: "blue", order: 7 },
+        "29016": { name: "Blue moon tassets", rate: 1 / 56, type: "tertiary", pool: "blue", order: 8 },
+        "28997": { name: "Dual macuahuitl", rate: 1 / 56, type: "tertiary", pool: "blood", order: 9 },
+        "29028": { name: "Blood moon helm", rate: 1 / 56, type: "tertiary", pool: "blood", order: 10 },
+        "29022": { name: "Blood moon chestplate", rate: 1 / 56, type: "tertiary", pool: "blood", order: 11 },
+        "29025": { name: "Blood moon tassets", rate: 1 / 56, type: "tertiary", pool: "blood", order: 12 },
     },
     nex: {
         "26348": { name: "Nexling", rate: 1 / 500, type: "tertiary", order: 1 },
@@ -502,38 +504,38 @@ export const RAW_BOSS_DATA = {
     },
     chambers_of_xeric: {
         "20851": { name: "Olmlet", rate: 1 / 53, type: "tertiary", order: 1 },
-        "20997": { name: "Twisted bow", rate: 2, type: "main", order: 3 },
-        "21003": { name: "Elder maul", rate: 2, type: "main", order: 4 },
-        "21043": { name: "Kodai insignia", rate: 2, type: "main", order: 5 },
-        "13652": { name: "Dragon claws", rate: 3, type: "main", order: 6 },
-        "21018": { name: "Ancestral hat", rate: 4, type: "main", order: 7 },
-        "21021": { name: "Ancestral robe top", rate: 4, type: "main", order: 8 },
-        "21024": { name: "Ancestral robe bottom", rate: 4, type: "main", order: 9 },
-        "21015": { name: "Dinh's bulwark", rate: 3, type: "main", order: 10 },
-        "21012": { name: "Dragon hunter crossbow", rate: 4, type: "main", order: 11 },
-        "21000": { name: "Twisted buckler", rate: 4, type: "main", order: 12 },
-        "21034": { name: "Dexterous prayer scroll", rate: 14, type: "main", hidden: true, order: 13 },
-        "21079": { name: "Arcane prayer scroll", rate: 14, type: "main", hidden: true, order: 14 },
+        "20997": { name: "Twisted bow", weight: 2, type: "main", order: 3 },
+        "21003": { name: "Elder maul", weight: 2, type: "main", order: 4 },
+        "21043": { name: "Kodai insignia", weight: 2, type: "main", order: 5 },
+        "13652": { name: "Dragon claws", weight: 3, type: "main", order: 6 },
+        "21018": { name: "Ancestral hat", weight: 4, type: "main", order: 7 },
+        "21021": { name: "Ancestral robe top", weight: 4, type: "main", order: 8 },
+        "21024": { name: "Ancestral robe bottom", weight: 4, type: "main", order: 9 },
+        "21015": { name: "Dinh's bulwark", weight: 3, type: "main", order: 10 },
+        "21012": { name: "Dragon hunter crossbow", weight: 4, type: "main", order: 11 },
+        "21000": { name: "Twisted buckler", weight: 4, type: "main", order: 12 },
+        "21034": { name: "Dexterous prayer scroll", weight: 14, type: "main", hidden: true, order: 13 },
+        "21079": { name: "Arcane prayer scroll", weight: 14, type: "main", hidden: true, order: 14 },
         "21047": { name: "Torn prayer scroll", rate: 2 / 33, type: "tertiary", hidden: true, order: 15 },
     },
     theatre_of_blood: {
         "22473": { name: "Lil' zik", rate: 1 / 650, type: "tertiary", order: 1 },
-        "22486": { name: "Scythe of vitur (uncharged)", rate: 1, type: "main", order: 2 },
-        "22324": { name: "Ghrazi rapier", rate: 2, type: "main", order: 3 },
-        "22481": { name: "Sanguinesti staff (uncharged)", rate: 2, type: "main", order: 4 },
-        "22326": { name: "Justiciar faceguard", rate: 2, type: "main", order: 5 },
-        "22327": { name: "Justiciar chestguard", rate: 2, type: "main", order: 6 },
-        "22328": { name: "Justiciar legguards", rate: 2, type: "main", order: 7 },
-        "22477": { name: "Avernic defender hilt", rate: 8, type: "main", order: 8 },
+        "22486": { name: "Scythe of vitur (uncharged)", weight: 1, type: "main", order: 2 },
+        "22324": { name: "Ghrazi rapier", weight: 2, type: "main", order: 3 },
+        "22481": { name: "Sanguinesti staff (uncharged)", weight: 2, type: "main", order: 4 },
+        "22326": { name: "Justiciar faceguard", weight: 2, type: "main", order: 5 },
+        "22327": { name: "Justiciar chestguard", weight: 2, type: "main", order: 6 },
+        "22328": { name: "Justiciar legguards", weight: 2, type: "main", order: 7 },
+        "22477": { name: "Avernic defender hilt", weight: 8, type: "main", order: 8 },
     },
     tombs_of_amascut: {
         "27352": { name: "Tumeken's guardian", rate: 1, type: "tertiary", order: 1 },
-        "27277": { name: "Tumeken's shadow (uncharged)", rate: 10, type: "main", order: 2 },
-        "27226": { name: "Masori mask", rate: 20, type: "main", order: 4 },
-        "27229": { name: "Masori body", rate: 20, type: "main", order: 5 },
-        "27232": { name: "Masori chaps", rate: 20, type: "main", order: 6 },
-        "25985": { name: "Elidinis' ward", rate: 30, type: "main", order: 3 },
-        "26219": { name: "Osmumten's fang", rate: 70, type: "main", order: 8 },
-        "25975": { name: "Lightbearer", rate: 70, type: "main", order: 7 },
+        "27277": { name: "Tumeken's shadow (uncharged)", weight: 10, type: "main", order: 2 },
+        "27226": { name: "Masori mask", weight: 20, type: "main", order: 4 },
+        "27229": { name: "Masori body", weight: 20, type: "main", order: 5 },
+        "27232": { name: "Masori chaps", weight: 20, type: "main", order: 6 },
+        "25985": { name: "Elidinis' ward", weight: 30, type: "main", order: 3 },
+        "26219": { name: "Osmumten's fang", weight: 70, type: "main", order: 8 },
+        "25975": { name: "Lightbearer", weight: 70, type: "main", order: 7 },
     }
 };

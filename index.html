@@ -6,6 +6,7 @@
     <title>Wise Goblin | Clan Hub & DropLogic</title>
 
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="assets/brand/wise-goblin-logo.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +24,7 @@
         </div>
 
         <div class="logo-pedestal">
-            <img src="WiseGoblin.png" alt="" class="showcase-logo">
+            <img src="assets/brand/wise-goblin-hero.webp" alt="" class="showcase-logo" width="1000" height="1200" fetchpriority="high">
         </div>
 
         <div class="hero-titles">
@@ -45,26 +46,26 @@
 
         <header class="content-header">
             <a href="#" id="btn-home" class="brand-link" aria-label="Wise Goblin home">
-                <img src="WiseGoblin.png" alt="" class="brand-logo">
+                <img src="assets/brand/wise-goblin-logo.png" alt="" class="brand-logo" width="80" height="96">
                 <span class="brand-name">Wise Goblin</span>
             </a>
 
             <nav class="mini-nav desktop-only" aria-label="Sections">
                 <a href="#droplogic" class="tab-link">DropLogic</a>
-                <a href="#guides" class="tab-link">Guides</a>
-                <a href="#plugins" class="tab-link">Plugins</a>
-                <a href="#ironman-faq" class="tab-link">FAQ</a>
-                <a href="#ironman-goals" class="tab-link">Checklist</a>
+                <a href="#guides" class="tab-link">Guides &amp; Tools</a>
+                <a href="#plugins" class="tab-link">Plugin Help</a>
+                <a href="#ironman-faq" class="tab-link">Ironman FAQ</a>
+                <a href="#ironman-goals" class="tab-link">Zugrot's Checklist</a>
             </nav>
 
             <div class="mobile-menu-wrapper mobile-only">
                 <button id="mobile-sections-btn" class="premium-btn-sm" aria-controls="mobile-dropdown" aria-expanded="false">Sections ▾</button>
                 <nav id="mobile-dropdown" class="mobile-dropdown hidden" aria-label="Sections">
                     <a href="#droplogic" class="mobile-nav-item">DropLogic</a>
-                    <a href="#guides" class="mobile-nav-item">Guides</a>
-                    <a href="#plugins" class="mobile-nav-item">Plugins</a>
-                    <a href="#ironman-faq" class="mobile-nav-item">FAQ</a>
-                    <a href="#ironman-goals" class="mobile-nav-item">Checklist</a>
+                    <a href="#guides" class="mobile-nav-item">Guides &amp; Tools</a>
+                    <a href="#plugins" class="mobile-nav-item">Plugin Help</a>
+                    <a href="#ironman-faq" class="mobile-nav-item">Ironman FAQ</a>
+                    <a href="#ironman-goals" class="mobile-nav-item">Zugrot's Checklist</a>
                 </nav>
             </div>
         </header>
@@ -74,8 +75,8 @@
             <section id="droplogic" class="tab-panel active-panel">
                 <div class="container is-100">
                     <header>
-                        <h1>DropLogic</h1>
-                        <p class="subtitle">Clan Intelligence // Bandosian Division</p>
+                        <h1 tabindex="-1">DropLogic</h1>
+                        <p class="subtitle">Drop chance forecaster</p>
                     </header>
 
                     <div class="droplogic-layout">
@@ -115,7 +116,7 @@
                                     </div>
 
                                     <div id="item-grid" class="item-grid" role="group" aria-label="Items to count"></div>
-                                    <p id="item-caption" class="item-caption" aria-live="polite"></p>
+                                    <p id="item-caption" class="item-caption"></p>
 
                                     <button type="button" id="calculate-btn">Calculate</button>
                                 </div>
@@ -123,7 +124,8 @@
                         </div>
 
                         <div class="droplogic-results">
-                            <section id="results" class="card results-card hidden" aria-live="polite">
+                            <section id="results" class="card results-card hidden">
+                                <p id="results-announcer" class="visually-hidden" aria-live="polite"></p>
                                 <div class="result-header">
                                     <h2 id="res-name">Results</h2>
                                     <div class="prob-container">
@@ -153,7 +155,7 @@
             <section id="guides" class="tab-panel">
                 <div class="container is-75">
                     <header>
-                        <h1>Guides & Tools</h1>
+                        <h1 tabindex="-1">Guides &amp; Tools</h1>
                         <p class="subtitle">External Resources</p>
                     </header>
 
@@ -322,7 +324,7 @@
             <section id="plugins" class="tab-panel">
                 <div class="container is-75">
                     <header>
-                        <h1>Plugin Help</h1>
+                        <h1 tabindex="-1">Plugin Help</h1>
                         <p class="subtitle">RuneLite Configurations</p>
                     </header>
 
@@ -426,15 +428,15 @@
             <section id="ironman-goals" class="tab-panel">
                 <div class="container is-100">
                     <header>
-                        <h1>Ironman Progression</h1>
-                        <p class="subtitle">Account Goal Tracking</p>
+                        <h1 tabindex="-1">Zugrot's Checklist</h1>
+                        <p class="subtitle">Ironman account goals by tier</p>
                     </header>
 
                     <div class="goals-grid">
 
                         <div class="card">
                             <div class="header-row">
-                                <h3>Easy Goals</h3>
+                                <h3 data-tier="easy">Easy Goals</h3>
                                 <label class="check-all-wrapper">
                                     <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
@@ -631,7 +633,7 @@
 
                         <div class="card">
                             <div class="header-row">
-                                <h3>Medium Goals</h3>
+                                <h3 data-tier="medium">Medium Goals</h3>
                                 <label class="check-all-wrapper">
                                     <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
@@ -855,7 +857,7 @@
 
                         <div class="card">
                             <div class="header-row">
-                                <h3>Hard Goals</h3>
+                                <h3 data-tier="hard">Hard Goals</h3>
                                 <label class="check-all-wrapper">
                                     <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
@@ -1010,7 +1012,7 @@
 
                         <div class="card">
                             <div class="header-row">
-                                <h3>Elite Goals</h3>
+                                <h3 data-tier="elite">Elite Goals</h3>
                                 <label class="check-all-wrapper">
                                     <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
@@ -1127,7 +1129,7 @@
 
                         <div class="card">
                             <div class="header-row">
-                                <h3>Master Goals</h3>
+                                <h3 data-tier="master">Master Goals</h3>
                                 <label class="check-all-wrapper">
                                     <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
@@ -1159,8 +1161,8 @@
             <section id="ironman-faq" class="tab-panel">
                 <div class="container is-75">
                     <header>
-                        <h1>Ironman Intelligence</h1>
-                        <p class="subtitle">Standard Operating Procedures</p>
+                        <h1 tabindex="-1">Ironman FAQ</h1>
+                        <p class="subtitle">Progression tips for Ironman accounts</p>
                     </header>
 
                     <div class="card">

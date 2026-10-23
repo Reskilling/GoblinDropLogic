@@ -222,11 +222,13 @@ export function adjustRatesForCox(items, { points }) {
     const uniqueChance = Math.min(points, COX_POINTS_CAP) / 867600;
 
     return items.map(item => {
-        if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / COX_TOTAL_WEIGHT) };
+        if (item.type === 'main') return { ...item, rate: uniqueChance * (item.weight / COX_TOTAL_WEIGHT) };
         if (item.name === 'Olmlet') return { ...item, rate: uniqueChance * item.rate };
         return item;
     });
 }
+
+const TOB_TOTAL_WEIGHT = 19;
 
 export function adjustRatesForTob(items, { size, deaths }) {
     const maxPts = (18 * size) + 14;
@@ -235,7 +237,7 @@ export function adjustRatesForTob(items, { size, deaths }) {
     const uniqueChance = (1 / 9.1) * (earnedPts / maxPts) / size;
     
     return items.map(item => {
-        if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / 19) };
+        if (item.type === 'main') return { ...item, rate: uniqueChance * (item.weight / TOB_TOTAL_WEIGHT) };
         return item;
     });
 }
@@ -274,7 +276,7 @@ export function adjustRatesForToa(items, { level, points }) {
     
     return items.map(item => {
         if (item.type === 'main') {
-            let w = item.rate;
+            let w = item.weight;
             if (item.name === "Osmumten's fang") w = fangW;
             if (item.name === "Lightbearer") w = lbW;
             if (level < 150 && !["Osmumten's fang", "Lightbearer"].includes(item.name)) w /= 50;

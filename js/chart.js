@@ -119,8 +119,10 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
  * @param {{ x: number, pmf: number, cdf: number }[]} data
  * @param {{ modeKC: number, median: number, mean: number }} stats
  * @param {number} userKC
+ * @returns {boolean} false when Chart.js isn't available (e.g. the CDN was blocked)
  */
 export function renderChart(canvas, data, stats, userKC) {
+    if (typeof Chart === 'undefined') return false;
     if (chartInstance) chartInstance.destroy();
 
     const colors = readColors();
@@ -148,4 +150,5 @@ export function renderChart(canvas, data, stats, userKC) {
             plugins: getPlugins(stats, userKC, modeY, medianY, colors)
         }
     });
+    return true;
 }

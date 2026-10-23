@@ -5,14 +5,33 @@
  */
 
 const TRANSITION_MS = 300;
+const SITE_TITLE = 'Wise Goblin';
+const HOME_TITLE = `${SITE_TITLE} | Clan Hub & DropLogic`;
 
 let views;
 let panels;
 let navLinks;
 
 function routeFromHash() {
-    const id = decodeURIComponent(location.hash.slice(1));
+    let id;
+    try {
+        id = decodeURIComponent(location.hash.slice(1));
+    } catch {
+        return null; // malformed escape such as "#%"
+    }
     return [...panels].some(panel => panel.id === id) ? id : null;
+}
+
+const sectionHeading = (tabId) => document.querySelector(`#${tabId} h1`);
+
+function updateTitle(tabId) {
+    document.title = tabId ? `${sectionHeading(tabId).textContent} | ${SITE_TITLE}` : HOME_TITLE;
+}
+
+// Move keyboard and screen-reader focus to where the user just navigated to
+function focusDestination(tabId) {
+    const target = tabId ? sectionHeading(tabId) : document.querySelector('.premium-nav a');
+    target?.focus({ preventScroll: true });
 }
 
 function showTab(tabId) {
@@ -35,13 +54,13 @@ function setVisible(view, isVisible) {
     view.classList.toggle('hidden-view', !isVisible);
 }
 
-function showView(target, animate) {
+function showView(target, animate, onShown) {
     const other = target === views.hero ? views.main : views.hero;
-    if (target.classList.contains('active-view')) return;
 
-    if (!animate) {
+    if (target.classList.contains('active-view') || !animate) {
         setVisible(other, false);
         setVisible(target, true);
+        onShown();
         return;
     }
 
@@ -50,13 +69,19 @@ function showView(target, animate) {
         other.classList.remove('fade-out');
         setVisible(other, false);
         setVisible(target, true);
+        onShown();
     }, TRANSITION_MS);
 }
 
 function render({ animate }) {
     const tabId = routeFromHash();
     if (tabId) showTab(tabId);
-    showView(tabId ? views.main : views.hero, animate);
+    updateTitle(tabId);
+
+    // On first load the browser keeps focus at the top of the page; only move it after a navigation
+    showView(tabId ? views.main : views.hero, animate, () => {
+        if (animate) focusDestination(tabId);
+    });
     window.scrollTo({ top: 0, behavior: animate ? 'smooth' : 'auto' });
 }
 
