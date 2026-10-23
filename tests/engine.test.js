@@ -55,6 +55,17 @@ test('a full Barrows set averages about 1,321 chests', () => {
     assertClose(result.mean, 1321, 1, 'mean');
 });
 
+test('odds beyond the KC limit are flagged, with the mean as a lower bound', () => {
+    const result = simulate([item({ rate: 1e-8 })]);
+    assert.equal(result.reachedLimit, true);
+    assert.equal(result.median, 0);
+    assert.ok(result.mean >= result.finalKC * 0.99, `mean ${result.mean} should be at least ~${result.finalKC}`);
+});
+
+test('ordinary results are not flagged as reaching the limit', () => {
+    assert.equal(simulate([item()]).reachedLimit, false);
+});
+
 test('chart data includes the milestone KCs in order', () => {
     const result = simulate([item({ rate: 1 / 5000 })]);
     const data = buildChartData(result.historyPMF, result.historyCDF, result.finalKC, 777, result.modeKC, result.median);

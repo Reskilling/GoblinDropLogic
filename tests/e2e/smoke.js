@@ -153,6 +153,35 @@ check('Zenyte shard starts at 1/4', await text('.item-box[data-name="Zenyte shar
 await page.selectOption('#boss-select', 'moons_of_peril');
 check('Moons of Peril calculates', (await text('#phrase-mean')).includes('KC'));
 
+// Edge cases: each shows an explanation instead of misleading numbers
+const showsMessage = () => page.isVisible('#results-message');
+await page.selectOption('#boss-select', 'vorkath');
+await page.fill('#target-kc', '-50');
+await page.dispatchEvent('#target-kc', 'change');
+check('negative KC is treated as 0', (await page.inputValue('#target-kc')) === '0' && (await text('#stat-chance-label')) === 'Typical KC to finish');
+
+await page.selectOption('#boss-select', 'tempoross');
+await page.fill('#setting-points', '0');
+const headlineBecomes = (value) => page.waitForFunction(v => document.getElementById('stat-chance').textContent === v, value, { timeout: 3000 }).then(() => true, () => false);
+check('impossible settings replace stale results with a message', await headlineBecomes('—') && await showsMessage() && !(await page.isVisible('.chart-wrapper')));
+await page.fill('#setting-points', '4000');
+check('fixing the setting brings the results back', await textChanges('#stat-chance', '—') && !(await showsMessage()) && await page.isVisible('.chart-wrapper'));
+
+await page.selectOption('#boss-select', 'chambers_of_xeric');
+await page.fill('#setting-points', '1e9');
+await page.dispatchEvent('#setting-points', 'change');
+check('"1e9" is read as a number and capped', (await page.inputValue('#setting-points')) === '1000000000');
+await page.fill('#setting-points', '1');
+await page.dispatchEvent('#setting-points', 'change');
+check('odds beyond the KC limit say so', await page.waitForFunction(() => document.getElementById('stat-chance').textContent.includes('+'), null, { timeout: 15000 }).then(() => true, () => false) && await showsMessage());
+
+await page.selectOption('#boss-select', 'the_fight_caves');
+await page.click('.item-box[data-name="Tzrek-jad"]');
+check('guaranteed drops explain instead of charting', (await text('#stat-chance-label')) === 'Guaranteed on your first kill' && await showsMessage());
+
+check('CDN scripts carry integrity hashes', await page.$$eval('script[src^="https://"]', ss => ss.every(s => s.integrity.startsWith('sha384-'))));
+check('Content-Security-Policy is set', await page.$eval('meta[http-equiv="Content-Security-Policy"]', m => m.content.includes("script-src 'self' https://cdn.jsdelivr.net")));
+
 // --- Checklist ---
 await page.evaluate(() => localStorage.clear());
 await page.goto(URL_ROOT + '#ironman-goals');

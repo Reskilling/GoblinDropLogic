@@ -8,8 +8,11 @@ const SIM_CONFIG = {
     COMPLETION_THRESHOLD: 0.99999, 
     TAIL_MULTIPLIER: 1.5,          
     MAX_CHART_POINTS: 2500,        
-    VISUAL_SKEW_POWER: 2.5         
+    VISUAL_SKEW_POWER: 2.5
 };
+
+/** The simulation stops here; results that need more kills are reported as beyond it. */
+export const KC_LIMIT = SIM_CONFIG.MAX_ITERATIONS;
 
 export function buildChartData(historyPMF, historyCDF, finalKC, targetKC, modeKC, median) {
     const curveData = [];
@@ -132,13 +135,20 @@ export function runSimulation(sparseMatrix) {
         }
     }
 
-    return { 
-        mean, 
-        median: median || 0, 
-        modeKC, 
-        maxPMF, 
-        historyCDF, 
-        historyPMF, 
-        finalKC
+    // Stopped at the KC limit with players still unfinished: those players need at least one more
+    // kill, so count them at the limit to make the mean a lower bound rather than an undercount
+    const remaining = 1 - prevCDF;
+    const reachedLimit = remaining > 1 - SIM_CONFIG.COMPLETION_THRESHOLD;
+    if (reachedLimit) mean += remaining * (finalKC + 1);
+
+    return {
+        mean,
+        median: median || 0,
+        modeKC,
+        maxPMF,
+        historyCDF,
+        historyPMF,
+        finalKC,
+        reachedLimit
     };
 }

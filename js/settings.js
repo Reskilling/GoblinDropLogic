@@ -45,9 +45,15 @@ export function readSettings(container, settings) {
             return [setting.key, setting.options[Number(input.dataset.index)].value];
         }
 
-        const parsed = parseInt(input.value, 10);
-        return [setting.key, clamp(Number.isNaN(parsed) ? setting.default : parsed, setting)];
+        return [setting.key, parseNumberSetting(input.value, setting)];
     }));
+}
+
+// Number inputs accept forms like "1e9", so parse as a number rather than reading leading digits.
+// Blank or invalid input falls back to the default; the result is a whole number within the setting's limits.
+function parseNumberSetting(value, setting) {
+    const parsed = value.trim() === '' ? NaN : Math.floor(Number(value));
+    return clamp(Number.isFinite(parsed) ? parsed : setting.default, setting);
 }
 
 /** Advances a toggle to its next option. */
@@ -67,8 +73,7 @@ function clamp(value, { min = -Infinity, max = Infinity }) {
 
 /** Rewrites an out-of-range number input once the user has finished typing. */
 export function clampNumberInput(input, setting) {
-    const parsed = parseInt(input.value, 10);
-    input.value = clamp(Number.isNaN(parsed) ? setting.default : parsed, setting);
+    input.value = parseNumberSetting(input.value, setting);
 }
 
 export function syncDisabledSettings(container, settings, state) {

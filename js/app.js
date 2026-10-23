@@ -8,7 +8,7 @@ import { BOSS_ITEMS } from './data.js';
 import { getBossDefinition, groupBossesByCategory } from './bosses.js';
 import { renderSettings, readSettings, cycleToggle, clampNumberInput, syncDisabledSettings } from './settings.js';
 import { initItemGrid, renderItemGrid, getSelectedItems, setAllItems, lockItems } from './item-grid.js';
-import { runSimulation, buildChartData } from './solvers.js';
+import { runSimulation, buildChartData, KC_LIMIT } from './solvers.js';
 import { renderChart } from './chart.js';
 import { showToast } from './toast.js';
 import { initNavigation } from './nav.js';
@@ -39,6 +39,7 @@ const DOM = {
     resultsTitle: document.getElementById('res-name'),
     resultsAnnouncer: document.getElementById('results-announcer'),
     resultPeek: document.getElementById('result-peek'),
+    resultsMessage: document.getElementById('results-message'),
     statChance: document.getElementById('stat-chance'),
     statChanceLabel: document.getElementById('stat-chance-label'),
     phraseMode: document.getElementById('phrase-mode'),
@@ -115,8 +116,7 @@ function bindSettingsEvents() {
 // ==========================================
 
 function updateKC(amount) {
-    const current = parseInt(DOM.kcInput.value, 10) || 0;
-    DOM.kcInput.value = Math.max(0, current + amount);
+    DOM.kcInput.value = Math.max(0, readKC() + amount);
     refreshResults();
 }
 
@@ -163,6 +163,12 @@ function refreshResults() {
     }
 }
 
+// Whole kills only, never negative; number inputs also accept forms like "1e3"
+function readKC() {
+    const kc = Math.floor(Number(DOM.kcInput.value));
+    return Number.isFinite(kc) && kc > 0 ? kc : 0;
+}
+
 function handleCalculation({ scrollToResults = false } = {}) {
     const selectedItems = getSelectedItems();
 
@@ -171,10 +177,13 @@ function handleCalculation({ scrollToResults = false } = {}) {
         return;
     }
 
-    const currentKC = parseInt(DOM.kcInput.value, 10) || 0;
+    const currentKC = readKC();
     const results = executeSimulation(selectedItems, currentKC);
 
-    if (results) displayResults(results, currentKC, scrollToResults);
+    if (results) displayResults(results, currentKC);
+    else displayImpossible();
+
+    if (scrollToResults) DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 function generateStateHash(bossKey, items) {
@@ -189,10 +198,7 @@ function executeSimulation(selectedItems, currentKC) {
     const adjustedItems = definition.adjust ? definition.adjust(selectedItems, readBossState()) : selectedItems;
     const validItems = adjustedItems.filter(item => item.rate > 0);
 
-    if (validItems.length === 0) {
-        showToast('With these settings, none of the selected items can drop.');
-        return null;
-    }
+    if (validItems.length === 0) return null;
 
     const hash = generateStateHash(key, validItems);
     if (simulationCache.hash !== hash) {
@@ -211,33 +217,63 @@ const statRowHtml = (label, description, value) =>
     `<span class="stat-label">${label}</span> <span class="stat-desc">${description}</span> ` +
     `<b class="stat-value">${value} <span class="stat-unit">KC</span></b>`;
 
-function displayResults(results, currentKC, scrollToResults) {
+/** Shows the headline everywhere it appears: the card, the phone bar and the screen-reader announcement. */
+function setHeadline(value, label) {
+    const bossName = activeBoss.definition.name;
+
+    DOM.resultsTitle.textContent = bossName;
+    DOM.statChance.textContent = value;
+    DOM.statChanceLabel.textContent = label;
+    DOM.resultsAnnouncer.textContent = `${bossName}: ${label}, ${value}.`;
+    DOM.resultPeek.querySelector('.peek-boss').textContent = bossName;
+    DOM.resultPeek.querySelector('.peek-value').textContent = value;
+    DOM.resultPeek.querySelector('.peek-label').textContent = label;
+}
+
+/** Replaces the chart and stats with an explanation when they would be meaningless, or restores them. */
+function setResultsMessage(message) {
+    DOM.resultsMessage.textContent = message ?? '';
+    DOM.resultsMessage.hidden = !message;
+    DOM.resultsSection.classList.toggle('is-message', Boolean(message));
+}
+
+function displayImpossible() {
     setResultsVisible(true);
-    DOM.resultsTitle.textContent = activeBoss.definition.name;
+    setHeadline('—', 'None of these items can drop');
+    setResultsMessage('With these settings, none of the selected items can drop. Change a setting or pick different items.');
+}
+
+function displayResults(results, currentKC) {
+    setResultsVisible(true);
+    const limit = KC_LIMIT.toLocaleString();
+
+    if (results.reachedLimit && results.median === 0) {
+        setHeadline(`${limit}+ KC`, 'Typical KC to finish');
+        setResultsMessage(`Too unlikely to chart: more than half of players still wouldn't be finished after ${limit} kills.`);
+        return;
+    }
+    if (results.historyCDF[1] > 1 - 1e-9) {
+        setHeadline('1 KC', 'Guaranteed on your first kill');
+        setResultsMessage('Every selected item is guaranteed on your first kill or completion.');
+        return;
+    }
+    setResultsMessage(null);
 
     // At 0 KC the chance is always 0%, so lead with the typical finish instead
-    if (currentKC === 0) {
-        DOM.statChance.textContent = `${results.median.toLocaleString()} KC`;
-        DOM.statChanceLabel.textContent = 'Typical KC to finish';
-    } else {
-        DOM.statChance.textContent = `${(results.targetP * 100).toFixed(2)}%`;
-        DOM.statChanceLabel.textContent = `Chance you'd be done by ${currentKC.toLocaleString()} KC`;
-    }
-    DOM.resultsAnnouncer.textContent = `${activeBoss.definition.name}: ${DOM.statChanceLabel.textContent}, ${DOM.statChance.textContent}.`;
-    DOM.resultPeek.querySelector('.peek-boss').textContent = activeBoss.definition.name;
-    DOM.resultPeek.querySelector('.peek-value').textContent = DOM.statChance.textContent;
-    DOM.resultPeek.querySelector('.peek-label').textContent = DOM.statChanceLabel.textContent;
+    if (currentKC === 0) setHeadline(`${results.median.toLocaleString()} KC`, 'Typical KC to finish');
+    else setHeadline(`${(results.targetP * 100).toFixed(2)}%`, `Chance you'd be done by ${currentKC.toLocaleString()} KC`);
+
+    // Past the KC limit the mean only counts unfinished players at the limit, so it's a lower bound
+    const mean = `${Math.round(results.mean).toLocaleString()}${results.reachedLimit ? '+' : ''}`;
 
     DOM.phraseMode.innerHTML = statRowHtml('Mode', 'Most likely single KC to finish on', results.modeKC.toLocaleString());
     DOM.phraseMedian.innerHTML = statRowHtml('Median', 'Half of players finish at or before', results.median.toLocaleString());
-    DOM.phraseMean.innerHTML = statRowHtml('Mean', 'Expected KC, pulled up by unlucky players', Math.round(results.mean).toLocaleString());
+    DOM.phraseMean.innerHTML = statRowHtml('Mean', 'Expected KC, pulled up by unlucky players', mean);
     DOM.phraseUser.innerHTML = statRowHtml('Current', 'Your current progress in the log', currentKC.toLocaleString());
 
     if (!renderChart(DOM.chartCanvas, results.curveData, results, currentKC)) {
         showToast("The chart couldn't load. The numbers below are still correct.");
     }
-
-    if (scrollToResults) DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 // ==========================================
@@ -252,6 +288,7 @@ function bindEvents() {
         btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
     });
     DOM.kcInput.addEventListener('input', refreshResults);
+    DOM.kcInput.addEventListener('change', () => { DOM.kcInput.value = readKC(); });
     DOM.kcResetBtn.addEventListener('click', () => {
         DOM.kcInput.value = 0;
         refreshResults();

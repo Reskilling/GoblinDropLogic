@@ -27,7 +27,7 @@ function readColors() {
     };
 }
 
-function formatAxisTick(value) {
+function roundedKcLabel(value) {
     let kc = reverseX(value);
     if (kc < 1) return null;
 
@@ -36,6 +36,12 @@ function formatAxisTick(value) {
     else kc = Math.round(kc);
 
     return kc.toLocaleString();
+}
+
+// On short ranges neighbouring ticks round to the same KC; only label the first of each
+function formatAxisTick(value, index, ticks) {
+    const label = roundedKcLabel(value);
+    return index > 0 && label === roundedKcLabel(ticks[index - 1].value) ? null : label;
 }
 
 function createDataset(label, data, yKey, color, yAxisID, borderWidth) {
