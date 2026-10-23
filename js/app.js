@@ -38,6 +38,7 @@ const DOM = {
     resultsSection: document.getElementById('results'),
     resultsTitle: document.getElementById('res-name'),
     resultsAnnouncer: document.getElementById('results-announcer'),
+    resultPeek: document.getElementById('result-peek'),
     statChance: document.getElementById('stat-chance'),
     statChanceLabel: document.getElementById('stat-chance-label'),
     phraseMode: document.getElementById('phrase-mode'),
@@ -123,6 +124,32 @@ function updateKC(amount) {
 function setResultsVisible(isVisible) {
     DOM.resultsSection.classList.toggle('hidden', !isVisible);
     DOM.calcBtn.classList.toggle('hidden', isVisible);
+    updateResultPeek();
+}
+
+// On narrow screens the results sit far below the inputs, so a bar shows the headline while
+// it's scrolled out of view (CSS only displays the bar in the single-column layout)
+let isResultHeadlineOnScreen = false;
+
+function updateResultPeek() {
+    // False while the results, the calculator section or the whole main view is hidden
+    const areResultsRendered = DOM.resultsSection.getClientRects().length > 0;
+    const shouldShow = areResultsRendered && !isResultHeadlineOnScreen;
+
+    DOM.resultPeek.hidden = !shouldShow;
+    document.body.classList.toggle('has-result-peek', shouldShow);
+}
+
+function initResultPeek() {
+    new IntersectionObserver(([entry]) => {
+        isResultHeadlineOnScreen = entry.isIntersecting;
+        updateResultPeek();
+    }).observe(DOM.resultsSection.querySelector('.result-header'));
+
+    DOM.resultPeek.addEventListener('click', () => DOM.resultsSection.scrollIntoView({ behavior: 'smooth' }));
+
+    // Leaving the calculator doesn't change whether an already off-screen headline intersects
+    document.addEventListener('sectionchange', updateResultPeek);
 }
 
 // Keeps an already-visible chart in sync with the inputs; does nothing before the first calculation
@@ -197,6 +224,9 @@ function displayResults(results, currentKC, scrollToResults) {
         DOM.statChanceLabel.textContent = `Chance you'd be done by ${currentKC.toLocaleString()} KC`;
     }
     DOM.resultsAnnouncer.textContent = `${activeBoss.definition.name}: ${DOM.statChanceLabel.textContent}, ${DOM.statChance.textContent}.`;
+    DOM.resultPeek.querySelector('.peek-boss').textContent = activeBoss.definition.name;
+    DOM.resultPeek.querySelector('.peek-value').textContent = DOM.statChance.textContent;
+    DOM.resultPeek.querySelector('.peek-label').textContent = DOM.statChanceLabel.textContent;
 
     DOM.phraseMode.innerHTML = statRowHtml('Mode', 'Most likely single KC to finish on', results.modeKC.toLocaleString());
     DOM.phraseMedian.innerHTML = statRowHtml('Median', 'Half of players finish at or before', results.median.toLocaleString());
@@ -239,5 +269,6 @@ initItemGrid({
 });
 populateBossSelect();
 bindEvents();
+initResultPeek();
 initNavigation();
 initChecklist();

@@ -42,34 +42,26 @@ function showTab(tabId) {
         else link.removeAttribute('aria-current');
     });
 
-    panels.forEach(panel => {
-        const isActive = panel.id === tabId;
-        panel.classList.toggle('active-panel', isActive);
-        panel.classList.toggle('hidden-view', !isActive);
-    });
-}
-
-function setVisible(view, isVisible) {
-    view.classList.toggle('active-view', isVisible);
-    view.classList.toggle('hidden-view', !isVisible);
+    panels.forEach(panel => { panel.hidden = panel.id !== tabId; });
 }
 
 function showView(target, animate, onShown) {
     const other = target === views.hero ? views.main : views.hero;
-
-    if (target.classList.contains('active-view') || !animate) {
-        setVisible(other, false);
-        setVisible(target, true);
+    const swap = () => {
+        other.hidden = true;
+        target.hidden = false;
         onShown();
+    };
+
+    if (!target.hidden || !animate) {
+        swap();
         return;
     }
 
     other.classList.add('fade-out');
     setTimeout(() => {
         other.classList.remove('fade-out');
-        setVisible(other, false);
-        setVisible(target, true);
-        onShown();
+        swap();
     }, TRANSITION_MS);
 }
 
@@ -81,6 +73,7 @@ function render({ animate }) {
     // On first load the browser keeps focus at the top of the page; only move it after a navigation
     showView(tabId ? views.main : views.hero, animate, () => {
         if (animate) focusDestination(tabId);
+        document.dispatchEvent(new CustomEvent('sectionchange', { detail: { tabId } }));
     });
     window.scrollTo({ top: 0, behavior: animate ? 'smooth' : 'auto' });
 }

@@ -67,8 +67,8 @@ const settle = (p = page) => p.waitForFunction(() => {
     let panel = null;
     try { panel = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch { /* malformed hash */ }
     return panel?.classList.contains('tab-panel')
-        ? panel.classList.contains('active-panel') && document.getElementById('main-view').classList.contains('active-view')
-        : document.getElementById('hero-view').classList.contains('active-view');
+        ? !panel.hidden && !document.getElementById('main-view').hidden
+        : !document.getElementById('hero-view').hidden;
 });
 // Resolves true once the element's text differs from `before`; results recalculate after a short typing delay
 const textChanges = (sel, before) => page.waitForFunction(
@@ -189,6 +189,32 @@ await settle(phone);
 await phone.selectOption('#boss-select', 'demonic_gorilla');
 await phone.tap('.item-box[data-name="Zenyte shard"]');
 check('tap caption describes the item', (await phone.textContent('#item-caption')).startsWith('Zenyte shard'));
+
+const peekShown = () => phone.isVisible('#result-peek');
+await phone.tap('#calculate-btn');
+await phone.waitForFunction(() => !document.getElementById('results').classList.contains('hidden'));
+await phone.evaluate(() => document.getElementById('target-kc').scrollIntoView({ block: 'center', behavior: 'instant' }));
+await phone.tap('.kc-btn[data-add="100"]');
+await phone.waitForFunction(() => !document.getElementById('result-peek').hidden, null, { timeout: 3000 }).catch(() => {});
+check('phone shows a results bar while the results are off-screen', await peekShown());
+check('results bar shows the updated chance', (await phone.textContent('#result-peek .peek-value')).endsWith('%'));
+await phone.tap('#result-peek');
+await phone.waitForFunction(() => document.getElementById('result-peek').hidden, null, { timeout: 3000 }).catch(() => {});
+check('tapping the bar scrolls to the results and hides it', !(await peekShown()));
+
+await phone.evaluate(() => document.getElementById('target-kc').scrollIntoView({ block: 'center', behavior: 'instant' }));
+await phone.waitForFunction(() => !document.getElementById('result-peek').hidden, null, { timeout: 3000 }).catch(() => {});
+await phone.click('#mobile-sections-btn');
+await phone.click('.mobile-nav-item[href="#ironman-goals"]');
+await settle(phone);
+check('results bar stays on the calculator', !(await peekShown()));
+await phone.click('#btn-home');
+await settle(phone);
+check('results bar is hidden on the landing page', !(await peekShown()));
+
+check('results bar never shows on desktop', !(await page.isVisible('#result-peek')));
+const shareImage = await page.$eval('meta[property="og:image"]', m => new URL(m.content).pathname);
+check('link-preview image exists', (await page.request.get(URL_ROOT + shareImage.slice(1))).ok(), shareImage);
 
 check('no console, page or network errors', errors.length === 0, errors.join(' | '));
 

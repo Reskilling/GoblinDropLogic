@@ -71,7 +71,8 @@ ol, p { line-height: 1.6; }
 .subtitle { font-family: var(--font-numeric); color: var(--accent-orange); font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.16em; }
 .sub-text { color: var(--text-dim); font-size: 14px; }
 
-.hidden, .hidden-view { display: none !important; }
+/* Author display rules (e.g. .view-container's flex) would otherwise override the hidden attribute */
+.hidden, [hidden] { display: none !important; }
 
 .visually-hidden {
     position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -96,7 +97,8 @@ a[target="_blank"]:not(.resource-card)::after,
    ========================================== */
 .view-container { opacity: 0; display: flex; flex-direction: column; align-items: center; width: 100%; }
 
-.active-view { animation: fadeIn 0.3s ease forwards; }
+/* Animations restart whenever an element goes from hidden to shown */
+.view-container:not([hidden]) { animation: fadeIn 0.3s ease forwards; }
 .fade-out { animation: fadeOut 0.3s ease forwards; pointer-events: none; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -171,8 +173,7 @@ a[target="_blank"]:not(.resource-card)::after,
 .tab-link.active { color: var(--accent-green); background: var(--glow-green); }
 
 /* The browser jumps to the #section a URL names; keep its heading clear of the sticky header */
-.tab-panel { display: none; width: 100%; scroll-margin-top: 160px; }
-.tab-panel.active-panel { display: block !important; animation: fadeIn 0.3s ease forwards; }
+.tab-panel { width: 100%; scroll-margin-top: 160px; animation: fadeIn 0.3s ease forwards; }
 
 /* ==========================================
    MAIN LAYOUT COMPONENTS
@@ -294,7 +295,7 @@ button#calculate-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #9
 
 /* Shown in the results column until the first calculation */
 .empty-state { display: none; text-align: center; padding: 48px 32px; border-style: dashed; background: transparent; box-shadow: none; }
-.results-card.hidden + .empty-state { display: block; }
+.results-card.hidden ~ .empty-state { display: block; }
 .empty-title { font-weight: 800; font-size: 16px; color: var(--text); margin-bottom: 8px; }
 
 .result-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
@@ -324,6 +325,26 @@ button#calculate-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #9
 #phrase-median .stat-label, #phrase-median .stat-value { color: var(--stat-progress); }
 #phrase-mean .stat-label, #phrase-mean .stat-value { color: var(--stat-mean); }
 #phrase-user .stat-label, #phrase-user .stat-value { color: var(--stat-user); }
+
+/* Phone-width bar showing the headline while the results are scrolled out of view */
+.result-peek { display: none; }
+
+@media (max-width: 1000px) {
+    .result-peek:not([hidden]) {
+        display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+        position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 900;
+        min-height: 56px; padding: 12px 16px; text-align: left; cursor: pointer;
+        background: var(--card); border: 1px solid var(--accent-green); border-radius: 10px;
+        box-shadow: var(--shadow-floating); backdrop-filter: blur(10px); color: var(--text);
+    }
+    .peek-boss { width: 100%; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
+    .peek-value { font-family: var(--font-numeric); font-size: 20px; font-weight: 800; color: var(--accent-green); }
+    .peek-label { font-size: 12px; color: var(--accent-orange); font-weight: 700; flex: 1; }
+    .peek-action { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--accent-green); }
+
+    /* Keep notifications above the bar */
+    body.has-result-peek .toast.show { bottom: 96px; }
+}
 
 /* ==========================================
    GUIDES & FAQ COMPONENTS

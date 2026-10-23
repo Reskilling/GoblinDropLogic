@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wise Goblin | Clan Hub & DropLogic</title>
+    <meta name="description" content="The Wise Goblin clan hub: DropLogic forecasts your odds of finishing an OSRS boss collection log, plus guides, RuneLite plugin help, an Ironman FAQ and Zugrot's Checklist.">
+    <meta name="theme-color" content="#0c0a09">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Wise Goblin">
+    <meta property="og:title" content="Wise Goblin | Clan Hub &amp; DropLogic">
+    <meta property="og:description" content="The Wise Goblin clan hub: DropLogic forecasts your odds of finishing an OSRS boss collection log, plus guides, RuneLite plugin help, an Ironman FAQ and Zugrot's Checklist.">
+    <meta property="og:url" content="https://thewisegoblin.com/">
+    <meta property="og:image" content="https://thewisegoblin.com/assets/brand/wise-goblin-share.png">
+    <meta property="og:image:alt" content="The Wise Goblin clan logo">
+    <meta name="twitter:card" content="summary">
 
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="assets/brand/wise-goblin-logo.png">
@@ -17,7 +27,7 @@
 </head>
 <body>
 
-    <div id="hero-view" class="view-container active-view">
+    <div id="hero-view" class="view-container">
         <div class="hero-backdrop" aria-hidden="true">
             <div class="glow-orb green-orb"></div>
             <div class="glow-orb orange-orb"></div>
@@ -42,7 +52,7 @@
         </nav>
     </div>
 
-    <div id="main-view" class="view-container hidden-view">
+    <div id="main-view" class="view-container" hidden>
 
         <header class="content-header">
             <a href="#" id="btn-home" class="brand-link" aria-label="Wise Goblin home">
@@ -72,7 +82,7 @@
 
         <main>
 
-            <section id="droplogic" class="tab-panel active-panel">
+            <section id="droplogic" class="tab-panel">
                 <div class="container is-100">
                     <header>
                         <h1 tabindex="-1">DropLogic</h1>
@@ -152,7 +162,7 @@
                 </div>
             </section>
 
-            <section id="guides" class="tab-panel">
+            <section id="guides" class="tab-panel" hidden>
                 <div class="container is-75">
                     <header>
                         <h1 tabindex="-1">Guides &amp; Tools</h1>
@@ -321,7 +331,7 @@
                 </div>
             </section>
 
-            <section id="plugins" class="tab-panel">
+            <section id="plugins" class="tab-panel" hidden>
                 <div class="container is-75">
                     <header>
                         <h1 tabindex="-1">Plugin Help</h1>
@@ -425,7 +435,7 @@
                 </div>
             </section>
 
-            <section id="ironman-goals" class="tab-panel">
+            <section id="ironman-goals" class="tab-panel" hidden>
                 <div class="container is-100">
                     <header>
                         <h1 tabindex="-1">Zugrot's Checklist</h1>
@@ -436,7 +446,7 @@
                 </div>
             </section>
 
-            <section id="ironman-faq" class="tab-panel">
+            <section id="ironman-faq" class="tab-panel" hidden>
                 <div class="container is-75">
                     <header>
                         <h1 tabindex="-1">Ironman FAQ</h1>
@@ -578,6 +588,14 @@
 
         </main>
     </div>
+
+    <!-- Outside the animated views: a transformed ancestor would stop position: fixed working -->
+    <button type="button" id="result-peek" class="result-peek" hidden>
+        <span class="peek-boss"></span>
+        <span class="peek-value"></span>
+        <span class="peek-label"></span>
+        <span class="peek-action" aria-hidden="true">View &darr;</span>
+    </button>
 
     <script type="module" src="js/app.js"></script>
 </body>

@@ -10,6 +10,7 @@ const transformX = (kc) => Math.pow(kc, X_AXIS_POWER);
 const reverseX = (x) => Math.pow(x, 1 / X_AXIS_POWER);
 
 let chartInstance = null;
+let defaultsApplied = false;
 
 function readColors() {
     const style = getComputedStyle(document.documentElement);
@@ -84,7 +85,7 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
             display: true,
             position: 'top',
             align: 'start',
-            labels: { color: colors.text, usePointStyle: true, pointStyle: 'line', boxWidth: 24, font: { size: 11, weight: 600 } }
+            labels: { color: colors.text, usePointStyle: true, pointStyle: 'line', boxWidth: 24, font: { size: 12, weight: 600 } }
         },
         tooltip: {
             backgroundColor: 'rgba(10,10,10,0.95)',
@@ -126,8 +127,11 @@ export function renderChart(canvas, data, stats, userKC) {
     if (chartInstance) chartInstance.destroy();
 
     const colors = readColors();
-    Chart.defaults.font.family = colors.font;
-    Chart.defaults.color = colors.text;
+    if (!defaultsApplied) {
+        Chart.defaults.font.family = colors.font;
+        Chart.defaults.color = colors.text;
+        defaultsApplied = true;
+    }
 
     const xMaxRaw = Math.max(data[data.length - 1].x, userKC * 1.1);
     const modeY = data.find(d => d.x === stats.modeKC)?.pmf || 0;

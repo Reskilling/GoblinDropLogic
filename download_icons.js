@@ -44,7 +44,7 @@ async function downloadIcons() {
             // The Wiki requires a descriptive User-Agent to prevent anonymous spam
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': 'DropLogic-Asset-Builder/1.0 (Contact:)'
+                    'User-Agent': 'DropLogic-Asset-Builder/1.0 (+https://github.com/Reskilling/GoblinDropLogic)'
                 }
             });
 
