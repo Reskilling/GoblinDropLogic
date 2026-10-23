@@ -1,646 +1,271 @@
 /**
  * @file app.js
- * Main UI Controller for DropLogic.
+ * Entry point, and the DropLogic calculator: boss selection, the item grid, boss settings and results.
  */
 
 import { createMasterMatrix, createBarrowsMatrix, createMoonsMatrix } from './matrix.js';
-import { BOSS_CONFIG, getWikiUrl, formatBossName } from './data.js';
+import { BOSS_ITEMS, getItemImagePath, getItemWikiImageUrl } from './data.js';
+import { getBossDefinition, groupBossesByCategory } from './bosses.js';
+import { renderSettings, readSettings, cycleToggle, clampNumberInput, syncDisabledSettings } from './settings.js';
 import { runSimulation, buildChartData } from './solvers.js';
-import { RATE_ADJUSTERS } from './modifiers.js';
+import { renderChart } from './chart.js';
+import { showToast } from './toast.js';
+import { initNavigation } from './nav.js';
+import { initChecklist } from './checklist.js';
 
-// --- CONFIGURATION ---
-const CHART_CONFIG = {
-    font: "'Inter', sans-serif",
-    textColor: '#a8a29e',
-    xAxisPower: 0.4
+const MATRIX_BUILDERS = {
+    master: (items, definition) => createMasterMatrix(items, definition.rolls),
+    moons: (items) => createMoonsMatrix(items),
+    barrows: (items) => createBarrowsMatrix(items.length)
 };
 
-const COLORS = { 
-    mode: '#ef4444', 
-    progress: '#3b82f6', 
-    mean: '#f97316', 
-    user: '#22c55e' 
-};
-
-const DT2_BOSSES = ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'];
-
-const BOSS_CATEGORIES = {
-    "Skilling": ['wintertodt', 'tempoross', 'zalcano'],
-    "Minigame": ['the_corrupted_gauntlet', 'the_fight_caves', 'the_inferno', 'fortis_colosseum'],
-    "Slayer": ['abyssal_sire', 'alchemical_hydra', 'araxxor', 'cerberus', 'demonic_gorilla', 'grotesque_guardians', 'kraken', 'thermonuclear_smoke_devil', 'tormented_demon'],
-    "Wilderness": ['artio', 'callisto', 'calvarion', 'chaos_elemental', 'chaos_fanatic', 'crazy_archaeologist', 'scorpia', 'spindel', 'venenatis', 'vetion'],
-    "God Wars Dungeon": ['commander_zilyana', 'general_graardor', 'kree_arra', 'kril_tsutsaroth', 'nex'],
-    "The Forgotten Four": ['vardorvis', 'duke_sucellus', 'the_whisperer', 'the_leviathan'],
-    "Raids": ['chambers_of_xeric', 'theatre_of_blood', 'tombs_of_amascut']
-};
-
-let activeBossKey = "";
-let chartInstance = null;
+let activeBoss = null; // { key, definition }
+let itemsLocked = false;
+let simulationCache = { hash: null, rawResults: null };
 
 const DOM = {
-    bossSelect: document.getElementById("boss-select"),
-    itemGrid: document.getElementById("item-grid"),
-    kcInput: document.getElementById("target-kc"),
-    bossPreview: document.getElementById("boss-preview"),
-    resultsSection: document.getElementById("results"),
-    statChance: document.getElementById("stat-chance"),
-    phraseMode: document.getElementById("phrase-mode"),
-    phraseMedian: document.getElementById("phrase-median"),
-    phraseMean: document.getElementById("phrase-mean"),
-    phraseUser: document.getElementById("phrase-user"),
-    chartCanvas: document.getElementById('distributionChart'),
-    kcResetBtn: document.getElementById("kc-reset"),
-    selectAllBtn: document.getElementById("select-all"),
-    selectNoneBtn: document.getElementById("select-none"),
-    calcBtn: document.getElementById("calculate-btn"),
-    mobileBtn: document.getElementById('mobile-sections-btn'),
-    mobileMenu: document.getElementById('mobile-dropdown')
+    bossSelect: document.getElementById('boss-select'),
+    bossPreview: document.getElementById('boss-preview'),
+    settings: document.getElementById('boss-settings'),
+    itemGrid: document.getElementById('item-grid'),
+    itemCaption: document.getElementById('item-caption'),
+    kcInput: document.getElementById('target-kc'),
+    kcResetBtn: document.getElementById('kc-reset'),
+    selectAllBtn: document.getElementById('select-all'),
+    selectNoneBtn: document.getElementById('select-none'),
+    calcBtn: document.getElementById('calculate-btn'),
+    resultsSection: document.getElementById('results'),
+    resultsTitle: document.getElementById('res-name'),
+    statChance: document.getElementById('stat-chance'),
+    statChanceLabel: document.getElementById('stat-chance-label'),
+    phraseMode: document.getElementById('phrase-mode'),
+    phraseMedian: document.getElementById('phrase-median'),
+    phraseMean: document.getElementById('phrase-mean'),
+    phraseUser: document.getElementById('phrase-user'),
+    chartCanvas: document.getElementById('distributionChart')
 };
 
 // ==========================================
-// STATE EXTRACTION (UI -> Data)
+// BOSS SELECTION & SETTINGS
 // ==========================================
-
-const getIntVal = (id, fallback) => {
-    const val = parseInt(document.getElementById(id)?.value, 10);
-    return isNaN(val) ? fallback : val;
-};
-const getStrVal = (id, fallback) => document.getElementById(id)?.value || fallback;
-const isBtnTrue = (id) => document.getElementById(id)?.value === 'true';
-
-const STATE_EXTRACTORS = {
-    'chambers_of_xeric': () => ({ points: getIntVal('raid-cox-pts', 30000) }),
-    'theatre_of_blood': () => ({ size: getIntVal('raid-tob-size', 3), deaths: getIntVal('raid-tob-deaths', 0) }),
-    'tombs_of_amascut': () => ({ level: getIntVal('raid-toa-level', 150), points: getIntVal('raid-toa-pts', 15000) }),
-    'doom_of_mokhaiotl': () => ({ delveLevel: getIntVal('doom-delve-level', 9) }),
-    'fortis_colosseum': () => ({ isSacrificing: isBtnTrue('colo-sacrifice-btn') }),
-    'the_nightmare': () => ({ variant: getStrVal('nightmare-variant-btn', 'standard'), teamSize: getIntVal('nightmare-team-size', 5) }),
-    'yama': () => ({ contrib: getIntVal('yama-contribution', 100) }),
-    'tempoross': () => ({ points: getIntVal('tempoross-points', 4000) }),
-    'wintertodt': () => ({ points: getIntVal('wintertodt-points', 750) }),
-    'zalcano': () => ({ contrib: getIntVal('zalcano-contribution', 100) }),
-    'royal_titans': () => ({ target: getStrVal('titan-target-btn', 'branda'), action: getStrVal('titan-action-btn', 'loot'), contrib: getIntVal('titan-contribution', 100) }),
-    'araxxor': () => ({ isSacrificing: isBtnTrue('araxxor-sacrifice-btn') })
-};
-
-DT2_BOSSES.forEach(boss => {
-    STATE_EXTRACTORS[boss] = () => ({ isAwakened: isBtnTrue('dt2-awakened-btn') });
-});
-
-let activeSimulationCache = { hash: null, rawResults: null };
-
-function generateStateHash(bossKey, items) {
-    return JSON.stringify({ 
-        bossKey, 
-        items: items.map(i => `${i.name}|${i.rate}|${i.pieces}|${i.pool}`).sort() 
-    });
-}
-
-function initApp() {
-    setupChartDefaults();
-    populateBossSelect();
-    bindEvents();
-    initGoalTracking();
-}
-
-function setupChartDefaults() {
-    Chart.defaults.font.family = CHART_CONFIG.font;
-    Chart.defaults.color = CHART_CONFIG.textColor;
-}
 
 function populateBossSelect() {
-    const defaultOption = '<option value="">Select Boss Intel...</option>';
-    
-    const categories = { 
-        "Standard": [],
-        "Skilling": [], 
-        "Minigame": [], 
-        "Slayer": [], 
-        "Wilderness": [], 
-        "God Wars Dungeon": [],
-        "The Forgotten Four": [], 
-        "Raids": []
-    };
-    
-    Object.keys(BOSS_CONFIG).sort().forEach(key => {
-        let placed = false;
-        for (const [cat, bosses] of Object.entries(BOSS_CATEGORIES)) {
-            if (bosses.includes(key)) {
-                categories[cat].push(key);
-                placed = true;
-                break;
-            }
-        }
-        if (!placed) categories["Standard"].push(key);
-    });
-
-    let bossOptions = '';
-    for (const [cat, keys] of Object.entries(categories)) {
-        if (keys.length === 0) continue;
-        bossOptions += `<optgroup label="${cat}">`;
-        keys.forEach(key => {
-            bossOptions += `<option value="${key}">${formatBossName(key)}</option>`;
-        });
-        bossOptions += `</optgroup>`;
-    }
-        
-    DOM.bossSelect.innerHTML = defaultOption + bossOptions;
+    const groups = groupBossesByCategory(Object.keys(BOSS_ITEMS)).map(([category, bosses]) =>
+        `<optgroup label="${category}">${bosses.map(b => `<option value="${b.key}">${b.name}</option>`).join('')}</optgroup>`
+    );
+    DOM.bossSelect.innerHTML = '<option value="">Choose a boss…</option>' + groups.join('');
 }
 
-// ==========================================
-// DYNAMIC UI INJECTION
-// ==========================================
-const BOSS_UI_INJECTORS = {
-    'chambers_of_xeric': (container) => {
-        container.innerHTML = `
-            <div class="input-group">
-                <label>Average Team Points</label>
-                <input type="number" id="raid-cox-pts" value="30000" min="0">
-            </div>`;
-    },
-    'theatre_of_blood': (container) => {
-        container.innerHTML = `
-            <div class="input-row" style="margin-bottom: 0;">
-                <div class="input-group">
-                    <label>Team Size</label>
-                    <input type="number" id="raid-tob-size" value="3" min="1" max="5">
-                </div>
-                <div class="input-group">
-                    <label>Team Deaths</label>
-                    <input type="number" id="raid-tob-deaths" value="0" min="0">
-                </div>
-            </div>`;
-    },
-    'tombs_of_amascut': (container) => {
-        container.innerHTML = `
-            <div class="input-row" style="margin-bottom: 0;">
-                <div class="input-group">
-                    <label>Raid Level</label>
-                    <input type="number" id="raid-toa-level" value="150" min="0">
-                </div>
-                <div class="input-group">
-                    <label>Team Points</label>
-                    <input type="number" id="raid-toa-pts" value="15000" min="0">
-                </div>
-            </div>`;
-    },
-    'doom_of_mokhaiotl': (container) => {
-        container.innerHTML = `
-            <div class="input-group">
-                <label>Delve Level (Max 15)</label>
-                <input type="number" id="doom-delve-level" value="9" min="2" max="15">
-            </div>`;
-            
-        document.getElementById('doom-delve-level').addEventListener('change', (e) => {
-            const val = parseInt(e.target.value, 10);
-            e.target.value = isNaN(val) || val < 2 ? 2 : Math.min(val, 15);
-        });
-    },
-    'fortis_colosseum': (container) => {
-        container.innerHTML = `
-            <button type="button" id="colo-sacrifice-btn" value="false" 
-                style="width: 100%; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                Keep Quivers (Standard)
-            </button>`;
-            
-        const btn = document.getElementById('colo-sacrifice-btn');
-        btn.addEventListener('click', function() {
-            const isSacrificing = this.value === 'true';
-            this.value = isSacrificing ? 'false' : 'true';
-            this.innerText = isSacrificing ? 'Keep Quivers (Standard)' : 'Sacrifice Quivers for Pet Chance';
-            this.style.borderColor = isSacrificing ? 'var(--border)' : 'var(--accent-orange)';
-            this.style.color = isSacrificing ? 'var(--text)' : 'var(--accent-orange)';
-            this.style.background = isSacrificing ? 'rgba(255,255,255,0.05)' : 'rgba(249, 115, 22, 0.05)';
-        });
-    },
-    'the_nightmare': (container) => {
-        container.innerHTML = `
-            <div class="input-row" style="margin-bottom: 0;">
-                <div class="input-group" style="display: flex; flex-direction: column; justify-content: flex-end;">
-                    <button type="button" id="nightmare-variant-btn" value="standard" 
-                        style="width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease; white-space: normal; line-height: 1.2;">
-                        Standard Mode
-                    </button>
-                </div>
-                <div class="input-group">
-                    <label>Team Size</label>
-                    <input type="number" id="nightmare-team-size" value="5" min="1" max="80">
-                </div>
-            </div>`;
-            
-        const btn = document.getElementById('nightmare-variant-btn');
-        const teamInput = document.getElementById('nightmare-team-size');
-        
-        btn.addEventListener('click', function() {
-            const isPhosani = this.value === 'phosani';
-            
-            if (isPhosani) {
-                this.value = 'standard';
-                this.innerText = 'Standard Mode';
-                this.style.borderColor = 'var(--border)';
-                this.style.color = 'var(--text)';
-                this.style.background = 'rgba(255,255,255,0.05)';
-                teamInput.disabled = false;
-                teamInput.style.opacity = '1';
-            } else {
-                this.value = 'phosani';
-                this.innerText = "Phosani's Variant"; 
-                this.style.borderColor = 'var(--accent-orange)';
-                this.style.color = 'var(--accent-orange)';
-                this.style.background = 'rgba(249, 115, 22, 0.05)';
-                teamInput.value = 1;
-                teamInput.disabled = true;
-                teamInput.style.opacity = '0.5';
-            }
-        });
-    },
-    'yama': (container) => {
-        container.innerHTML = `
-            <div class="input-group">
-                <label>Contribution %</label>
-                <input type="number" id="yama-contribution" value="100" min="0" max="100">
-            </div>`;
-            
-        document.getElementById('yama-contribution').addEventListener('change', (e) => {
-            const val = parseInt(e.target.value, 10);
-            e.target.value = isNaN(val) || val < 0 ? 0 : Math.min(val, 100);
-        });
-    },
-    'tempoross': (container) => {
-        container.innerHTML = `
-            <div class="input-group">
-                <label>Points per Game</label>
-                <input type="number" id="tempoross-points" value="4000" min="0">
-            </div>`;
-    },
-    'wintertodt': (container) => {
-        container.innerHTML = `
-            <div class="input-group">
-                <label>Points per Game</label>
-                <input type="number" id="wintertodt-points" value="750" min="500">
-            </div>`;
-    },
-    'zalcano': (container) => {
-        container.innerHTML = `
-            <div class="input-group">
-                <label>Contribution %</label>
-                <input type="number" id="zalcano-contribution" value="100" min="0" max="100">
-            </div>`;
-    },
-    'royal_titans': (container) => {
-        container.innerHTML = `
-            <div class="input-row" style="margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <button type="button" id="titan-target-btn" value="branda" 
-                    style="padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer;">
-                    Target: Branda
-                </button>
-                <button type="button" id="titan-action-btn" value="loot" 
-                    style="padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer;">
-                    Loot: Standard
-                </button>
-            </div>
-            <div class="input-group">
-                <label>Contribution %</label>
-                <input type="number" id="titan-contribution" value="100" min="0" max="100">
-            </div>`;
-        
-        document.getElementById('titan-target-btn').addEventListener('click', function() {
-            const isCurrentlyBranda = this.value === 'branda';
-            this.value = isCurrentlyBranda ? 'eldric' : 'branda';
-            
-            if (this.value === 'branda') {
-                this.innerText = 'Target: Branda';
-                this.style.borderColor = this.style.color = '#ef4444';
-            } else {
-                this.innerText = 'Target: Eldric';
-                this.style.borderColor = this.style.color = '#3b82f6';
-            }
-        });
+function handleBossSelection() {
+    const key = DOM.bossSelect.value;
+    DOM.kcInput.value = 0;
+    itemsLocked = false;
 
-        document.getElementById('titan-action-btn').addEventListener('click', function() {
-            const isLooting = this.value === 'loot';
-            this.value = isLooting ? 'sacrifice' : 'loot';
-            this.innerText = isLooting ? 'Loot: Sacrifice' : 'Loot: Standard';
-            
-            const isActive = this.value === 'sacrifice';
-            this.style.borderColor = isActive ? 'var(--accent-orange)' : 'var(--border)';
-            this.style.color = isActive ? 'var(--accent-orange)' : 'var(--text)';
-
-            if (isActive) forceItemSelection(["Bran"]);
-            else unlockItemSelection();
-        });
-    },
-    'araxxor': (container) => {
-        container.innerHTML = `
-            <button type="button" id="araxxor-sacrifice-btn" value="false" 
-                style="width: 100%; margin-bottom: 12px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                Harvest Corpse (Standard)
-            </button>`;
-        
-        document.getElementById('araxxor-sacrifice-btn').addEventListener('click', function() {
-            const newState = this.value === 'false'; 
-            this.value = newState ? 'true' : 'false';
-
-            if (newState) {
-                this.innerText = 'Destroy Corpse (2x Pet)';
-                this.style.borderColor = 'var(--accent-orange)';
-                this.style.color = 'var(--accent-orange)';
-                this.style.background = 'rgba(249, 115, 22, 0.05)';
-                forceItemSelection(["Nid"]);
-            } else {
-                this.innerText = 'Harvest Corpse (Standard)';
-                this.style.borderColor = 'var(--border)';
-                this.style.color = 'var(--text)';
-                this.style.background = 'rgba(255,255,255,0.05)';
-                unlockItemSelection();
-            }
-        });
-    }
-};
-
-DT2_BOSSES.forEach(boss => {
-    BOSS_UI_INJECTORS[boss] = (container) => {
-        container.innerHTML = `
-            <button type="button" id="dt2-awakened-btn" value="false" 
-                style="width: 100%; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                Standard Variant
-            </button>`;
-        
-        document.getElementById('dt2-awakened-btn').addEventListener('click', function() {
-            const isActive = this.value === 'false';
-            this.value = isActive ? 'true' : 'false';
-            this.innerText = isActive ? 'Awakened Variant (3x Uniques)' : 'Standard Variant';
-            this.style.borderColor = isActive ? 'var(--accent-orange)' : 'var(--border)';
-            this.style.color = isActive ? 'var(--accent-orange)' : 'var(--text)';
-        });
-    };
-});
-
-function renderDynamicSettings(bossKey) {
-    let container = document.getElementById('dynamic-raid-settings');
-    
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'dynamic-raid-settings';
-        container.style.marginBottom = '24px';
-        // Toggle buttons update their own value first, so these bubbled listeners see the new state
-        container.addEventListener('input', refreshResults);
-        container.addEventListener('click', (e) => {
-            if (e.target.closest('button')) refreshResults();
-        });
-        DOM.bossPreview.insertBefore(container, document.querySelector('.collection-header'));
+    if (!key) {
+        activeBoss = null;
+        DOM.bossPreview.classList.add('hidden');
+        DOM.resultsSection.classList.add('hidden');
+        return;
     }
 
-    const injector = BOSS_UI_INJECTORS[bossKey];
-    if (injector) {
-        injector(container);
-    } else {
-        container.innerHTML = ''; 
-    }
-}
-
-function showToast(message, isError = true) {
-    let toast = document.getElementById("custom-toast");
-    
-    if (!toast) {
-        toast = document.createElement("div");
-        toast.id = "custom-toast";
-        toast.className = "toast";
-        document.body.appendChild(toast);
-    }
-    
-    const icon = isError ? "⚠️" : "ℹ️";
-    const color = isError ? "var(--accent-orange)" : "var(--accent-green)";
-    
-    toast.style.borderColor = color;
-    toast.style.boxShadow = `0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(var(--${isError ? 'accent-orange' : 'accent-green'}-rgb), 0.2)`;
-    toast.innerHTML = `<span style="color: ${color}; font-size: 18px;">${icon}</span> ${message}`;
-    
-    void toast.offsetWidth;
-    toast.classList.add("show");
-    
-    if (toast.timeoutId) clearTimeout(toast.timeoutId);
-    toast.timeoutId = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 4000);
-}
-
-// ==========================================
-// EVENT BINDINGS
-// ==========================================
-function bindEvents() {
-    if (DOM.bossSelect) DOM.bossSelect.addEventListener('change', handleBossSelection);
-    if (DOM.itemGrid) DOM.itemGrid.addEventListener('click', toggleItemSelection);
-    
-    document.querySelectorAll(".kc-btn[data-add]").forEach(btn => {
-        btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
-    });
-
-    if (DOM.kcInput) DOM.kcInput.addEventListener('input', refreshResults);
-
-    if (DOM.kcResetBtn) {
-        DOM.kcResetBtn.addEventListener('click', () => {
-            if (DOM.kcInput) {
-                DOM.kcInput.value = 0;
-                refreshResults();
-            }
-        });
-    }
-    
-    if (DOM.selectAllBtn) DOM.selectAllBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(true); });
-    if (DOM.selectNoneBtn) DOM.selectNoneBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(false); });
-
-    if (DOM.calcBtn) DOM.calcBtn.addEventListener('click', () => handleCalculation({ scrollToResults: true }));
-
-    if (DOM.mobileBtn && DOM.mobileMenu) { 
-        DOM.mobileBtn.addEventListener('click', (e) => { 
-            e.stopPropagation(); 
-            DOM.mobileMenu.classList.toggle('hidden'); 
-        }); 
-        document.addEventListener('click', () => { DOM.mobileMenu.classList.add('hidden'); }); 
-    }
-}
-
-function setupGoalCard(card) {
-    const wrapper = card.querySelector('.check-all-wrapper'); 
-    const checkAllBox = card.querySelector('.check-all-box');
-    const goalCheckboxes = card.querySelectorAll('.goal-item input[type="checkbox"]');
-    
-    if (!wrapper || !checkAllBox || goalCheckboxes.length === 0) return;
-
-    const tier = card.querySelector('h3')?.textContent ?? '';
-    const slugify = (text) => text.trim().replace(/\s+/g, '-');
-    // Keys include the tier because goal names repeat across tiers (e.g. Construction)
-    const getStorageKey = (name) => `goal-${slugify(tier)}-${slugify(name)}`;
-    const getLegacyStorageKey = (name) => `goal-${slugify(name)}`;
-
-    const updateMasterVisuals = () => {
-        const checkedCount = card.querySelectorAll('.goal-item input[type="checkbox"]:checked').length;
-        
-        wrapper.classList.remove('is-checked', 'is-indeterminate');
-        checkAllBox.checked = checkedCount === goalCheckboxes.length;
-        checkAllBox.indeterminate = checkedCount > 0 && checkedCount < goalCheckboxes.length;
-
-        if (checkAllBox.checked) wrapper.classList.add('is-checked');
-        else if (checkAllBox.indeterminate) wrapper.classList.add('is-indeterminate');
-    };
-
-    goalCheckboxes.forEach(cb => {
-        const nameEl = cb.closest('.goal-item').querySelector('.goal-name');
-        if (!nameEl) return;
-        
-        const saveKey = getStorageKey(nameEl.textContent);
-        const savedValue = localStorage.getItem(saveKey) ?? localStorage.getItem(getLegacyStorageKey(nameEl.textContent));
-        cb.checked = savedValue === 'true';
-        
-        cb.addEventListener('change', () => {
-            localStorage.setItem(saveKey, cb.checked);
-            updateMasterVisuals();
-        });
-    });
-    
-    checkAllBox.addEventListener('change', (e) => {
-        const isChecked = e.target.checked;
-        goalCheckboxes.forEach(cb => { 
-            cb.checked = isChecked; 
-            const nameEl = cb.closest('.goal-item').querySelector('.goal-name'); 
-            if (nameEl) localStorage.setItem(getStorageKey(nameEl.textContent), isChecked); 
-        });
-        updateMasterVisuals();
-    });
-    
-    updateMasterVisuals();
-}
-
-function initGoalTracking() {
-    document.querySelectorAll('#ironman-goals .card').forEach(setupGoalCard);
-}
-
-function handleBossSelection(e) {
-    activeBossKey = e.target.value;
-    
-    if (DOM.kcInput) DOM.kcInput.value = 0;
-
-    if (!activeBossKey) { 
-        DOM.bossPreview.classList.add("hidden"); 
-        DOM.resultsSection.classList.add("hidden");
-        return; 
-    }
-    
-    renderItemGrid(BOSS_CONFIG[activeBossKey].items);
-    renderDynamicSettings(activeBossKey);
-    DOM.bossPreview.classList.remove("hidden");
+    activeBoss = { key, definition: getBossDefinition(key) };
+    renderSettings(DOM.settings, activeBoss.definition.settings);
+    renderItemGrid(BOSS_ITEMS[key]);
+    DOM.bossPreview.classList.remove('hidden');
     refreshResults();
 }
 
+const findSetting = (key) => activeBoss?.definition.settings.find(s => s.key === key);
+const readBossState = () => readSettings(DOM.settings, activeBoss.definition.settings);
+
+function handleSettingsChanged() {
+    const state = readBossState();
+    syncDisabledSettings(DOM.settings, activeBoss.definition.settings, state);
+    applyItemLock(activeBoss.definition.lockItems?.(state) ?? null);
+    refreshResults();
+}
+
+// A blur after switching bosses can fire `change` for the previous boss's input, so match by key first
+function bindSettingsEvents() {
+    DOM.settings.addEventListener('click', (e) => {
+        const button = e.target.closest('.setting-toggle');
+        const setting = button && findSetting(button.dataset.setting);
+        if (!setting) return;
+        cycleToggle(button, setting);
+        handleSettingsChanged();
+    });
+    DOM.settings.addEventListener('input', (e) => {
+        if (findSetting(e.target.dataset.setting)) handleSettingsChanged();
+    });
+    DOM.settings.addEventListener('change', (e) => {
+        const setting = findSetting(e.target.dataset.setting);
+        if (!setting || setting.type !== 'number') return;
+        clampNumberInput(e.target, setting);
+        handleSettingsChanged();
+    });
+}
+
+// ==========================================
+// ITEM GRID
+// ==========================================
+
+function itemTileHtml(item) {
+    const maxPieces = item.pieces || 1;
+    const startPieces = item.defaultPieces ?? maxPieces;
+    const badge = maxPieces > 1 ? `<span class="item-badge" aria-hidden="true">${startPieces}/${maxPieces}</span>` : '';
+
+    return `
+        <button type="button" class="item-box selected" aria-pressed="true" title="${item.name}"
+            data-name="${item.name}" data-rate="${item.rate}" data-type="${item.type}" data-pool="${item.pool || ''}"
+            data-max-pieces="${maxPieces}" data-default-pieces="${startPieces}" data-selected-pieces="${startPieces}">
+            <img src="${getItemImagePath(item.name)}" data-fallback="${getItemWikiImageUrl(item.name)}" alt="">
+            ${badge}
+        </button>`;
+}
+
+function renderItemGrid(items) {
+    DOM.itemGrid.innerHTML = items
+        .filter(item => !item.hidden)
+        .sort((a, b) => a.order - b.order)
+        .map(itemTileHtml)
+        .join('');
+
+    DOM.itemGrid.querySelectorAll('.item-box').forEach(updateTileLabel);
+    showDefaultCaption();
+}
+
+// Swap a missing local icon for the wiki's copy, once
+function handleIconError(e) {
+    const img = e.target;
+    if (img.tagName !== 'IMG' || !img.dataset.fallback) return;
+    img.src = img.dataset.fallback;
+    delete img.dataset.fallback;
+}
+
+function setTilePieces(box, pieces) {
+    box.dataset.selectedPieces = pieces;
+    const badge = box.querySelector('.item-badge');
+    if (badge) badge.textContent = `${pieces}/${box.dataset.maxPieces}`;
+}
+
+function updateTileLabel(box) {
+    const isSelected = box.classList.contains('selected');
+    const max = Number(box.dataset.maxPieces);
+    const count = max > 1 && isSelected ? `, need ${box.dataset.selectedPieces} of ${max}` : '';
+
+    box.setAttribute('aria-pressed', String(isSelected));
+    box.setAttribute('aria-label', `${box.dataset.name}${count}`);
+}
+
+function describeTile(box) {
+    const name = box.dataset.name;
+    const max = Number(box.dataset.maxPieces);
+    const pieces = Number(box.dataset.selectedPieces);
+
+    if (box.disabled) return `${name}: not available with the current settings.`;
+    if (!box.classList.contains('selected')) return `${name}: not counted. Tap to include it.`;
+    if (max === 1) return `${name}: counted. Tap to leave it out.`;
+    return pieces > 1
+        ? `${name}: need ${pieces} of ${max}. Tap to need ${pieces - 1}.`
+        : `${name}: need 1 of ${max}. Tap to leave it out, then again to need all ${max}.`;
+}
+
+function showDefaultCaption() {
+    const tiles = DOM.itemGrid.querySelectorAll('.item-box');
+    const counted = DOM.itemGrid.querySelectorAll('.item-box.selected').length;
+    DOM.itemCaption.textContent = `${counted} of ${tiles.length} items counted. Hover or tap an item to see what it is.`;
+}
+
+// Multi-piece tiles step down N/N -> ... -> 1/N -> off -> N/N
+function toggleItemSelection(e) {
+    const box = e.target.closest('.item-box');
+    if (!box || box.disabled) return;
+
+    const maxPieces = Number(box.dataset.maxPieces) || 1;
+
+    if (!box.classList.contains('selected')) {
+        box.classList.add('selected');
+        setTilePieces(box, maxPieces);
+    } else if (maxPieces > 1 && Number(box.dataset.selectedPieces) > 1) {
+        setTilePieces(box, Number(box.dataset.selectedPieces) - 1);
+    } else {
+        box.classList.remove('selected');
+    }
+
+    updateTileLabel(box);
+    DOM.itemCaption.textContent = describeTile(box);
+    refreshResults();
+}
+
+function setAllItemsSelection(select) {
+    DOM.itemGrid.querySelectorAll('.item-box:not(:disabled)').forEach(box => {
+        box.classList.toggle('selected', select);
+        if (select) setTilePieces(box, Number(box.dataset.defaultPieces));
+        updateTileLabel(box);
+    });
+
+    showDefaultCaption();
+    refreshResults();
+}
+
+function applyItemLock(allowedNames) {
+    const shouldLock = allowedNames !== null;
+    if (shouldLock === itemsLocked) return;
+    itemsLocked = shouldLock;
+
+    DOM.itemGrid.querySelectorAll('.item-box').forEach(box => {
+        if (shouldLock) {
+            box.dataset.wasSelected = box.classList.contains('selected');
+            const isAllowed = allowedNames.includes(box.dataset.name);
+            box.classList.toggle('selected', isAllowed);
+            box.disabled = !isAllowed;
+        } else {
+            box.classList.toggle('selected', box.dataset.wasSelected === 'true');
+            delete box.dataset.wasSelected;
+            box.disabled = false;
+        }
+        updateTileLabel(box);
+    });
+
+    showDefaultCaption();
+}
+
+function getSelectedItems() {
+    return Array.from(DOM.itemGrid.querySelectorAll('.item-box.selected'), box => ({
+        name: box.dataset.name,
+        rate: parseFloat(box.dataset.rate),
+        type: box.dataset.type,
+        pieces: Number(box.dataset.selectedPieces) || 1,
+        pool: box.dataset.pool
+    }));
+}
+
+// ==========================================
+// CALCULATION
+// ==========================================
+
 function updateKC(amount) {
-    const currentVal = parseInt(DOM.kcInput.value, 10) || 0;
-    DOM.kcInput.value = Math.max(0, currentVal + amount);
+    const current = parseInt(DOM.kcInput.value, 10) || 0;
+    DOM.kcInput.value = Math.max(0, current + amount);
     refreshResults();
 }
 
 // Keeps an already-visible chart in sync with the inputs; does nothing before the first calculation
 function refreshResults() {
-    if (DOM.resultsSection.classList.contains("hidden")) return;
+    if (DOM.resultsSection.classList.contains('hidden')) return;
 
     if (getSelectedItems().length === 0) {
-        DOM.resultsSection.classList.add("hidden");
+        DOM.resultsSection.classList.add('hidden');
     } else {
         handleCalculation();
     }
-}
-
-// ----------------------------------------------------
-// MULTI-PIECE TOGGLE LOGIC
-// ----------------------------------------------------
-function toggleItemSelection(e) { 
-    const box = e.target.closest(".item-box"); 
-    if (!box || isSacrificeModeActive()) return;
-    
-    const maxPieces = parseInt(box.dataset.maxPieces, 10) || 1;
-    
-    if (maxPieces === 1) {
-        box.classList.toggle("selected"); 
-    } else {
-        let current = parseInt(box.dataset.selectedPieces, 10);
-        
-        if (!box.classList.contains("selected")) {
-            box.classList.add("selected");
-            current = maxPieces;
-        } else {
-            current--;
-            if (current === 0) {
-                box.classList.remove("selected");
-                current = maxPieces; 
-            }
-        }
-        
-        box.dataset.selectedPieces = current;
-        const badge = box.querySelector('.item-badge');
-        if (badge) badge.innerText = `${current}/${maxPieces}`;
-    }
-
-    refreshResults();
-}
-
-function setAllItemsSelection(select) { 
-    if (isSacrificeModeActive()) return;
-
-    const action = select ? 'add' : 'remove'; 
-    DOM.itemGrid.querySelectorAll(".item-box").forEach(box => {
-        box.classList[action]("selected"); 
-        if (select) {
-            const max = parseInt(box.dataset.maxPieces, 10) || 1;
-            if (max > 1) {
-                const start = parseInt(box.dataset.defaultPieces, 10) || max;
-                box.dataset.selectedPieces = start;
-                const badge = box.querySelector('.item-badge');
-                if (badge) badge.innerText = `${start}/${max}`;
-            }
-        }
-    });
-
-    refreshResults();
-}
-
-function isSacrificeModeActive() {
-    return isBtnTrue('araxxor-sacrifice-btn') || getStrVal('titan-action-btn', '') === 'sacrifice';
-}
-
-function renderItemGrid(items) {
-    const visibleItems = items.filter(item => !item.hidden);
-    const sortedItems = [...visibleItems].sort((a, b) => a.order - b.order);
-    
-    DOM.itemGrid.innerHTML = sortedItems.map(item => {
-        const maxPieces = item.pieces || 1;
-        const startPieces = item.defaultPieces ?? maxPieces;
-        const badge = maxPieces > 1 ? `<span class="item-badge">${startPieces}/${maxPieces}</span>` : '';
-        const fallbackFilename = item.name.replaceAll(' ', '_') + '.png';
-        const liveUrl = `https://oldschool.runescape.wiki/w/Special:Redirect/file/${fallbackFilename}?width=120`;
-        
-        return `
-        <div class="item-box selected" data-id="${item.id}" data-rate="${item.rate}" data-type="${item.type}" data-max-pieces="${maxPieces}" data-default-pieces="${startPieces}" data-selected-pieces="${startPieces}" data-pool="${item.pool || ''}" title="${item.name}">
-            <img src="${getWikiUrl(item.name)}" alt="${item.name}" onerror="this.onerror=null; this.src='${liveUrl}';">
-            ${badge}
-        </div>
-    `}).join('');
-}
-
-function getSelectedItems() {
-    return Array.from(DOM.itemGrid.querySelectorAll(".item-box.selected")).map(b => ({ 
-        name: b.title, 
-        rate: parseFloat(b.dataset.rate), 
-        type: b.dataset.type, 
-        pieces: parseInt(b.dataset.selectedPieces, 10) || 1, 
-        pool: b.dataset.pool 
-    }));
 }
 
 function handleCalculation({ scrollToResults = false } = {}) {
     const selectedItems = getSelectedItems();
 
     if (!selectedItems.length) {
-        showToast("Please select at least one item from the log.", true);
+        showToast('Select at least one item from the collection log.');
         return;
     }
 
@@ -650,216 +275,101 @@ function handleCalculation({ scrollToResults = false } = {}) {
     if (results) displayResults(results, currentKC, scrollToResults);
 }
 
-// ==========================================
-// SIMULATION EXECUTION & RENDERING
-// ==========================================
+function generateStateHash(bossKey, items) {
+    return JSON.stringify({
+        bossKey,
+        items: items.map(i => `${i.name}|${i.rate}|${i.pieces}|${i.pool}|${i.type}`).sort()
+    });
+}
+
 function executeSimulation(selectedItems, currentKC) {
-    const bossData = BOSS_CONFIG[activeBossKey];
-    let processedItems = [...selectedItems];
-
-    const adjuster = RATE_ADJUSTERS[activeBossKey];
-    if (adjuster) {
-        const bossState = STATE_EXTRACTORS[activeBossKey] ? STATE_EXTRACTORS[activeBossKey]() : {};
-        processedItems = adjuster(processedItems, bossState);
-    }
-
-    const validItems = processedItems.filter(item => item.rate > 0);
+    const { key, definition } = activeBoss;
+    const adjustedItems = definition.adjust ? definition.adjust(selectedItems, readBossState()) : selectedItems;
+    const validItems = adjustedItems.filter(item => item.rate > 0);
 
     if (validItems.length === 0) {
-        showToast("The current settings make it mathematically impossible to obtain the selected items.", true);
+        showToast('With these settings, none of the selected items can drop.');
         return null;
     }
 
-    const currentHash = generateStateHash(activeBossKey, validItems);
-    let rawResults;
-
-    if (activeSimulationCache.hash === currentHash) {
-        rawResults = activeSimulationCache.rawResults;
-    } else {
-        let matrix;
-        const rolls = bossData.rolls || 1;
-
-        if (activeBossKey === 'moons_of_peril') {
-            matrix = createMoonsMatrix(validItems);
-        } else if (activeBossKey === 'barrows_chests') {
-            matrix = createBarrowsMatrix(validItems.length);
-        } else {
-            matrix = createMasterMatrix(validItems, rolls);
-        }
-
-        rawResults = runSimulation(matrix);
-        activeSimulationCache = { hash: currentHash, rawResults };
+    const hash = generateStateHash(key, validItems);
+    if (simulationCache.hash !== hash) {
+        const matrix = MATRIX_BUILDERS[definition.matrix](validItems, definition);
+        simulationCache = { hash, rawResults: runSimulation(matrix) };
     }
 
-    const targetP = rawResults.historyCDF[currentKC] ?? (currentKC >= rawResults.finalK ? 1 : 0);
-    const curveData = buildChartData(rawResults.historyPMF, rawResults.historyCDF, rawResults.finalK, currentKC, rawResults.modeKC, rawResults.median);
+    const { rawResults } = simulationCache;
+    const targetP = rawResults.historyCDF[currentKC] ?? (currentKC >= rawResults.finalKC ? 1 : 0);
+    const curveData = buildChartData(rawResults.historyPMF, rawResults.historyCDF, rawResults.finalKC, currentKC, rawResults.modeKC, rawResults.median);
 
     return { ...rawResults, targetP, curveData };
 }
 
-function displayResults(results, currentKC, scrollToResults) {
-    DOM.resultsSection.classList.remove("hidden");
-    DOM.statChance.textContent = `${(results.targetP * 100).toFixed(2)}%`;
-    
-    const formatStat = (color, label, description, value) => 
-        `<span style="color:${color}; font-family: var(--font-mono); font-weight: 800; font-size: 1.05em; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px;">${label}</span> ` +
-        `<span style="color: var(--text); font-size: 1em; font-weight: 700;">${description}</span> ` +
-        `<b style="color: ${color}; font-size: 1.05em; margin-left: 4px;">${value} <span style="font-size: 0.85em; opacity: 0.9;">KC</span></b>`;
-        
-    DOM.phraseMode.innerHTML = formatStat(COLORS.mode, "Mode", "Most likely single KC to finish on", results.modeKC.toLocaleString());
-    DOM.phraseMedian.innerHTML = formatStat(COLORS.progress, "Median", "Half of players finish at or before", results.median.toLocaleString());
-    DOM.phraseMean.innerHTML = formatStat(COLORS.mean, "Mean", "Expected KC, pulled up by unlucky players", Math.round(results.mean).toLocaleString());
-    DOM.phraseUser.innerHTML = formatStat(COLORS.user, "Current", "Your current progress in the log", currentKC.toLocaleString());
+const statRowHtml = (label, description, value) =>
+    `<span class="stat-label">${label}</span> <span class="stat-desc">${description}</span> ` +
+    `<b class="stat-value">${value} <span class="stat-unit">KC</span></b>`;
 
-    renderChart(results.curveData, results, currentKC);
+function displayResults(results, currentKC, scrollToResults) {
+    DOM.resultsSection.classList.remove('hidden');
+    DOM.resultsTitle.textContent = activeBoss.definition.name;
+
+    // At 0 KC the chance is always 0%, so lead with the typical finish instead
+    if (currentKC === 0) {
+        DOM.statChance.textContent = `${results.median.toLocaleString()} KC`;
+        DOM.statChanceLabel.textContent = 'Typical KC to finish';
+    } else {
+        DOM.statChance.textContent = `${(results.targetP * 100).toFixed(2)}%`;
+        DOM.statChanceLabel.textContent = `Chance you'd be done by ${currentKC.toLocaleString()} KC`;
+    }
+
+    DOM.phraseMode.innerHTML = statRowHtml('Mode', 'Most likely single KC to finish on', results.modeKC.toLocaleString());
+    DOM.phraseMedian.innerHTML = statRowHtml('Median', 'Half of players finish at or before', results.median.toLocaleString());
+    DOM.phraseMean.innerHTML = statRowHtml('Mean', 'Expected KC, pulled up by unlucky players', Math.round(results.mean).toLocaleString());
+    DOM.phraseUser.innerHTML = statRowHtml('Current', 'Your current progress in the log', currentKC.toLocaleString());
+
+    renderChart(DOM.chartCanvas, results.curveData, results, currentKC);
 
     if (scrollToResults) DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-// --- CHART RENDERING ---
-function formatAxisTick(val, reverseX) {
-    let realKC = reverseX(val); 
-    if (realKC < 1) return null; 
-    
-    if (realKC > 1000) realKC = Math.round(realKC / 100) * 100; 
-    else if (realKC > 100) realKC = Math.round(realKC / 10) * 10; 
-    else realKC = Math.round(realKC); 
-    
-    return realKC.toLocaleString(); 
-}
+// ==========================================
+// INIT
+// ==========================================
 
-function renderChart(data, stats, userKC) {
-    const ctx = DOM.chartCanvas.getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-    
-    const transformX = (x) => Math.pow(x, CHART_CONFIG.xAxisPower);
-    const reverseX = (y) => Math.pow(y, 1 / CHART_CONFIG.xAxisPower);
-    const xMaxRaw = Math.max(data[data.length - 1].x, userKC * 1.1);
-    
-    const modeY = data.find(d => d.x === stats.modeKC)?.pmf || 0;
-    const medianY = data.find(d => d.x === stats.median)?.cdf || 0;
+function bindEvents() {
+    DOM.bossSelect.addEventListener('change', handleBossSelection);
+    bindSettingsEvents();
 
-    chartInstance = new Chart(ctx, {
-        type: 'line',
-        data: { 
-            datasets: [ 
-                createDataset('Luck (PMF)', data, transformX, 'pmf', COLORS.mode, 'yPMF'), 
-                createDataset('Progress (CDF)', data, transformX, 'cdf', COLORS.progress, 'yCDF', 2) 
-            ] 
-        },
-        options: getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, medianY)
+    DOM.itemGrid.addEventListener('click', toggleItemSelection);
+    DOM.itemGrid.addEventListener('error', handleIconError, true);
+    DOM.itemGrid.addEventListener('pointerover', (e) => {
+        const box = e.target.closest('.item-box');
+        if (box) DOM.itemCaption.textContent = describeTile(box);
     });
-}
-
-function createDataset(label, data, transformX, yKey, color, yAxisID, borderWidth = 3) {
-    return { 
-        label: label, 
-        data: data.map(d => ({ x: transformX(d.x), y: d[yKey], rawX: d.x })), 
-        borderColor: color, 
-        borderWidth: borderWidth, 
-        pointRadius: 0, 
-        yAxisID: yAxisID, 
-        tension: 0.2, 
-        cubicInterpolationMode: 'monotone', 
-        fill: false 
-    };
-}
-
-function getChartOptions(transformX, reverseX, xMaxRaw, stats, userKC, modeY, medianY) {
-    return { 
-        responsive: true, 
-        maintainAspectRatio: false, 
-        animation: false, 
-        interaction: { mode: 'index', intersect: false }, 
-        scales: getChartScales(transformX, reverseX, xMaxRaw), 
-        plugins: getChartPlugins(transformX, stats, userKC, modeY, medianY) 
-    };
-}
-
-function getChartScales(transformX, reverseX, xMaxRaw) {
-     return {
-        x: { 
-            type: 'linear', 
-            min: transformX(1), 
-            max: transformX(xMaxRaw), 
-            grid: { color: 'rgba(68, 64, 60, 0.2)', drawTicks: false }, 
-            ticks: { 
-                color: CHART_CONFIG.textColor, 
-                font: { size: 10, weight: 700 }, 
-                maxTicksLimit: 8, 
-                callback: function(val) { return formatAxisTick(val, reverseX); } 
-            } 
-        },
-        yPMF: { display: false }, 
-        yCDF: { 
-            display: true, 
-            position: 'right', 
-            min: 0, 
-            max: 1, 
-            grid: { display: false }, 
-            ticks: { 
-                callback: v => (v * 100).toFixed(0) + '%', 
-                color: COLORS.progress, 
-                font: { size: 10, weight: 700 } 
-            } 
-        }
-    };
-}
-
-function getChartPlugins(transformX, stats, userKC, modeY, medianY) {
-    return {
-        legend: { display: false },
-        tooltip: { 
-            backgroundColor: 'rgba(10,10,10,0.95)', 
-            borderColor: '#44403c', 
-            borderWidth: 1, 
-            padding: 12, 
-            titleFont: { weight: 900, size: 13 }, 
-            bodyFont: { weight: 600, size: 12 }, 
-            callbacks: { 
-                title: items => `KC: ${items[0].raw.rawX.toLocaleString()}`, 
-                label: c => {
-                    if (c.raw.y === 0) return null;
-                    return c.datasetIndex === 0 
-                        ? ` Luck Chance: ~1/${Math.round(1 / c.raw.y).toLocaleString()}` 
-                        : ` Chance For Completion: ${(c.raw.y * 100).toFixed(2)}%`;
-                }
-            } 
-        },
-        annotation: { 
-            annotations: { 
-                modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: COLORS.mode, borderColor: '#fff', borderWidth: 2, radius: 5 }, 
-                medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: COLORS.progress, borderColor: '#fff', borderWidth: 2, radius: 5 }, 
-                mean: { type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean), borderColor: 'rgba(249, 115, 22, 0.8)', borderWidth: 2, borderDash: [5,5], label: { display: false } }, 
-                user: { type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: COLORS.user, borderWidth: 2, borderDash: [6, 4], shadowBlur: 10, shadowColor: COLORS.user } 
-            } 
-        }
-    };
-}
-
-function forceItemSelection(allowedNames) {
-    DOM.itemGrid.querySelectorAll(".item-box").forEach(box => {
-        // Remember the user's choice so unlockItemSelection can put it back
-        box.dataset.wasSelected = box.classList.contains("selected");
-
-        const isAllowed = allowedNames.includes(box.title);
-        box.classList.toggle("selected", isAllowed);
-
-        box.style.opacity = isAllowed ? "1" : "0.3";
-        box.style.pointerEvents = isAllowed ? "auto" : "none";
+    DOM.itemGrid.addEventListener('focusin', (e) => {
+        const box = e.target.closest('.item-box');
+        if (box) DOM.itemCaption.textContent = describeTile(box);
     });
-}
-
-function unlockItemSelection() {
-    DOM.itemGrid.querySelectorAll(".item-box").forEach(box => {
-        if (box.dataset.wasSelected !== undefined) {
-            box.classList.toggle("selected", box.dataset.wasSelected === 'true');
-            delete box.dataset.wasSelected;
-        }
-
-        box.style.opacity = "1";
-        box.style.pointerEvents = "auto";
+    DOM.itemGrid.addEventListener('pointerleave', showDefaultCaption);
+    DOM.itemGrid.addEventListener('focusout', (e) => {
+        if (!DOM.itemGrid.contains(e.relatedTarget)) showDefaultCaption();
     });
+
+    document.querySelectorAll('.kc-btn[data-add]').forEach(btn => {
+        btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
+    });
+    DOM.kcInput.addEventListener('input', refreshResults);
+    DOM.kcResetBtn.addEventListener('click', () => {
+        DOM.kcInput.value = 0;
+        refreshResults();
+    });
+
+    DOM.selectAllBtn.addEventListener('click', () => setAllItemsSelection(true));
+    DOM.selectNoneBtn.addEventListener('click', () => setAllItemsSelection(false));
+    DOM.calcBtn.addEventListener('click', () => handleCalculation({ scrollToResults: true }));
 }
 
-initApp();
+populateBossSelect();
+bindEvents();
+initNavigation();
+initChecklist();

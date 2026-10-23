@@ -8,13 +8,7 @@ import fs from 'fs';
 import { Readable } from 'stream';
 import { finished } from 'stream/promises';
 import { RAW_BOSS_DATA } from './js/drops.js';
-
-// We duplicate this here so the scraper knows the exact filenames to request
-const IMAGE_OVERRIDES = {
-    "Ikkle hydra": "Ikkle_hydra_(serpentine).png",
-    "Gull": "Gull_(pet).png",
-    "Muphin": "Muphin_(ranged).png"
-};
+import { getItemImageFilename, getItemWikiImageUrl } from './js/data.js';
 
 const ASSETS_DIR = './assets/items';
 
@@ -36,8 +30,8 @@ async function downloadIcons() {
     console.log(`Found ${uniqueItems.size} unique items. Starting download...`);
 
     for (const name of uniqueItems) {
-        const filename = IMAGE_OVERRIDES[name] ?? `${name.replaceAll(' ', '_')}.png`;
-        const url = `https://oldschool.runescape.wiki/w/Special:Redirect/file/${filename}?width=120`;
+        const filename = getItemImageFilename(name);
+        const url = getItemWikiImageUrl(name);
         const localPath = `${ASSETS_DIR}/${filename}`;
 
         // Skip if we already downloaded it

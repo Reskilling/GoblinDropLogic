@@ -25,8 +25,7 @@ function extractSparseTransitions(probabilities) {
 function buildStateSpace(groups) {
     let totalStates = 1;
     
-    // Using map instead of an external push loop keeps this clean.
-    // We calculate the multiplier offset for each item group's state.
+    // Each group's count is one digit of a mixed-radix state index; this is that digit's place value.
     const multipliers = groups.map(g => {
         const currentMultiplier = totalStates;
         totalStates *= (g.target + 1);
@@ -82,7 +81,6 @@ export function createBarrowsMatrix(targetCount) {
             }
         }
         
-        // Swap buffers cleanly using ES6 array destructuring (zero allocation overhead)
         [currentMatrix, nextMatrix] = [nextMatrix, currentMatrix];
     }
 
@@ -92,9 +90,7 @@ export function createBarrowsMatrix(targetCount) {
 export function createMasterMatrix(selectedItems, rollCount = 1) {
     const groups = [];
     
-    // Grouping logic: Collects items into distinct pools or independent rolls to track state.
-    // I opted to keep find() here instead of a Map/reduce since the group array stays tiny (usually < 5 items), 
-    // making the overhead of a Map unnecessary while keeping it readable.
+    // Collect items into pools, multi-piece sequences, or groups of identical independent drops.
     selectedItems.forEach(item => {
         const piecesNeeded = item.pieces || 1;
         
@@ -123,7 +119,6 @@ export function createMasterMatrix(selectedItems, rollCount = 1) {
     let nextProbs = new Float64Array(totalStates);
 
     for (let stateIdx = 0; stateIdx < totalStates; stateIdx++) {
-        // High readability check for our absorbing state instead of a clunky manual loop
         const isAbsorbing = groups.every((g, i) => getGroupCount(stateIdx, i) === g.target);
         
         if (isAbsorbing) {

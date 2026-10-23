@@ -41,15 +41,29 @@ This project is built with strict adherence to Clean Code principles, utilizing 
 ### File Structure
 ```text
 📁 GoblinDropLogic
-├── 📄 index.html      # Main SPA shell and view controller
-├── 📄 style.css       # Design tokens, CSS variables, and responsive layout
-└── 📁 js
-    ├── 📄 app.js      # UI rendering, Chart.js config, and DOM event binding
-    ├── 📄 data.js     # State management and raw data normalization
-    ├── 📄 drops.js    # Master configuration for boss loot tables and drop rates
-    ├── 📄 matrix.js   # Markov Chain and Hypergeometric matrix engines
-    └── 📄 solvers.js  # Simulation loop and statistical analysis (PMF/CDF)
+├── 📄 index.html         # Page shell and content for every section
+├── 📄 style.css          # Design tokens and responsive layout
+├── 📄 download_icons.js  # Downloads item icons from the OSRS Wiki into assets/items
+├── 📁 js
+│   ├── 📄 app.js         # Entry point and the DropLogic calculator UI
+│   ├── 📄 bosses.js      # Per-boss name, category, rolls, matrix, settings and rate adjuster
+│   ├── 📄 drops.js       # Boss loot tables and drop rates
+│   ├── 📄 data.js        # Normalised item lists and icon paths
+│   ├── 📄 modifiers.js   # Pure functions that adjust rates from boss settings
+│   ├── 📄 matrix.js      # Markov chain transition matrices (Master, Barrows, Moons)
+│   ├── 📄 solvers.js     # Simulation loop and statistics (PMF/CDF)
+│   ├── 📄 settings.js    # Renders boss settings and reads them back
+│   ├── 📄 chart.js       # Chart.js rendering
+│   ├── 📄 nav.js         # Hash-based navigation (#droplogic, #guides, ...)
+│   ├── 📄 checklist.js   # Zugrot's Checklist progress
+│   └── 📄 toast.js       # Notifications
+└── 📁 tests              # node:test suites for the maths, modifiers and data
 ```
+
+### Adding a boss
+1. Add its drop table to `js/drops.js` and run `npm run icons` to fetch any new icons.
+2. If it needs a category, display name, extra rolls or settings, add an entry to `js/bosses.js`. Settings are declared there and passed to the boss's adjuster in `js/modifiers.js` by key.
+3. Run `npm test`. The data tests check that the icons exist, that main-table rates don't exceed one roll, and that every adjuster produces valid rates.
 
 ---
 
@@ -76,4 +90,9 @@ Because the Wise Goblin Hub is built entirely in vanilla web technologies, there
    ```bash
    python -m http.server 8000
    # Then open http://localhost:8000 in your browser
+   ```
+
+4. **Run the tests** (Node.js 20 or later, no install needed):
+   ```bash
+   npm test
    ```

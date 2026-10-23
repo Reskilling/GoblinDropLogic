@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wise Goblin | Clan Hub & DropLogic</title>
-    
+
     <link rel="stylesheet" href="style.css">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1" defer></script>
@@ -23,50 +23,54 @@
         </div>
 
         <div class="logo-pedestal">
-            <img src="WiseGoblin.png" alt="Wise Goblin Logo" class="showcase-logo">
+            <img src="WiseGoblin.png" alt="" class="showcase-logo">
         </div>
-        
+
         <div class="hero-titles">
+            <h1 class="visually-hidden">Wise Goblin</h1>
             <p class="subtitle">Clan Intelligence // Bandosian Division</p>
         </div>
-        
-        <nav class="premium-nav" id="tab-nav">
+
+        <nav class="premium-nav" aria-label="Sections">
             <a href="https://wise-goblin.vercel.app/" target="_blank" rel="noopener noreferrer" class="premium-btn">Rank Calculator</a>
-            <button class="premium-btn active" data-target="droplogic">DropLogic</button>
-            <button class="premium-btn" data-target="guides">Guides & Tools</button>
-            <button class="premium-btn" data-target="plugins">Plugin Help</button>
-            <button class="premium-btn" data-target="ironman-faq">Ironman FAQ</button>
-            <button class="premium-btn" data-target="ironman-goals">Zugrot's Checklist</button>
+            <a href="#droplogic" class="premium-btn">DropLogic</a>
+            <a href="#guides" class="premium-btn">Guides & Tools</a>
+            <a href="#plugins" class="premium-btn">Plugin Help</a>
+            <a href="#ironman-faq" class="premium-btn">Ironman FAQ</a>
+            <a href="#ironman-goals" class="premium-btn">Zugrot's Checklist</a>
         </nav>
     </div>
 
     <div id="main-view" class="view-container hidden-view">
-        
-        <header class="content-header">
-            <button id="btn-home" class="premium-btn-sm">&larr; Return</button>
 
-            <nav class="mini-nav desktop-only">
-                <button class="tab-link active" data-tab="droplogic">DropLogic</button>
-                <button class="tab-link" data-tab="guides">Guides</button>
-                <button class="tab-link" data-tab="plugins">Plugins</button>
-                <button class="tab-link" data-tab="ironman-faq">FAQ</button>
-                <button class="tab-link" data-tab="ironman-goals">Checklist</button>
+        <header class="content-header">
+            <a href="#" id="btn-home" class="brand-link" aria-label="Wise Goblin home">
+                <img src="WiseGoblin.png" alt="" class="brand-logo">
+                <span class="brand-name">Wise Goblin</span>
+            </a>
+
+            <nav class="mini-nav desktop-only" aria-label="Sections">
+                <a href="#droplogic" class="tab-link">DropLogic</a>
+                <a href="#guides" class="tab-link">Guides</a>
+                <a href="#plugins" class="tab-link">Plugins</a>
+                <a href="#ironman-faq" class="tab-link">FAQ</a>
+                <a href="#ironman-goals" class="tab-link">Checklist</a>
             </nav>
 
             <div class="mobile-menu-wrapper mobile-only">
-                <button id="mobile-sections-btn" class="premium-btn-sm" aria-haspopup="true" aria-expanded="false">Sections ▾</button>
-                <div id="mobile-dropdown" class="mobile-dropdown hidden">
-                    <button class="mobile-nav-item" data-tab="droplogic">DropLogic</button>
-                    <button class="mobile-nav-item" data-tab="guides">Guides</button>
-                    <button class="mobile-nav-item" data-tab="plugins">Plugins</button>
-                    <button class="mobile-nav-item" data-tab="ironman-faq">FAQ</button>
-                    <button class="mobile-nav-item" data-tab="ironman-goals">Checklist</button>
-                </div>
+                <button id="mobile-sections-btn" class="premium-btn-sm" aria-controls="mobile-dropdown" aria-expanded="false">Sections ▾</button>
+                <nav id="mobile-dropdown" class="mobile-dropdown hidden" aria-label="Sections">
+                    <a href="#droplogic" class="mobile-nav-item">DropLogic</a>
+                    <a href="#guides" class="mobile-nav-item">Guides</a>
+                    <a href="#plugins" class="mobile-nav-item">Plugins</a>
+                    <a href="#ironman-faq" class="mobile-nav-item">FAQ</a>
+                    <a href="#ironman-goals" class="mobile-nav-item">Checklist</a>
+                </nav>
             </div>
         </header>
 
         <main>
-            
+
             <section id="droplogic" class="tab-panel active-panel">
                 <div class="container is-100">
                     <header>
@@ -76,60 +80,59 @@
 
                     <div class="droplogic-layout">
                         <div class="droplogic-controls">
-                            <section class="card">
-                                
-                                <div class="input-group" style="margin-bottom: 24px;">
-                                    <label for="boss-select">Assigned Boss</label>
-                                    <div class="select-wrapper">
-                                        <select id="boss-select">
-                                            <option value="">Select Boss Intel...</option>
-                                        </select>
-                                    </div>
+                            <section class="card" aria-label="Calculator inputs">
+                                <div class="input-group">
+                                    <label for="boss-select">Boss</label>
+                                    <select id="boss-select">
+                                        <option value="">Choose a boss…</option>
+                                    </select>
                                 </div>
 
-                                <div class="input-group" style="margin-bottom: 24px;">
+                                <div class="input-group">
                                     <label for="target-kc">Current KC</label>
-                                    <input type="number" id="target-kc" value="0" min="0">
-                                    
-                                    <div class="kc-controls">
-                                        <button class="kc-btn unified-btn" data-add="1">+1</button>
-                                        <button class="kc-btn unified-btn" data-add="5">+5</button>
-                                        <button class="kc-btn unified-btn" data-add="10">+10</button>
-                                        <button class="kc-btn unified-btn" data-add="100">+100</button>
-                                        <button class="kc-btn unified-btn" data-add="1000">+1k</button>
-                                        <button class="kc-btn reset unified-btn" id="kc-reset">0</button>
+                                    <input type="number" id="target-kc" value="0" min="0" inputmode="numeric">
+
+                                    <div class="kc-controls" role="group" aria-label="Adjust KC">
+                                        <button type="button" class="kc-btn unified-btn" data-add="1">+1</button>
+                                        <button type="button" class="kc-btn unified-btn" data-add="5">+5</button>
+                                        <button type="button" class="kc-btn unified-btn" data-add="10">+10</button>
+                                        <button type="button" class="kc-btn unified-btn" data-add="100">+100</button>
+                                        <button type="button" class="kc-btn unified-btn" data-add="1000">+1k</button>
+                                        <button type="button" class="kc-btn reset unified-btn" id="kc-reset" aria-label="Reset KC to 0">Reset</button>
                                     </div>
                                 </div>
 
-                                <div id="boss-preview" class="hidden" style="padding-top: 24px;">
-                                    
+                                <div id="boss-preview" class="hidden">
+                                    <div id="boss-settings" class="boss-settings hidden"></div>
+
                                     <div class="collection-header">
                                         <h3>Collection Log</h3>
                                     </div>
-                                    
+
                                     <div class="controls collection-controls">
-                                        <button class="btn-sm unified-btn" id="select-all">All</button>
-                                        <button class="btn-sm unified-btn" id="select-none">Reset</button>
+                                        <button type="button" class="btn-sm unified-btn" id="select-all">Select all</button>
+                                        <button type="button" class="btn-sm unified-btn" id="select-none">Clear</button>
                                     </div>
-                                    
-                                    <div id="item-grid" class="item-grid" style="margin-bottom: 24px;"></div>
-                                    
-                                    <button id="calculate-btn">Submit Analysis</button>
+
+                                    <div id="item-grid" class="item-grid" role="group" aria-label="Items to count"></div>
+                                    <p id="item-caption" class="item-caption" aria-live="polite"></p>
+
+                                    <button type="button" id="calculate-btn">Calculate</button>
                                 </div>
                             </section>
                         </div>
 
                         <div class="droplogic-results">
-                            <section id="results" class="card hidden" style="height: 100%;">
+                            <section id="results" class="card results-card hidden" aria-live="polite">
                                 <div class="result-header">
-                                    <h2 id="res-name">Dry Streak Analysis</h2>
+                                    <h2 id="res-name">Results</h2>
                                     <div class="prob-container">
                                         <span id="stat-chance">0%</span>
-                                        <div class="prob-label">Green Log Chance</div>
+                                        <div class="prob-label" id="stat-chance-label">Green log chance</div>
                                     </div>
                                 </div>
                                 <div class="chart-wrapper">
-                                    <canvas id="distributionChart"></canvas>
+                                    <canvas id="distributionChart" role="img" aria-label="Chart of how likely you are to have finished by each kill count"></canvas>
                                 </div>
                                 <div class="stats-list">
                                     <div class="stat-item" id="phrase-mode"></div>
@@ -138,6 +141,10 @@
                                     <div class="stat-item" id="phrase-user"></div>
                                 </div>
                             </section>
+                            <div class="card empty-state">
+                                <p class="empty-title">Your odds will appear here</p>
+                                <p class="sub-text">Choose a boss, pick the items you still need, enter your KC and press <b>Calculate</b>.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -149,10 +156,10 @@
                         <h1>Guides & Tools</h1>
                         <p class="subtitle">External Resources</p>
                     </header>
-                    
+
                     <div class="card">
                         <div class="header-row"><h3>How to Import Your Bank to Gearscape</h3></div>
-                        
+
                         <div class="import-steps">
                             <div class="step">
                                 <span class="step-num">01</span>
@@ -172,7 +179,7 @@
                                 <span class="step-num">03</span>
                                 <div class="step-content">
                                     <p><strong>Open Gearscape</strong></p>
-                                    <p class="sub-text">Navigate to <a href="https://gearscape.net" target="_blank" rel="noopener noreferrer" style="color: var(--accent-green);">Gearscape.net</a></p>
+                                    <p class="sub-text">Navigate to <a href="https://gearscape.net" target="_blank" rel="noopener noreferrer">Gearscape.net</a></p>
                                 </div>
                             </div>
                             <div class="step">
@@ -205,14 +212,14 @@
                             </div>
                         </div>
 
-                        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-top: 30px;">
-                            <p style="font-size: 14px; color: var(--text);"><strong>Stuck?</strong> Ensure gear is deposited before copying. If issues persist, ask in Discord for help.</p>
+                        <div class="stat-item callout is-orange is-spaced">
+                            <p class="callout-text"><strong>Stuck?</strong> Ensure gear is deposited before copying. If issues persist, ask in Discord for help.</p>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="header-row"><h3>Resource Directory</h3></div>
-                        
+
                         <h4 class="category-label">Gear and Equipment</h4>
                         <div class="plugin-directory">
                             <a href="https://tools.runescape.wiki/osrs-dps/" target="_blank" rel="noopener noreferrer" class="resource-card">
@@ -328,9 +335,9 @@
                         <ul class="compact-plugin-list">
                             <li>
                                 <a href="https://runelite.net/plugin-hub/show/better-npc-highlight" target="_blank" rel="noopener noreferrer">Better NPC Highlight</a> - Replaces NPC Indicators with advanced ID tagging.
-                                <ul style="list-style: none; font-size: 13px; color: var(--text-dim); margin-top: 6px; padding-left: 12px; line-height: 1.5;">
+                                <ul class="detail-list is-nested">
                                     <li><b>Wiki Method:</b> Find any Mob ID by creating an OSRS Wiki account and enabling "Display advanced data in infoboxes".</li>
-                                    <li><b>In-Game Method:</b> Use the <a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank" rel="noopener noreferrer" style="font-size: 1em; border: none; padding: 0;">NPC ID</a> plugin to display IDs directly over monsters.</li>
+                                    <li><b>In-Game Method:</b> Use the <a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank" rel="noopener noreferrer" class="inline-link">NPC ID</a> plugin to display IDs directly over monsters.</li>
                                 </ul>
                             </li>
                             <li><a href="https://runelite.net/plugin-hub/show/npc-id" target="_blank" rel="noopener noreferrer">NPC ID</a> - Displays identification info above NPCs for easy marking.</li>
@@ -380,7 +387,7 @@
                             <li><a href="https://runelite.net/plugin-hub/show/ground-markers" target="_blank" rel="noopener noreferrer">Ground Markers</a> - Essential plugin for marking specific tiles.</li>
                             <li><a href="https://runelite.net/plugin-hub/show/corner-tile-indicators" target="_blank" rel="noopener noreferrer">Corner Tile Indicators</a> - Cleaner alternative to full tile markers.</li>
                             <li><a href="https://runelite.net/plugin-hub/show/annoyance-mute" target="_blank" rel="noopener noreferrer">Annoyance Mute</a> - Mutes annoying game sounds.</li>
-                            <li><a href="https://runelite.net/plugin-hub/show/inventory-summary" target="_blank" rel="noopener noreferrer">Inventory Summary</a> - Shows a non-interactive summary of your inventory.</li>   
+                            <li><a href="https://runelite.net/plugin-hub/show/inventory-summary" target="_blank" rel="noopener noreferrer">Inventory Summary</a> - Shows a non-interactive summary of your inventory.</li>
                         </ul>
 
                         <h4 class="category-label">Social & Profile Tools</h4>
@@ -397,17 +404,17 @@
                         <div class="plugin-info-block">
                             <p><strong>Zulrah Snakeling Identifier</strong></p>
                             <p class="sub-text">Identify snakeling attack styles using either radius markers or the Better NPC Highlight plugin.</p>
-                            <ul class="stat-item" style="border-left-color: var(--accent-orange); list-style: none; margin-bottom: 15px;">
+                            <ul class="stat-item callout is-orange">
                                 <li>• Melee Snakeling: <b>2045</b></li>
                                 <li>• Magic Snakeling: <b>2046</b></li>
                             </ul>
                         </div>
                         <pre><code>[{"id":1745212907997,"name":"Magic Snake","visible":true,"collapsed":false,"z":0,"spawnX":3134,"spawnY":3629,"spawnColour":"#FF00FFFF","spawnVisible":false,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":true,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":true,"aggressionColour":"#FFFF0000","aggressionVisible":true,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":2046,"attackRadius":1,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":false,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":0,"interactionColour":"#FF0000FF","interactionVisible":true},{"id":1745212876543,"name":"Melee Snake","visible":true,"collapsed":false,"z":0,"spawnX":3150,"spawnY":3633,"spawnColour":"#FF00FFFF","spawnVisible":false,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":true,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":true,"aggressionColour":"#FFFF0000","aggressionVisible":true,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":2045,"attackRadius":1,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":false,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":0,"interactionColour":"#FFC80000","interactionVisible":true}]</code></pre>
 
-                        <div class="plugin-info-block" style="margin-top: 30px;">
+                        <div class="plugin-info-block is-spaced">
                             <p><strong>Akkha Radius Markers</strong></p>
                             <p class="sub-text">Full mechanical radius markers for all three prayer phases.</p>
-                            <ul class="stat-item" style="border-left-color: var(--accent-orange); list-style: none; margin-bottom: 15px;">
+                            <ul class="stat-item callout is-orange">
                                 <li>• Baba Boulder: <b>11783</b></li>
                             </ul>
                         </div>
@@ -424,18 +431,18 @@
                     </header>
 
                     <div class="goals-grid">
-                        
+
                         <div class="card">
                             <div class="header-row">
                                 <h3>Easy Goals</h3>
                                 <label class="check-all-wrapper">
-                                    <input type="checkbox" class="check-all-box">
+                                    <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
                             <div class="goal-list">
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Graceful Outfit</span>
@@ -443,14 +450,14 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Rogue Equipment</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Magic Secateurs</span>
@@ -458,7 +465,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Fairy Rings</span>
@@ -466,21 +473,21 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Ardougne Cloak 1</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Bird House Trapping</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Dorgeshuun Crossbow</span>
@@ -488,7 +495,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Climbing Boots</span>
@@ -496,7 +503,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Elemental Shield</span>
@@ -504,14 +511,14 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Ava's Attractor</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Protection Prayers</span>
@@ -519,7 +526,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Quests/Free-To-Play</span>
@@ -527,7 +534,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">High Level Alchemy</span>
@@ -535,28 +542,28 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Alfred Grimhand's Barcrawl</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Amulet of Strength</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Fremmenik Trials</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Iban's Staff</span>
@@ -564,7 +571,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Ardougne Cloak 2</span>
@@ -572,7 +579,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Camelot Teleport</span>
@@ -580,7 +587,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Explorer's Ring 2</span>
@@ -588,7 +595,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Kourend Castle Teleport</span>
@@ -596,7 +603,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Ectophial</span>
@@ -604,7 +611,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Farming Guild</span>
@@ -612,7 +619,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Trollheim Teleport</span>
@@ -626,13 +633,13 @@
                             <div class="header-row">
                                 <h3>Medium Goals</h3>
                                 <label class="check-all-wrapper">
-                                    <input type="checkbox" class="check-all-box">
+                                    <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
                             <div class="goal-list">
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Dragon Scimitar</span>
@@ -640,7 +647,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Salve Amulet</span>
@@ -648,14 +655,14 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Fighter Torso</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Prayer Potions</span>
@@ -663,21 +670,21 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Black Mask</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Rune Crossbow</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Proselyte Armour</span>
@@ -685,21 +692,21 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Magic Shortbow</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Dragon Defender</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Helm of Neitiznot</span>
@@ -707,7 +714,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Void Knight Equipment</span>
@@ -715,7 +722,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Broad Bolts</span>
@@ -723,7 +730,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Barrows Gloves</span>
@@ -731,7 +738,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Ancient Magicks</span>
@@ -739,7 +746,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Crystal Saw</span>
@@ -747,7 +754,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Herb Sack</span>
@@ -755,35 +762,35 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Amulet of Glory</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Anglers Outfit</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Fish Barrel</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Prospectors Kit</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Lumberjack Outfit</span>
@@ -791,7 +798,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Medium Diaries</span>
@@ -799,7 +806,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Ectoplasmator</span>
@@ -807,21 +814,21 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Holy Wrench</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Bone Crusher</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Piety</span>
@@ -829,7 +836,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Construction</span>
@@ -837,7 +844,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Karambwan Fishing</span>
@@ -850,20 +857,20 @@
                             <div class="header-row">
                                 <h3>Hard Goals</h3>
                                 <label class="check-all-wrapper">
-                                    <input type="checkbox" class="check-all-box">
+                                    <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
                             <div class="goal-list">
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Slayer Helm(i)</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Elite Void Equipment</span>
@@ -871,56 +878,56 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Dragon Boots</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Abyssal Whip</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Imbued God Cape</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Lunar Spellbook</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Ranger Boots</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Blessed D'Hide Armour</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Fire Cape</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Super Potions</span>
@@ -928,21 +935,21 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Crystal Shield</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Infinity Boots</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Hard Diaries</span>
@@ -950,49 +957,49 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Zombie Axe</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Amulet of Fury</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">God Books Completed</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Dagannoth Rings</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Trident of the Seas</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Quest Cape</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Ava's Assembler</span>
@@ -1005,13 +1012,13 @@
                             <div class="header-row">
                                 <h3>Elite Goals</h3>
                                 <label class="check-all-wrapper">
-                                    <input type="checkbox" class="check-all-box">
+                                    <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
                             <div class="goal-list">
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Construction</span>
@@ -1019,7 +1026,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Toxic Blowpipe</span>
@@ -1027,14 +1034,14 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Trident of the Swamp</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">GWD Bosses</span>
@@ -1042,49 +1049,49 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Dragon Warhammer</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Full Crystal Armour</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Bow of Faerdhinen (c)</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Abyssal Tentacle</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Occult Necklace</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Dragon Crossbow</span>
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Tombs of Amascut</span>
@@ -1092,7 +1099,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Chambers of Xeric</span>
@@ -1100,7 +1107,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Theatre of Blood</span>
@@ -1108,7 +1115,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Elite Diaries</span>
@@ -1122,13 +1129,13 @@
                             <div class="header-row">
                                 <h3>Master Goals</h3>
                                 <label class="check-all-wrapper">
-                                    <input type="checkbox" class="check-all-box">
+                                    <input type="checkbox" class="check-all-box visually-hidden">
                                     <span class="check-all-text">Check All</span>
                                 </label>
                             </div>
                             <div class="goal-list">
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Construction</span>
@@ -1136,7 +1143,7 @@
                                     </div>
                                 </label>
                                 <label class="goal-item">
-                                    <input type="checkbox">
+                                    <input type="checkbox" class="visually-hidden">
                                     <div class="custom-checkbox"></div>
                                     <div class="goal-details">
                                         <span class="goal-name">Achievement Diary Cape</span>
@@ -1148,7 +1155,7 @@
                     </div>
                 </div>
             </section>
-            
+
             <section id="ironman-faq" class="tab-panel">
                 <div class="container is-75">
                     <header>
@@ -1158,41 +1165,41 @@
 
                     <div class="card">
                         <div class="header-row"><h3>Skilling</h3></div>
-                        
-                        <ul class="compact-plugin-list" style="margin-bottom: 25px;">
+
+                        <ul class="compact-plugin-list">
                             <li><a href="https://oldschool.runescape.wiki/w/Ironman_guide#Skill_training" target="_blank" rel="noopener noreferrer">Skill Training Guides</a> - Detailed guidance on skill training for every Ironman stage.</li>
                         </ul>
 
                         <h4 class="category-label">Crafting: Seaweed/Mining Sand Loop</h4>
-                        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 20px;">
+                        <div class="stat-item callout is-green">
                             <p><strong>Sustainable Loop:</strong> Obtain Spores (Lobstrosities/Spawns) &rarr; Plant Seaweed &rarr; Mine Sandstone &rarr; Superglass Make (Spell/Furnace) &rarr; Blow Glass (Fossil Island Workstation).</p>
                         </div>
 
                         <h4 class="category-label">Herblore: Consistent Sustain</h4>
-                        <div class="stat-item" style="border-left-color: var(--accent-green);">
+                        <div class="stat-item callout is-green">
                             <p><strong>Sustain Sequence:</strong> Farming Contracts &rarr; Grow Herbs & Secondaries &rarr; Boss Seeds (Ice King/Moons) &rarr; Kingdom to Herbs &rarr; Consistent Daily Progression.</p>
                         </div>
-                        <p class="sub-text" style="margin-top: 10px; padding-left: 15px; color: var(--text-dim); font-size: 13px;">* Note: Herblore is a slow progression skill and should not be neglected.</p>
+                        <p class="sub-text footnote">* Note: Herblore is a slow progression skill and should not be neglected.</p>
                     </div>
 
                     <div class="card">
                         <div class="header-row"><h3>Combat & Slayer Strategy</h3></div>
-                        
+
                         <h4 class="category-label">PvM Progression Path</h4>
-                        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 20px;">
+                        <div class="stat-item callout is-orange">
                             <p><strong>Deployment Sequence:</strong> Morytania Hard Diary &rarr; Medium Combat Achievements &rarr; Barrows (Tank Gear) &rarr; Moons of Peril (Mid-tier sets) &rarr; Royal Titans.</p>
                         </div>
-                        <ul class="compact-plugin-list" style="margin-top: 15px;">
+                        <ul class="compact-plugin-list">
                             <li><a href="https://oldschool.runescape.wiki/w/Combat_Achievements/Strategies" target="_blank" rel="noopener noreferrer">Combat Achievement Strategies</a> - Simplified pathing for tier rewards.</li>
                         </ul>
                         <h4 class="category-label">Slayer Optimization</h4>
-                        
-                        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 15px;">
-                            <p style="margin-bottom: 12px;"><strong>Strategic Sequence:</strong> Early Point Boosting &rarr; Superior Monsters &rarr; Task Skips/Blocks &rarr; Essential Unlocks &rarr; Long-term Efficiency.</p>
-                            
-                            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px;">
-                                <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;"><b>Prioritize Point Boosting early to secure:</b></p>
-                                <ul style="list-style: none; font-size: 13px; color: var(--text-dim); padding-left: 5px; line-height: 1.5;">
+
+                        <div class="stat-item callout is-orange">
+                            <p class="callout-lead"><strong>Strategic Sequence:</strong> Early Point Boosting &rarr; Superior Monsters &rarr; Task Skips/Blocks &rarr; Essential Unlocks &rarr; Long-term Efficiency.</p>
+
+                            <div class="inset-panel">
+                                <p class="detail-heading"><b>Prioritize Point Boosting early to secure:</b></p>
+                                <ul class="detail-list">
                                     <li>&bull; Immediate access to <b>Superior Slayer Monsters</b> for unique loot.</li>
                                     <li>&bull; Capability to skip undesirable or inefficient tasks as they appear.</li>
                                     <li>&bull; Faster path to essential unlocks (Slayer Helm, Broad Fletching, Slayer Ring).</li>
@@ -1204,37 +1211,37 @@
                         <ul class="compact-plugin-list">
                             <li><a href="https://oldschool.runescape.wiki/w/Ironman_Guide/Slayer#Task_summary" target="_blank" rel="noopener noreferrer">Ironman Slayer Task Summary</a> - Detailed guidance on tasks to complete, skip, or block.</li>
                         </ul>
-                    </div> 
-                    
+                    </div>
+
                     <div class="card">
                         <div class="header-row"><h3>Item Upgrades</h3></div>
-                        
+
                         <h4 class="category-label">Last Man Standing & Mage Training Arena Efficiency Upgrades</h4>
-                        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 25px;">
-                            <p style="margin-bottom: 8px;"><strong>Rune Pouch Acquisition:</strong></p>
-                            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 15px; padding-left: 8px;">
+                        <div class="stat-item callout is-green">
+                            <p class="callout-lead"><strong>Rune Pouch Acquisition:</strong></p>
+                            <ul class="detail-list">
                                 <li>&bull; <span class="val">750</span> Slayer points from any Slayer master.</li>
                                 <li>&bull; <span class="val">75</span> points from Last Man Standing (LMS).</li>
                                 <li>&bull; <span class="val">150</span> Telekinetic, <span class="val">150</span> Graveyard, <span class="val">1500</span> Enchantment, and <span class="val">200</span> Alchemist Pizazz points from MTA.</li>
                             </ul>
-                            
-                            <p style="padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05);"><strong>Rune Arrows:</strong> Available at <span class="val">x300</span> arrows for <span class="val">3</span> points from LMS. High-value early Ranged ammo for zero GP.</p>
+
+                            <p class="callout-divider"><strong>Rune Arrows:</strong> Available at <span class="val">x300</span> arrows for <span class="val">3</span> points from LMS. High-value early Ranged ammo for zero GP.</p>
                         </div>
 
                         <h4 class="category-label">Item Imbuing (Emir's Arena)</h4>
-                        <div class="stat-item" style="border-left-color: var(--accent-green);">
-                            <ul style="list-style: none; font-size: 14px; color: var(--text-dim); line-height: 1.6; padding-left: 5px;">
+                        <div class="stat-item callout is-green">
+                            <ul class="detail-list">
                                 <li>&bull; Earn <b>Scrolls of Imbuing</b> via participation (playing or leaving earns points).</li>
                                 <li>&bull; <b>Speed:</b> One scroll typically takes under one hour to obtain.</li>
                                 <li>&bull; <b>Utility:</b> Scrolls are reusable and can be removed/transferred between items.</li>
-                                <li>&bull; <b style="color: var(--text);">Wilderness Meta:</b> Dying in the Wildy with a scroll-imbued item grants <span class="val">650,000</span> NMZ points.</li>
+                                <li>&bull; <b>Wilderness Meta:</b> Dying in the Wildy with a scroll-imbued item grants <span class="val">650,000</span> NMZ points.</li>
                             </ul>
                         </div>
-                    </div> 
-                    
+                    </div>
+
                     <div class="card">
                         <div class="header-row"><h3>Surviving The Early Game</h3></div>
-                        
+
                         <h4 class="category-label">Early-Game Food Directory</h4>
                         <div class="food-list">
                             <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Jug_of_wine" target="_blank" rel="noopener noreferrer">Jugs of Wine</a> (Draynor - Fortunato) - <span class="val">1 GP</span></span> <span class="val">11 HP</span></div>
@@ -1252,9 +1259,9 @@
                             <div class="food-row"><span><a href="https://oldschool.runescape.wiki/w/Pineapple_pizza" target="_blank" rel="noopener noreferrer">Pineapple Pizzas</a> (Plain + Pineapple) - <span class="val">2 Bites</span></span> <span class="val">22 HP</span></div>
                         </div>
 
-                        <h4 class="category-label" style="margin-top: 40px;">Early-Game Capital (GP)</h4>
-                        <div class="stat-item" style="border-left-color: var(--accent-orange); margin-bottom: 15px;">
-                            <ul style="list-style: none; font-size: 14px; color: var(--text-dim); line-height: 1.6; padding-left: 5px;">
+                        <h4 class="category-label">Early-Game Capital (GP)</h4>
+                        <div class="stat-item callout is-orange">
+                            <ul class="detail-list">
                                 <li>&bull; <b>Stronghold of Security:</b> Awards <span class="val">10,000</span> GP (One-time).</li>
                                 <li>&bull; <b>Agility Pyramid:</b> Awards <span class="val">10,000</span> GP for every successful lap.</li>
                                 <li>&bull; <b>Eclipse Red Wine:</b> Averages <span class="val">280,000</span> GP per hour.</li>
@@ -1263,15 +1270,15 @@
                         <ul class="compact-plugin-list">
                             <li><a href="https://oldschool.runescape.wiki/w/Ironman_money_making_guide" target="_blank" rel="noopener noreferrer">Money Making Wiki</a> - Detailed guidance on early money making.</li>
                         </ul>
-                    </div> 
-                    
+                    </div>
+
                     <div class="card">
                         <div class="header-row"><h3>Sustainable Supply Gathering</h3></div>
-                        
+
                         <h4 class="category-label">Prayer Supplies (Varlamore)</h4>
-                        <div class="stat-item" style="border-left-color: var(--accent-green); margin-bottom: 25px;">
-                            <p style="margin-bottom: 8px;"><strong>Method:</strong> Catch <b>Moonlight Moths</b> at 75 Hunter.</p>
-                            <ul style="list-style: none; font-size: 13px; color: var(--text-dim); line-height: 1.6; padding-left: 8px;">
+                        <div class="stat-item callout is-green">
+                            <p class="callout-lead"><strong>Method:</strong> Catch <b>Moonlight Moths</b> at 75 Hunter.</p>
+                            <ul class="detail-list">
                                 <li>&bull; Base version restores 1 dose of prayer potion.</li>
                                 <li>&bull; Mixed versions (using specific meats) restore 2 doses.</li>
                                 <li>&bull; Provides consistent protection prayer usage without relying on Ranarr drops.</li>
@@ -1291,77 +1298,6 @@
 
         </main>
     </div>
-
-    <script>
-        const UI_CONFIG = {
-            ANIMATION_DURATION_MS: 300 
-        };
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const DOM = {
-                heroView: document.getElementById("hero-view"),
-                mainView: document.getElementById("main-view"),
-                tabPanels: document.querySelectorAll(".tab-panel"),
-                miniNavBtns: document.querySelectorAll(".tab-link, .mobile-nav-item") // Cached to quickly update active states
-            };
-
-            const transitionView = (hideEl, showEl) => {
-                hideEl.classList.add("fade-out");
-                
-                setTimeout(() => {
-                    hideEl.classList.remove("active-view", "fade-out");
-                    hideEl.classList.add("hidden-view");
-                    
-                    showEl.classList.remove("hidden-view");
-                    showEl.classList.add("active-view");
-                }, UI_CONFIG.ANIMATION_DURATION_MS); 
-            };
-
-            const switchTab = (targetId) => {
-                DOM.miniNavBtns.forEach(btn => {
-                    btn.classList.toggle("active", btn.getAttribute("data-tab") === targetId);
-                });
-                
-                DOM.tabPanels.forEach(panel => {
-                    const isActive = panel.id === targetId;
-                    panel.classList.toggle("active-panel", isActive);
-                    panel.classList.toggle("hidden-view", !isActive);
-                });
-
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
-
-            // Event Delegation: We listen for clicks on the document rather than attaching 
-            // an individual listener to every single navigation button. This drastically 
-            // cleans up memory allocation and initialization times.
-            document.addEventListener("click", (e) => {
-                
-                // Hero Section Navigation
-                const heroBtn = e.target.closest('.premium-nav .premium-btn');
-                if (heroBtn) {
-                    if (heroBtn.hasAttribute("data-target")) {
-                        switchTab(heroBtn.getAttribute("data-target"));
-                        transitionView(DOM.heroView, DOM.mainView);
-                    }
-                    return;
-                }
-
-                // Header Navigation (Desktop Tabs & Mobile Dropdown)
-                const navBtn = e.target.closest('.tab-link, .mobile-nav-item');
-                if (navBtn) {
-                    switchTab(navBtn.getAttribute("data-tab"));
-                    return;
-                }
-
-                // Return to Home
-                if (e.target.closest('#btn-home')) {
-                    transitionView(DOM.mainView, DOM.heroView);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
-            });
-        });
-    </script>
 
     <script type="module" src="js/app.js"></script>
 </body>

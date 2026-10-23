@@ -2,12 +2,12 @@
  * @file modifiers.js
  * Pure mathematical functions to adjust base drop rates based on raid performance, 
  * team sizes, or specific boss mechanics. 
- * These functions have NO dependency on the DOM or UI.
+ * These functions have NO dependency on the DOM or UI. Each takes the boss's items and the
+ * state built from its settings in bosses.js, and returns items with adjusted rates.
  */
 
 // ==========================================
 // STATIC PRE-COMPUTED DATA
-// Hoisting these prevents recreating objects on every single calculation tick.
 // ==========================================
 
 const DOOM_FLOOR_RATES = {
@@ -62,7 +62,7 @@ const PRECOMPUTED_WT_RATES = (() => {
 // MODIFIER FUNCTIONS
 // ==========================================
 
-function adjustRatesForDoom(items, { delveLevel = 9 }) {
+export function adjustRatesForDoom(items, { delveLevel }) {
     const targetLevel = Math.min(Math.max(delveLevel, 2), 15);
 
     return items.map(item => {
@@ -84,7 +84,7 @@ function adjustRatesForDoom(items, { delveLevel = 9 }) {
     });
 }
 
-function adjustRatesForAraxxor(items, { isSacrificing = false }) {
+export function adjustRatesForAraxxor(items, { isSacrificing }) {
     return items.map(item => {
         if (item.name === "Nid") {
             return { ...item, rate: isSacrificing ? 1/1500 : 1/3000 };
@@ -96,7 +96,7 @@ function adjustRatesForAraxxor(items, { isSacrificing = false }) {
     });
 }
 
-function adjustRatesForTitans(items, { target = 'branda', action = 'loot', contrib = 100 }) {
+export function adjustRatesForTitans(items, { target, action, contrib }) {
     const cFrac = Math.min(Math.max(contrib, 0), 100) / 100;
 
     return items.map(item => {
@@ -106,7 +106,6 @@ function adjustRatesForTitans(items, { target = 'branda', action = 'loot', contr
 
         if (action !== 'loot' || cFrac === 0) return { ...item, rate: 0 };
         
-        // O(1) lookup using our module-scoped Set instead of recreating an array every time
         if (TITAN_RESTRICTIONS[target]?.has(item.name)) {
             return { ...item, rate: 0 };
         }
@@ -115,7 +114,7 @@ function adjustRatesForTitans(items, { target = 'branda', action = 'loot', contr
     });
 }
 
-function adjustRatesForTempoross(items, { points = 4000 }) {
+export function adjustRatesForTempoross(items, { points }) {
     const rolls = points >= 2000 ? 1 + (points - 2000) / 700 : 0;
 
     if (rolls === 0) return items.map(item => ({ ...item, rate: 0 }));
@@ -127,7 +126,7 @@ function adjustRatesForTempoross(items, { points = 4000 }) {
     }));
 }
 
-function adjustRatesForWintertodt(items, { points = 750 }) {
+export function adjustRatesForWintertodt(items, { points }) {
     const safePoints = Math.max(points, 500);
     const rolls = 1 + (safePoints / 500);
 
@@ -141,7 +140,7 @@ function adjustRatesForWintertodt(items, { points = 750 }) {
     });
 }
 
-function adjustRatesForZalcano(items, { contrib = 100 }) {
+export function adjustRatesForZalcano(items, { contrib }) {
     const cFrac = Math.min(Math.max(contrib, 0), 100) / 100;
 
     if (cFrac === 0) return items.map(item => ({ ...item, rate: 0 }));
@@ -160,7 +159,7 @@ function adjustRatesForZalcano(items, { contrib = 100 }) {
     }));
 }
 
-function adjustRatesForYama(items, { contrib = 100 }) {
+export function adjustRatesForYama(items, { contrib }) {
     const points = Math.min(Math.max(contrib, 0), 100) / 100;
 
     if (points < 0.15) return items.map(item => ({ ...item, rate: 0 }));
@@ -205,7 +204,7 @@ function adjustRatesForYama(items, { contrib = 100 }) {
     }));
 }
 
-function adjustRatesForColosseum(items, { isSacrificing = false }) {
+export function adjustRatesForColosseum(items, { isSacrificing }) {
     return items.map(item => {
         if (item.name === 'Smol heredit' && isSacrificing) {
             return { ...item, rate: 1 - Math.pow((1 - item.rate), 2) };
@@ -219,7 +218,7 @@ const COX_TOTAL_WEIGHT = 60;
 // 1% per 8,676 points, capped at 65.7% (570,000 points); the extra uniques past the cap aren't modelled
 const COX_POINTS_CAP = 570000;
 
-function adjustRatesForCox(items, { points = 30000 }) {
+export function adjustRatesForCox(items, { points }) {
     const uniqueChance = Math.min(points, COX_POINTS_CAP) / 867600;
 
     return items.map(item => {
@@ -229,10 +228,11 @@ function adjustRatesForCox(items, { points = 30000 }) {
     });
 }
 
-function adjustRatesForTob(items, { size = 3, deaths = 0 }) {
+export function adjustRatesForTob(items, { size, deaths }) {
     const maxPts = (18 * size) + 14;
     const earnedPts = Math.max(0, maxPts - (deaths * 4));
-    const uniqueChance = (1 / 9.1) * (earnedPts / maxPts);
+    // 1/9.1 is the whole team's chance and one player receives the unique, so assume an even share
+    const uniqueChance = (1 / 9.1) * (earnedPts / maxPts) / size;
     
     return items.map(item => {
         if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / 19) };
@@ -240,7 +240,7 @@ function adjustRatesForTob(items, { size = 3, deaths = 0 }) {
     });
 }
 
-function adjustRatesForToa(items, { level = 150, points = 15000 }) {
+export function adjustRatesForToa(items, { level, points }) {
     let adjLevel = level;
     if (adjLevel > 310) { 
         if (adjLevel > 430) adjLevel = 430 + Math.floor((adjLevel - 430) / 2); 
@@ -252,9 +252,9 @@ function adjustRatesForToa(items, { level = 150, points = 15000 }) {
 
     let fangW = 70; 
     let lbW = 70;
-    
-    // Kept the legacy logic identical but aligned it for better scannability
-    if (level >= 500) { 
+
+    // Fang and Lightbearer weights shrink between raid levels 300 and 500
+    if (level >= 500) {
         fangW = 30; lbW = 35; 
     } else if (level >= 450) { 
         fangW = 40 - Math.floor((level - 450) * 0.2); 
@@ -290,7 +290,7 @@ function adjustRatesForToa(items, { level = 150, points = 15000 }) {
     });
 }
 
-function adjustRatesForDT2(items, { isAwakened = false }) {
+export function adjustRatesForDT2(items, { isAwakened }) {
     if (!isAwakened) return items;
 
     return items.map(item => {
@@ -299,7 +299,7 @@ function adjustRatesForDT2(items, { isAwakened = false }) {
     });
 }
 
-function adjustRatesForNightmare(items, { variant = 'standard', teamSize = 5 }) {
+export function adjustRatesForNightmare(items, { variant, teamSize }) {
     const safeTeamSize = Math.min(Math.max(teamSize, 1), 80);
 
     if (variant === 'phosani') {
@@ -328,21 +328,3 @@ function adjustRatesForNightmare(items, { variant = 'standard', teamSize = 5 }) 
     });
 }
 
-export const RATE_ADJUSTERS = {
-    'chambers_of_xeric': adjustRatesForCox,
-    'theatre_of_blood': adjustRatesForTob,
-    'tombs_of_amascut': adjustRatesForToa,
-    'doom_of_mokhaiotl': adjustRatesForDoom,
-    'fortis_colosseum': adjustRatesForColosseum,
-    'the_nightmare': adjustRatesForNightmare,
-    'yama': adjustRatesForYama,
-    'tempoross': adjustRatesForTempoross,
-    'wintertodt': adjustRatesForWintertodt,
-    'zalcano': adjustRatesForZalcano,
-    'royal_titans': adjustRatesForTitans,
-    'araxxor': adjustRatesForAraxxor,
-    'vardorvis': adjustRatesForDT2,
-    'duke_sucellus': adjustRatesForDT2,
-    'the_whisperer': adjustRatesForDT2,
-    'the_leviathan': adjustRatesForDT2
-};

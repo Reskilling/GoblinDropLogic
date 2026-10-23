@@ -13,9 +13,8 @@ const SIM_CONFIG = {
 
 export function buildChartData(historyPMF, historyCDF, finalKC, targetKC, modeKC, median) {
     const curveData = [];
-    const includedKCs = new Set(); // Using a Set gives us O(1) lookups to avoid duplicate points
+    const includedKCs = new Set();
 
-    // Helper function to keep our data extraction DRY
     const addDataPoint = (kc) => {
         if (!includedKCs.has(kc) && kc > 0 && kc <= finalKC) {
             curveData.push({ x: kc, pmf: historyPMF[kc], cdf: historyCDF[kc] });
@@ -98,7 +97,6 @@ export function runSimulation(sparseMatrix) {
         // We do this manually because we skipped the absorbing state in the loop above for performance.
         nextStateVector[absorbingState] += stateVector[absorbingState]; 
         
-        // Swap buffers cleanly using ES6 array destructuring (zero allocation overhead)
         [stateVector, nextStateVector] = [nextStateVector, stateVector];
         
         const currCDF = stateVector[absorbingState];
@@ -141,6 +139,6 @@ export function runSimulation(sparseMatrix) {
         maxPMF, 
         historyCDF, 
         historyPMF, 
-        finalK: finalKC // Keeping the original key name 'finalK' to avoid breaking consumer destructuring
+        finalKC
     };
 }
