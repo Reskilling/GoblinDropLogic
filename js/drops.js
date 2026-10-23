@@ -502,6 +502,28 @@ export const RAW_BOSS_DATA = {
         "12922": { name: "Tanzanite fang", rate: 1 / 1024, type: "main", order: 7 },
         "6571": { name: "Uncut onyx", rate: 1 / 1024, type: "main", order: 9 },
     },
+    demonic_brutus: {
+        "33124": { name: "Beef", rate: 1 / 400, type: "tertiary", order: 1 },
+        "33099": { name: "Brutus slippers", rate: 1, type: "tertiary", order: 2 },
+    },
+    mad_angel: {
+        "34042": { name: "Aggy", rate: 1 / 2000, type: "tertiary", order: 1 },
+        "34027": { name: "Hallowfell", rate: 1 / 127, type: "main", order: 2 },
+        "34030": { name: "Jar of Light", rate: 1 / 1000, type: "main", order: 3 },
+        "34033": { name: "Ardeaglais teleport", rate: 1 / 25, type: "main", order: 4 },
+        "21726": { name: "Granite dust", rate: 1, type: "tertiary", order: 5 },
+    },
+    maggot_king: {
+        "33642": { name: "Maggot marquess", rate: 1 / 3500, type: "tertiary", order: 1 },
+        "33634": { name: "Elder venator fang", rate: 1 / 340, type: "main", order: 2 },
+        "33631": { name: "Crimson kisten", rate: 1 / 520, type: "main", order: 3 },
+    },
+    the_gauntlet: {
+        "23757": { name: "Youngllef", rate: 1 / 2000, type: "tertiary", order: 1 },
+        "23956": { name: "Crystal armour seed", rate: 1 / 120, type: "main", order: 2 },
+        "4207": { name: "Crystal weapon seed", rate: 1 / 120, type: "main", order: 3 },
+        "25859": { name: "Enhanced crystal weapon seed", rate: 1 / 2000, type: "main", order: 4 },
+    },
     chambers_of_xeric: {
         "20851": { name: "Olmlet", rate: 1 / 53, type: "tertiary", order: 1 },
         "20997": { name: "Twisted bow", weight: 2, type: "main", order: 3 },

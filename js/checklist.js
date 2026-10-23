@@ -1,9 +1,10 @@
 /**
  * @file checklist.js
- * Zugrot's Checklist: per-goal progress saved in this browser, a progress count per tier,
- * and "Check all" with Undo.
+ * Zugrot's Checklist: renders the tiers in goals.js, saves each goal's progress in this
+ * browser, shows a progress count per tier, and offers Undo after "Check all".
  */
 
+import { GOAL_TIERS } from './goals.js';
 import { showToast } from './toast.js';
 
 const slugify = (text) => text.trim().replace(/\s+/g, '-');
@@ -25,27 +26,57 @@ function saveFlag(key, value) {
     } catch { /* storage unavailable */ }
 }
 
-function setupTier(card, repeatedNames) {
-    const heading = card.querySelector('h3[data-tier]');
-    const checkAllBox = card.querySelector('.check-all-box');
-    const checkAllWrapper = card.querySelector('.check-all-wrapper');
-    const goals = [...card.querySelectorAll('.goal-item')].map(item => ({
-        checkbox: item.querySelector('input[type="checkbox"]'),
-        name: item.querySelector('.goal-name')?.textContent ?? ''
-    }));
+function element(tag, className, text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
+}
 
-    if (!heading || !checkAllBox || goals.length === 0) return;
+function goalItem(goal) {
+    const label = element('label', 'goal-item');
+    const checkbox = element('input', 'visually-hidden');
+    checkbox.type = 'checkbox';
 
-    const tierName = heading.textContent;
+    const details = element('div', 'goal-details');
+    details.append(element('span', 'goal-name', goal.name));
+    if (goal.detail) details.append(element('span', 'goal-subtext', goal.detail));
+
+    label.append(checkbox, element('div', 'custom-checkbox'), details);
+    return { label, checkbox };
+}
+
+function tierCard(tier) {
+    const card = element('div', 'card');
+    const header = element('div', 'header-row');
+    const heading = element('h3', '', tier.name);
+    const progress = element('span', 'tier-progress');
+
+    const checkAllWrapper = element('label', 'check-all-wrapper');
+    const checkAllBox = element('input', 'check-all-box visually-hidden');
+    checkAllBox.type = 'checkbox';
+    checkAllWrapper.append(checkAllBox, element('span', 'check-all-text', 'Check All'));
+
+    header.append(heading, progress, checkAllWrapper);
+
+    const list = element('div', 'goal-list');
+    const goals = tier.goals.map(goal => {
+        const { label, checkbox } = goalItem(goal);
+        list.append(label);
+        return { ...goal, checkbox };
+    });
+
+    card.append(header, list);
+    return { card, progress, checkAllBox, checkAllWrapper, goals };
+}
+
+function setupTier(tier, repeatedNames) {
+    const { card, progress, checkAllBox, checkAllWrapper, goals } = tierCard(tier);
+
     // Keys include the tier because goal names repeat across tiers (e.g. Construction).
     // Old keys had no tier, so they're only trusted for names that appear in a single tier.
-    const storageKey = (name) => `goal-${heading.dataset.tier}-${slugify(name)}`;
+    const storageKey = (name) => `goal-${tier.id}-${slugify(name)}`;
     const legacyStorageKeys = (name) => repeatedNames.has(name) ? [] : [`goal-${slugify(name)}`];
-
-    const progress = document.createElement('span');
-    progress.className = 'tier-progress';
-    heading.after(progress);
-
     const save = ({ checkbox, name }) => saveFlag(storageKey(name), checkbox.checked);
 
     const updateSummary = () => {
@@ -78,7 +109,7 @@ function setupTier(card, repeatedNames) {
         });
         updateSummary();
 
-        showToast(`${isChecked ? 'Ticked' : 'Cleared'} every ${tierName.toLowerCase()} goal.`, {
+        showToast(`${isChecked ? 'Ticked' : 'Cleared'} every ${tier.name.toLowerCase()} goal.`, {
             tone: 'info',
             action: {
                 label: 'Undo',
@@ -94,20 +125,17 @@ function setupTier(card, repeatedNames) {
     });
 
     updateSummary();
+    return card;
 }
 
 function findRepeatedGoalNames() {
-    const seen = new Set();
-    const repeated = new Set();
-    document.querySelectorAll('#ironman-goals .goal-name').forEach(el => {
-        const name = el.textContent;
-        if (seen.has(name)) repeated.add(name);
-        seen.add(name);
-    });
-    return repeated;
+    const counts = new Map();
+    GOAL_TIERS.flatMap(tier => tier.goals).forEach(({ name }) => counts.set(name, (counts.get(name) ?? 0) + 1));
+    return new Set([...counts].filter(([, count]) => count > 1).map(([name]) => name));
 }
 
 export function initChecklist() {
+    const grid = document.getElementById('goals-grid');
     const repeatedNames = findRepeatedGoalNames();
-    document.querySelectorAll('#ironman-goals .card').forEach(card => setupTier(card, repeatedNames));
+    grid.replaceChildren(...GOAL_TIERS.map(tier => setupTier(tier, repeatedNames)));
 }

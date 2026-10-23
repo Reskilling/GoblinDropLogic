@@ -518,3 +518,8 @@ pre {
 @media (max-width: 480px) {
     .premium-nav { grid-template-columns: 1fr; }
 }
+
+/* Comfortable tap targets on touch screens */
+@media (pointer: coarse) {
+    .unified-btn, .premium-btn-sm, .brand-link, .check-all-wrapper, .setting-toggle, .toast-action { min-height: 44px; }
+}

@@ -114,6 +114,18 @@ export function adjustRatesForTitans(items, { target, action, contrib }) {
     });
 }
 
+// "Take eggs" gives up the normal loot for a better pet chance
+const MAGGOT_KING_EGG_PET_RATE = 1 / 1502.4;
+
+export function adjustRatesForMaggotKing(items, { loot }) {
+    if (loot !== 'eggs') return items;
+
+    return items.map(item => ({
+        ...item,
+        rate: item.name === 'Maggot marquess' ? MAGGOT_KING_EGG_PET_RATE : 0
+    }));
+}
+
 export function adjustRatesForTempoross(items, { points }) {
     const rolls = points >= 2000 ? 1 + (points - 2000) / 700 : 0;
 
@@ -159,49 +171,32 @@ export function adjustRatesForZalcano(items, { contrib }) {
     }));
 }
 
+const YAMA_PET_RATE = 1 / 2500;
+const YAMA_MIN_CONTRIBUTION = 0.15;
+
 export function adjustRatesForYama(items, { contrib }) {
-    const points = Math.min(Math.max(contrib, 0), 100) / 100;
+    const contribution = Math.min(Math.max(contrib, 0), 100) / 100;
 
-    if (points < 0.15) return items.map(item => ({ ...item, rate: 0 }));
+    if (contribution < YAMA_MIN_CONTRIBUTION) return items.map(item => ({ ...item, rate: 0 }));
 
-    let runningProb = 1.0;
+    // Tables are rolled in this order until one hits, so each only rolls if every earlier one missed.
+    // `drops` splits a table's hit between items (the unique table: 3/5 armour, 2/5 horn).
+    const cascade = [
+        { chance: contribution / 120, drops: { "Oathplate helm": 1 / 5, "Oathplate chest": 1 / 5, "Oathplate legs": 1 / 5, "Soulflame horn": 2 / 5 } },
+        { chance: contribution / 12, drops: { "Dossier": 1 } },
+        { chance: 1 / 30, drops: { "Forgotten lockbox": 1 } },
+        { chance: 1 / 15, drops: { "Oathplate shards": 1 } },
+        { chance: 5 / 78, drops: { "Barrel of demonic tallow (full)": 1 } }
+    ];
 
-    // Yama's probabilities are entirely dependent on user contribution, 
-    // so we must calculate the running waterfall dynamically.
-    const rareSum = (1/120) * points;
-    const helmRate = (1/600) * points * runningProb;
-    const chestRate = (1/600) * points * runningProb;
-    const legsRate = (1/600) * points * runningProb;
-    const hornRate = (1/300) * points * runningProb;
-    runningProb *= (1 - rareSum);
+    const rates = { "Yami": YAMA_PET_RATE };
+    let reachChance = 1;
+    for (const { chance, drops } of cascade) {
+        for (const [name, portion] of Object.entries(drops)) rates[name] = reachChance * chance * portion;
+        reachChance *= 1 - chance;
+    }
 
-    const dossierRate = (1/12) * points * runningProb;
-    runningProb *= (1 - ((1/12) * points));
-
-    const lockboxRate = (1/30) * runningProb;
-    runningProb *= (1 - (1/30));
-
-    const shardsRate = (1/15) * runningProb;
-    runningProb *= (1 - (1/15));
-
-    const tallowRate = (5/78) * runningProb;
-
-    const yamaRates = {
-        "Yami": 1/2500, 
-        "Oathplate helm": helmRate,
-        "Oathplate chest": chestRate,
-        "Oathplate legs": legsRate,
-        "Soulflame horn": hornRate,
-        "Dossier": dossierRate,
-        "Forgotten lockbox": lockboxRate,
-        "Oathplate shards": shardsRate,
-        "Barrel of demonic tallow (full)": tallowRate
-    };
-
-    return items.map(item => ({
-        ...item,
-        rate: yamaRates[item.name] ?? item.rate
-    }));
+    return items.map(item => ({ ...item, rate: rates[item.name] ?? item.rate }));
 }
 
 export function adjustRatesForColosseum(items, { isSacrificing }) {
@@ -242,51 +237,49 @@ export function adjustRatesForTob(items, { size, deaths }) {
     });
 }
 
+const TOA_UNIQUE_CAP = 0.55;
+// Shadow 10 + Masori 3 x 20 + Ward 30; fang and Lightbearer weights vary with raid level
+const TOA_OTHER_UNIQUES_WEIGHT = 100;
+const TOA_LEVEL_SCALED_UNIQUES = ["Osmumten's fang", "Lightbearer"];
+
+// Each raid level above 310 counts for a third, and above 430 for a sixth
+function toaUniqueTableLevel(level) {
+    if (level <= 310) return level;
+    const halvedAbove430 = level > 430 ? 430 + Math.floor((level - 430) / 2) : level;
+    return 310 + Math.floor((halvedAbove430 - 310) / 3);
+}
+
+// The pet uses its own scaling: a third per level above 400, capped at raid level 550
+function toaPetLevel(level) {
+    return level <= 400 ? level : 400 + (Math.min(level, 550) - 400) / 3;
+}
+
+// Fang and Lightbearer weights shrink between raid levels 300 and 500
+function toaFangAndLightbearerWeights(level) {
+    if (level >= 500) return { fang: 30, lightbearer: 35 };
+    if (level >= 450) return { fang: 40 - Math.floor((level - 450) * 0.2), lightbearer: 40 - Math.floor((level - 450) * 0.1) };
+    if (level >= 400) return { fang: 40, lightbearer: 50 - Math.floor((level - 400) * 0.2) };
+    if (level >= 350) return { fang: 60 - Math.floor((level - 350) * 0.4), lightbearer: 60 - Math.floor((level - 350) * 0.2) };
+    if (level >= 300) return { fang: 70 - Math.floor((level - 300) * 0.2), lightbearer: 70 - Math.floor((level - 300) * 0.2) };
+    return { fang: 70, lightbearer: 70 };
+}
+
 export function adjustRatesForToa(items, { level, points }) {
-    let adjLevel = level;
-    if (adjLevel > 310) { 
-        if (adjLevel > 430) adjLevel = 430 + Math.floor((adjLevel - 430) / 2); 
-        adjLevel = 310 + Math.floor((adjLevel - 310) / 3); 
-    }
-    
-    const denom = 100 * (10500 - 20 * adjLevel);
-    const uniqueChance = Math.min(points / denom, 0.55);
+    const uniqueChance = Math.min(points / (100 * (10500 - 20 * toaUniqueTableLevel(level))), TOA_UNIQUE_CAP);
+    const { fang, lightbearer } = toaFangAndLightbearerWeights(level);
+    const totalWeight = TOA_OTHER_UNIQUES_WEIGHT + fang + lightbearer;
 
-    let fangW = 70; 
-    let lbW = 70;
+    const weightOf = (item) => {
+        if (item.name === "Osmumten's fang") return fang;
+        if (item.name === "Lightbearer") return lightbearer;
+        // Below raid level 150 the other uniques need an extra 1/50 roll
+        return level < 150 && !TOA_LEVEL_SCALED_UNIQUES.includes(item.name) ? item.weight / 50 : item.weight;
+    };
 
-    // Fang and Lightbearer weights shrink between raid levels 300 and 500
-    if (level >= 500) {
-        fangW = 30; lbW = 35; 
-    } else if (level >= 450) { 
-        fangW = 40 - Math.floor((level - 450) * 0.2); 
-        lbW = 40 - Math.floor((level - 450) * 0.1); 
-    } else if (level >= 400) { 
-        fangW = 40; 
-        lbW = 50 - Math.floor((level - 400) * 0.2); 
-    } else if (level >= 350) { 
-        fangW = 60 - Math.floor((level - 350) * 0.4); 
-        lbW = 60 - Math.floor((level - 350) * 0.2); 
-    } else if (level >= 300) { 
-        fangW = 70 - Math.floor((level - 300) * 0.2); 
-        lbW = 70 - Math.floor((level - 300) * 0.2); 
-    }
-
-    const totalWeight = 10 + 20 + 20 + 20 + 30 + fangW + lbW;
-    
     return items.map(item => {
-        if (item.type === 'main') {
-            let w = item.weight;
-            if (item.name === "Osmumten's fang") w = fangW;
-            if (item.name === "Lightbearer") w = lbW;
-            if (level < 150 && !["Osmumten's fang", "Lightbearer"].includes(item.name)) w /= 50;
-            return { ...item, rate: uniqueChance * (w / totalWeight) };
-        }
+        if (item.type === 'main') return { ...item, rate: uniqueChance * (weightOf(item) / totalWeight) };
         if (item.name === "Tumeken's guardian") {
-            // The pet uses its own raid-level scaling, separate from the unique table's
-            const petLevel = level <= 400 ? level : 400 + (Math.min(level, 550) - 400) / 3;
-            const petDenom = 100 * (350000 - 700 * petLevel);
-            return { ...item, rate: points / petDenom };
+            return { ...item, rate: points / (100 * (350000 - 700 * toaPetLevel(level))) };
         }
         return item;
     });
@@ -301,27 +294,32 @@ export function adjustRatesForDT2(items, { isAwakened }) {
     });
 }
 
+// Standard Nightmare: the pet is 1/(800 x team) up to five players, then a flat 1/4000
+const NIGHTMARE_PET_DENOMINATOR_PER_PLAYER = 800;
+const NIGHTMARE_MAX_PET_DENOMINATOR = 4000;
+const NIGHTMARE_JAR_DENOMINATOR_PER_PLAYER = 2000;
+const NIGHTMARE_MAX_TEAM = 80;
+
 export function adjustRatesForNightmare(items, { variant, teamSize }) {
-    const safeTeamSize = Math.min(Math.max(teamSize, 1), 80);
+    const safeTeamSize = Math.min(Math.max(teamSize, 1), NIGHTMARE_MAX_TEAM);
 
     if (variant === 'phosani') {
         return items.map(item => ({ ...item, rate: PHOSANI_RATES[item.name] || item.rate }));
-    } 
-    
-    const BASE_PET_RATE = 800;
-    const MAX_PET_RATE = 4000;
-    const JAR_RATE = 2000;
+    }
 
+    // Each player past five adds 1% to the unique tables, up to +75%
     const scale = 1 + (Math.max(0, Math.min(safeTeamSize - 5, 75)) / 100);
-    
+
     return items.map(item => {
-        if (item.name === "Slepey tablet" || item.name === "Parasitic egg") return { ...item, rate: 0 }; 
-        
+        // Phosani's-only drops
+        if (item.name === "Slepey tablet" || item.name === "Parasitic egg") return { ...item, rate: 0 };
+
         if (item.name === "Little nightmare") {
-            return { ...item, rate: safeTeamSize <= 5 ? 1 / (BASE_PET_RATE * safeTeamSize) : 1 / MAX_PET_RATE };
+            const denominator = safeTeamSize <= 5 ? NIGHTMARE_PET_DENOMINATOR_PER_PLAYER * safeTeamSize : NIGHTMARE_MAX_PET_DENOMINATOR;
+            return { ...item, rate: 1 / denominator };
         }
         if (item.name === "Jar of dreams") {
-            return { ...item, rate: 1 / (JAR_RATE * safeTeamSize) };
+            return { ...item, rate: 1 / (NIGHTMARE_JAR_DENOMINATOR_PER_PLAYER * safeTeamSize) };
         }
         if (item.type === "main") {
             return { ...item, rate: (item.rate * scale) / safeTeamSize };

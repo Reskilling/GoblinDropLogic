@@ -78,6 +78,16 @@ const DEFINITIONS = {
         settings: [{ key: 'delveLevel', type: 'number', label: 'Delve level (2–15)', default: 9, min: 2, max: 15 }]
     },
     zulrah: { rolls: 2 },
+    maggot_king: {
+        adjust: modifiers.adjustRatesForMaggotKing,
+        settings: [
+            toggle('loot', [
+                { value: 'stomach', label: 'Open stomach (standard)' },
+                { value: 'eggs', label: 'Take eggs (2.3x pet)', tone: 'accent' }
+            ])
+        ],
+        lockItems: (state) => state.loot === 'eggs' ? ['Maggot marquess'] : null
+    },
 
     // Skilling
     wintertodt: {
@@ -93,6 +103,7 @@ const DEFINITIONS = {
     zalcano: { category: 'Skilling', adjust: modifiers.adjustRatesForZalcano, settings: [contribution] },
 
     // Minigame
+    the_gauntlet: { category: 'Minigame' },
     the_corrupted_gauntlet: { category: 'Minigame' },
     the_fight_caves: { category: 'Minigame' },
     the_inferno: { category: 'Minigame' },

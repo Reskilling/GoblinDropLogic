@@ -7,7 +7,7 @@ Welcome to the central intelligence hub for the **Wise Goblin** clan. This proje
 The hub is divided into six primary branches:
 
 * **Rank Calculator:** A dedicated external web app (hosted on Vercel) used to calculate and track official clan ranks within Wise Goblin.
-* **DropLogic App:** A state-of-the-art drop rate forecaster that perfectly simulates complex boss mechanics.
+* **DropLogic App:** A drop chance forecaster that models each boss's real loot mechanics, not just a single drop rate.
 * **Guides & Tools:** A curated directory of the best external OSRS resources, DPS calculators, high-fidelity boss simulators, and a step-by-step guide for Gearscape bank imports.
 * **Plugin Help:** Recommended RuneLite plugin configurations, including exportable JSON radius markers for precise NPC interactions (e.g., Akkha, Zulrah snakelings).
 * **Ironman FAQ:** Highly optimized progression routes, early-game logistics, sustainable skilling grinds, and PvM pathing tailored specifically for Ironman accounts.
@@ -17,16 +17,23 @@ The hub is divided into six primary branches:
 
 ## DropLogic: Advanced Forecasting
 
-Most OSRS calculators rely on basic binomial probability. That works fine for simple, single-roll drops like a Dragon Defender, but it completely falls apart on modern bosses. When you introduce complex mechanics like duplicate protection, hidden sequential rolls, and multiple siloed loot tables, standard calculators produce wildly inaccurate estimates. 
+A single drop rate is enough for one item, like a Dragon Defender. It isn't enough for a whole collection log: items share loot tables, some sets have duplicate protection, and some items need several hidden rolls. DropLogic models those mechanics for 69 bosses, raids and minigames, and shows the full spread of outcomes, from the luckiest finish to the longest dry streak.
 
-DropLogic solves this by utilizing state-driven mathematics to perfectly simulate the exact mechanics of every boss in the game. It generates a complete probability distribution, showing you exactly what your specific grind will look like from the luckiest spoon to the driest drought.
+### What it models
+* **Whole-log completion:** The KC to finish every item you select, including the slow last missing piece.
+* **Shared loot tables:** Items on the same table can't drop together; independent drops such as pets and jars roll separately.
+* **Duplicate protection:** Sets like the abyssal bludgeon, Moons of Peril armour and Sunfire armour award a piece you're missing on every hit.
+* **Hidden rolls:** Desert Treasure II vestiges need three invisible rolls each.
+* **Boss settings:** Raid points and levels, team size, contribution, Awakened and Phosani's variants, and sacrifice options adjust the rates.
+* **Markov chain engine:** Probabilities are tracked kill by kill through transition matrices (`js/matrix.js`) rather than estimated by simulation.
+* **Readable charts:** The KC axis is compressed so the start of the curve stays visible next to the long tail.
 
-### Core Mechanics:
-* **Accurate Completion Logs:** Calculates the exact kill count required to "green log" a boss, mathematically accounting for the compounding difficulty of securing your final missing piece.
-* **Desert Treasure 2 Ready:** Natively handles "invisible roll" mechanics. DropLogic calculates the exact compounding probability of building Vestiges and Chromium Ingots across multiple hidden rolls.
-* **True Duplicate Protection:** Built-in logic for Barrows and Moons of Peril perfectly simulates intra-chest and global duplicate protection, providing flawless specific-item and full-set completion rates.
-* **Markov Chain Transition Matrices:** Abandons standard binomial math to track conditional probabilities step-by-step using specialized matrix engines (Master, Barrows, and Moons).
-* **Realistic Visualizations:** Utilizes a custom non-linear power transformation on chart axes to compress extreme dry streaks, allowing you to easily read the primary probability curve (PMF/CDF).
+### Assumptions
+Results are only as good as the inputs, and a few mechanics are simplified:
+* Drop rates come from the OSRS Wiki and may change with game updates.
+* Raid results are personal: CoX and ToA use your own points, and ToB assumes an even share of the team's points.
+* CoX extra uniques past the 65.7% cap, and Barrows' rule against duplicates within one chest, aren't modelled.
+* Fortis Colosseum counts one full 12-wave run as one kill.
 
 ---
 
@@ -56,7 +63,8 @@ This project is built with strict adherence to Clean Code principles, utilizing 
 │   ├── 📄 settings.js    # Renders boss settings and reads them back
 │   ├── 📄 chart.js       # Chart.js rendering
 │   ├── 📄 nav.js         # Hash-based navigation (#droplogic, #guides, ...)
-│   ├── 📄 checklist.js   # Zugrot's Checklist progress
+│   ├── 📄 goals.js       # Zugrot's Checklist goals by tier
+│   ├── 📄 checklist.js   # Renders the checklist and saves progress
 │   └── 📄 toast.js       # Notifications
 ├── 📁 assets             # Item icons and resized brand images
 └── 📁 tests              # node:test suites for the maths, modifiers and data, plus e2e/ browser checks

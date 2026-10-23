@@ -61,8 +61,19 @@ watchErrors(page);
 const text = async (sel) => (await page.textContent(sel)).replace(/\s+/g, ' ').trim();
 const isHidden = (sel) => page.$eval(sel, el => el.classList.contains('hidden'));
 const toastShown = () => page.evaluate(() => document.querySelector('.toast')?.classList.contains('show') ?? false);
-const settle = () => page.waitForTimeout(450);
-const afterInput = () => page.waitForTimeout(300);
+// Resolves once the section named in the URL (or the landing view) has finished its transition
+const settle = (p = page) => p.waitForFunction(() => {
+    if (document.querySelector('.fade-out')) return false;
+    let panel = null;
+    try { panel = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch { /* malformed hash */ }
+    return panel?.classList.contains('tab-panel')
+        ? panel.classList.contains('active-panel') && document.getElementById('main-view').classList.contains('active-view')
+        : document.getElementById('hero-view').classList.contains('active-view');
+});
+// Resolves true once the element's text differs from `before`; results recalculate after a short typing delay
+const textChanges = (sel, before) => page.waitForFunction(
+    ([s, b]) => document.querySelector(s).textContent.replace(/\s+/g, ' ').trim() !== b, [sel, before], { timeout: 3000 }
+).then(() => true, () => false);
 
 // --- Routing, titles, focus ---
 await page.goto(URL_ROOT);
@@ -102,7 +113,6 @@ check('selecting a boss waits for Calculate', await isHidden('#results'));
 await page.hover('.item-box[data-name="Scythe of vitur (uncharged)"]');
 check('hover caption names the item', (await text('#item-caption')).startsWith('Scythe of vitur'));
 await page.click('#calculate-btn');
-await settle();
 check('Calculate shows results', !(await isHidden('#results')) && !(await page.isVisible('.empty-state')));
 check('Calculate button hides once results update live', await isHidden('#calculate-btn'));
 check('results heading names the boss', (await text('#res-name')) === 'Theatre of Blood');
@@ -111,17 +121,15 @@ check('headline announced to screen readers', (await text('#results-announcer'))
 
 const trio = await text('#phrase-median');
 await page.fill('#setting-size', '5');
-await afterInput();
-check('ToB team size changes personal odds', trio !== await text('#phrase-median'));
+check('ToB team size changes personal odds', await textChanges('#phrase-median', trio));
 
 await page.selectOption('#boss-select', 'chambers_of_xeric');
+const headlineAtZero = await text('#stat-chance');
 await page.fill('#target-kc', '300');
-await afterInput();
-check('KC > 0 headline shows a percentage', (await text('#stat-chance')).endsWith('%'));
+check('KC > 0 headline shows a percentage', await textChanges('#stat-chance', headlineAtZero) && (await text('#stat-chance')).endsWith('%'));
 const coxBefore = await text('#phrase-mean');
 await page.fill('#setting-points', '60000');
-await afterInput();
-check('setting change recalculates', coxBefore !== await text('#phrase-mean'));
+check('setting change recalculates', await textChanges('#phrase-mean', coxBefore));
 
 await page.selectOption('#boss-select', 'araxxor');
 await page.click('.item-box[data-name="Araxyte fang"]');
@@ -169,7 +177,7 @@ check('unambiguous old progress still loads', await easy.locator('.goal-item', {
 const phone = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 watchErrors(phone);
 await phone.goto(URL_ROOT + '#plugins');
-await phone.waitForTimeout(400);
+await settle(phone);
 const expanded = () => phone.$eval('#mobile-sections-btn', b => b.getAttribute('aria-expanded'));
 await phone.click('#mobile-sections-btn');
 check('mobile menu opens', await expanded() === 'true');
@@ -177,7 +185,7 @@ await phone.keyboard.press('Escape');
 check('Escape closes the mobile menu', await expanded() === 'false');
 await phone.click('#mobile-sections-btn');
 await phone.click('.mobile-nav-item[href="#droplogic"]');
-await phone.waitForTimeout(400);
+await settle(phone);
 await phone.selectOption('#boss-select', 'demonic_gorilla');
 await phone.tap('.item-box[data-name="Zenyte shard"]');
 check('tap caption describes the item', (await phone.textContent('#item-caption')).startsWith('Zenyte shard'));
