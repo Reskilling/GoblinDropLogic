@@ -4,8 +4,6 @@ const DEFAULT_SORT_ORDER = 99;
 
 const SPECIAL_ROLLS = {
     "zulrah": 2,
-    "barrows_chests": 6,
-    "phantom_muspah": 2,
     "grotesque_guardians": 2
 };
 
@@ -23,14 +21,15 @@ const parseBossItems = (items) => {
     // While `for...in` saves a tiny allocation, this dataset is tiny. 
     // The V8 engine optimizes standard array methods incredibly well, and removing the 
     // boilerplate prototype checks makes this significantly cleaner and less error-prone.
-    return Object.entries(items).map(([id, { name, rate, type, order, pieces, pool, hidden }]) => ({
-        id, 
+    return Object.entries(items).map(([id, { name, rate, type, order, pieces, defaultPieces, pool, hidden }]) => ({
+        id,
         name,
         rate,
         type,
         // Using nullish coalescing ensures an explicit '0' order isn't overwritten by falsy fallback
         order: order ?? DEFAULT_SORT_ORDER,
         pieces,
+        defaultPieces,
         pool,
         hidden: Boolean(hidden)
     }));

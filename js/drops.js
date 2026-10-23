@@ -9,9 +9,16 @@
  * - `pieces`:
  * Triggers the sequential/invisible roll logic in createMasterMatrix
  * (e.g., DT2 Vestiges & Ingots where you need 3 invisible rolls to get the item).
+ * - `defaultPieces`:
+ * How many of `pieces` the tile starts with (defaults to all of them). Use 1 when a single
+ * drop completes the collection log but players may want more (e.g., 4 Zenyte shards for gear).
  * - `pool`:
- * Triggers the siloed duplicate-protection logic in createMoonsMatrix
- * (e.g., Moons of Peril where you can't roll a dupe until the pool is empty).
+ * Marks a duplicate-protected set: every hit on the pool awards a piece the player is missing
+ * (e.g., Sire bludgeon pieces, Moons of Peril armour). Handled by createMasterMatrix, or
+ * createMoonsMatrix for Moons. Each item's `rate` must be the chance of ANY piece from the
+ * pool, not a per-piece rate. The wiki is inconsistent here: Unsired lists the combined 62/128
+ * on each piece's row, while Lunar Chest lists a per-item 1/224 for Moons' combined 1/56.
+ * - Barrows chests ignore `rate`; createBarrowsMatrix uses its own BARROWS constants.
  */
 
 export const RAW_BOSS_DATA = {
@@ -33,8 +40,8 @@ export const RAW_BOSS_DATA = {
         "22973": { name: "Hydra's eye", rate: 1 / 181.07, type: "main", pool: "brimstone", order: 5 },
         "22971": { name: "Hydra's fang", rate: 1 / 181.07, type: "main", pool: "brimstone", order: 6 },
         "22969": { name: "Hydra's heart", rate: 1 / 181.07, type: "main", pool: "brimstone", order: 7 },
-        "22804": { name: "Dragon knife", rate: 1 / 2000, type: "main", hidden: true, order: 8 },
-        "20849": { name: "Dragon thrownaxe", rate: 1 / 2001, type: "main", hidden: true, order: 9 },
+        "22804": { name: "Dragon knife", rate: 1 / 2001, type: "main", hidden: true, order: 8 },
+        "20849": { name: "Dragon thrownaxe", rate: 1 / 2000, type: "main", hidden: true, order: 9 },
         "23064": { name: "Jar of chemicals", rate: 1 / 2000, type: "tertiary", order: 10 },
         "23077": { name: "Alchemical hydra heads", rate: 1 / 256, type: "tertiary", order: 11 },
     },
@@ -61,30 +68,30 @@ export const RAW_BOSS_DATA = {
         "27681": { name: "Voidwaker hilt", rate: 1 / 912, type: "main", order: 6 },
     },
     barrows_chests: {
-        "4732": { name: "Karil's coif", rate: 1 / 128, type: "main", order: 1 },
-        "4736": { name: "Karil's leathertop", rate: 1 / 128, type: "main", order: 2 },
-        "4738": { name: "Karil's leatherskirt", rate: 1 / 128, type: "main", order: 3 },
-        "4734": { name: "Karil's crossbow", rate: 1 / 128, type: "main", order: 4 },
-        "4708": { name: "Ahrim's hood", rate: 1 / 128, type: "main", order: 5 },
-        "4712": { name: "Ahrim's robetop", rate: 1 / 128, type: "main", order: 6 },
-        "4714": { name: "Ahrim's robeskirt", rate: 1 / 128, type: "main", order: 7 },
-        "4710": { name: "Ahrim's staff", rate: 1 / 128, type: "main", order: 8 },
-        "4716": { name: "Dharok's helm", rate: 1 / 128, type: "main", order: 9 },
-        "4720": { name: "Dharok's platebody", rate: 1 / 128, type: "main", order: 10 },
-        "4722": { name: "Dharok's platelegs", rate: 1 / 128, type: "main", order: 11 },
-        "4718": { name: "Dharok's greataxe", rate: 1 / 128, type: "main", order: 12 },
-        "4724": { name: "Guthan's helm", rate: 1 / 128, type: "main", order: 13 },
-        "4728": { name: "Guthan's platebody", rate: 1 / 128, type: "main", order: 14 },
-        "4730": { name: "Guthan's chainskirt", rate: 1 / 128, type: "main", order: 15 },
-        "4726": { name: "Guthan's warspear", rate: 1 / 128, type: "main", order: 16 },
-        "4753": { name: "Verac's helm", rate: 1 / 128, type: "main", order: 17 },
-        "4757": { name: "Verac's brassard", rate: 1 / 128, type: "main", order: 18 },
-        "4759": { name: "Verac's plateskirt", rate: 1 / 128, type: "main", order: 19 },
-        "4755": { name: "Verac's flail", rate: 1 / 128, type: "main", order: 20 },
-        "4745": { name: "Torag's helm", rate: 1 / 128, type: "main", order: 21 },
-        "4749": { name: "Torag's platebody", rate: 1 / 128, type: "main", order: 22 },
-        "4751": { name: "Torag's platelegs", rate: 1 / 128, type: "main", order: 23 },
-        "4747": { name: "Torag's hammers", rate: 1 / 128, type: "main", order: 24 },
+        "4732": { name: "Karil's coif", rate: 1 / 2448, type: "main", order: 1 },
+        "4736": { name: "Karil's leathertop", rate: 1 / 2448, type: "main", order: 2 },
+        "4738": { name: "Karil's leatherskirt", rate: 1 / 2448, type: "main", order: 3 },
+        "4734": { name: "Karil's crossbow", rate: 1 / 2448, type: "main", order: 4 },
+        "4708": { name: "Ahrim's hood", rate: 1 / 2448, type: "main", order: 5 },
+        "4712": { name: "Ahrim's robetop", rate: 1 / 2448, type: "main", order: 6 },
+        "4714": { name: "Ahrim's robeskirt", rate: 1 / 2448, type: "main", order: 7 },
+        "4710": { name: "Ahrim's staff", rate: 1 / 2448, type: "main", order: 8 },
+        "4716": { name: "Dharok's helm", rate: 1 / 2448, type: "main", order: 9 },
+        "4720": { name: "Dharok's platebody", rate: 1 / 2448, type: "main", order: 10 },
+        "4722": { name: "Dharok's platelegs", rate: 1 / 2448, type: "main", order: 11 },
+        "4718": { name: "Dharok's greataxe", rate: 1 / 2448, type: "main", order: 12 },
+        "4724": { name: "Guthan's helm", rate: 1 / 2448, type: "main", order: 13 },
+        "4728": { name: "Guthan's platebody", rate: 1 / 2448, type: "main", order: 14 },
+        "4730": { name: "Guthan's chainskirt", rate: 1 / 2448, type: "main", order: 15 },
+        "4726": { name: "Guthan's warspear", rate: 1 / 2448, type: "main", order: 16 },
+        "4753": { name: "Verac's helm", rate: 1 / 2448, type: "main", order: 17 },
+        "4757": { name: "Verac's brassard", rate: 1 / 2448, type: "main", order: 18 },
+        "4759": { name: "Verac's plateskirt", rate: 1 / 2448, type: "main", order: 19 },
+        "4755": { name: "Verac's flail", rate: 1 / 2448, type: "main", order: 20 },
+        "4745": { name: "Torag's helm", rate: 1 / 2448, type: "main", order: 21 },
+        "4749": { name: "Torag's platebody", rate: 1 / 2448, type: "main", order: 22 },
+        "4751": { name: "Torag's platelegs", rate: 1 / 2448, type: "main", order: 23 },
+        "4747": { name: "Torag's hammers", rate: 1 / 2448, type: "main", order: 24 },
     },
     brutus: {
         "33124": { name: "Beef", rate: 1 / 1000, type: "tertiary", order: 1 },
@@ -151,20 +158,26 @@ export const RAW_BOSS_DATA = {
         "11932": { name: "Malediction shard 2", rate: 1 / 256, type: "main", order: 2 },
         "11990": { name: "Fedora", rate: 1 / 128, type: "tertiary", order: 3 },
     },
-    dagannoth_kings: {
+    dagannoth_prime: {
         "12644": { name: "Pet dagannoth prime", rate: 1 / 5000, type: "tertiary", order: 1 },
-        "12643": { name: "Pet dagannoth supreme", rate: 1 / 5000, type: "tertiary", order: 2 },
-        "12645": { name: "Pet dagannoth rex", rate: 1 / 5000, type: "tertiary", order: 3 },
-        "6737": { name: "Berserker ring", rate: 1 / 128, type: "main", order: 4 },
-        "6733": { name: "Archers ring", rate: 1 / 128, type: "main", order: 5 },
-        "6731": { name: "Seers ring", rate: 1 / 128, type: "main", order: 6 },
-        "6735": { name: "Warrior ring", rate: 1 / 128, type: "main", order: 7 },
-        "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 8 },
-        "6724": { name: "Seercull", rate: 1 / 128, type: "main", order: 9 },
-        "6562": { name: "Mud battlestaff", rate: 1 / 128, type: "main", order: 10 },
+        "6731": { name: "Seers ring", rate: 1 / 128, type: "main", order: 2 },
+        "6562": { name: "Mud battlestaff", rate: 1 / 128, type: "main", order: 3 },
+        "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 4 },
+    },
+    dagannoth_rex: {
+        "12645": { name: "Pet dagannoth rex", rate: 1 / 5000, type: "tertiary", order: 1 },
+        "6737": { name: "Berserker ring", rate: 1 / 128, type: "main", order: 2 },
+        "6735": { name: "Warrior ring", rate: 1 / 128, type: "main", order: 3 },
+        "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 4 },
+    },
+    dagannoth_supreme: {
+        "12643": { name: "Pet dagannoth supreme", rate: 1 / 5000, type: "tertiary", order: 1 },
+        "6733": { name: "Archers ring", rate: 1 / 128, type: "main", order: 2 },
+        "6724": { name: "Seercull", rate: 1 / 128, type: "main", order: 3 },
+        "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 4 },
     },
     demonic_gorilla: {
-        "19529": { name: "Zenyte shard", rate: 1 / 300, type: "main", pieces: 4, order: 1 },
+        "19529": { name: "Zenyte shard", rate: 1 / 300, type: "main", pieces: 4, defaultPieces: 1, order: 1 },
         "19592": { name: "Ballista limbs", rate: 1 / 500, type: "main", order: 2 },
         "19601": { name: "Ballista spring", rate: 1 / 500, type: "main", order: 2 },
         "19586": { name: "Light frame", rate: 1 / 750, type: "main", order: 2 },
@@ -193,21 +206,23 @@ export const RAW_BOSS_DATA = {
         "13225": { name: "Tzrek-jad", rate: 1 / 200, type: "tertiary", order: 1 },
         "6570": { name: "Fire cape", rate: 1 / 1, type: "main", order: 2 },
     },
+    // One "kill" = one full 12-wave run. Rates are the wiki's chance of at least one drop per run,
+    // combined from its per-wave Rewards Chest tables (Sunfire: 1/24.47 per piece, x3 for any piece).
     fortis_colosseum: {
         "28960": { name: "Smol heredit", rate: 1 / 200, type: "tertiary", order: 1 },
-        "28947": { name: "Dizana's quiver (uncharged)", rate: 1 / 1, type: "main", order: 2 },
-        "28936": { name: "Sunfire fanatic cuirass", rate: 1 / 64, type: "main", pool: "sunfire", order: 3 },
-        "28939": { name: "Sunfire fanatic chausses", rate: 1 / 64, type: "main", pool: "sunfire", order: 4 },
-        "28933": { name: "Sunfire fanatic helm", rate: 1 / 64, type: "main", pool: "sunfire", order: 5 },
-        "28942": { name: "Echo crystal", rate: 1 / 32, type: "main", order: 6 },
-        "28919": { name: "Tonalztics of ralos (uncharged)", rate: 1 / 192, type: "main", order: 7 },
+        "28947": { name: "Dizana's quiver (uncharged)", rate: 1 / 1, type: "tertiary", order: 2 },
+        "28936": { name: "Sunfire fanatic cuirass", rate: 1 / 8.43, type: "tertiary", pool: "sunfire", order: 3 },
+        "28939": { name: "Sunfire fanatic chausses", rate: 1 / 8.43, type: "tertiary", pool: "sunfire", order: 4 },
+        "28933": { name: "Sunfire fanatic helm", rate: 1 / 8.43, type: "tertiary", pool: "sunfire", order: 5 },
+        "28942": { name: "Echo crystal", rate: 1 / 12.44, type: "tertiary", order: 6 },
+        "28919": { name: "Tonalztics of ralos (uncharged)", rate: 1 / 83.61, type: "tertiary", order: 7 },
     },
     the_corrupted_gauntlet: {
-        "23757": { name: "Youngllef", rate: 1 / 800, type: "main", order: 1 },
+        "23757": { name: "Youngllef", rate: 1 / 800, type: "tertiary", order: 1 },
         "23956": { name: "Crystal armour seed", rate: 1 / 50, type: "main", order: 2 },
         "4207": { name: "Crystal weapon seed", rate: 1 / 50, type: "main", order: 3 },
         "25859": { name: "Enhanced crystal weapon seed", rate: 1 / 400, type: "main", order: 4 },
-        "23859": { name: "Gauntlet cape", rate: 1 / 1, type: "main", order: 5 },
+        "23859": { name: "Gauntlet cape", rate: 1 / 1, type: "tertiary", order: 5 },
     },
     general_graardor: {
         "12650": { name: "Pet general graardor", rate: 1 / 5000, type: "tertiary", order: 1 },
@@ -364,12 +379,12 @@ export const RAW_BOSS_DATA = {
     },
     shellbane_gryphon: {
         "31285": { name: "Gull", rate: 1 / 3000, type: "tertiary", order: 1 },
-        "31245": { name: "Belle's folly (tarnished)", rate: 1 / 256, type: "main", order: 2 },
+        "31245": { name: "Belle's folly (tarnished)", rate: 1 / 75, type: "main", order: 2 },
         "32921": { name: "Jar of feathers", rate: 1 / 2000, type: "tertiary", order: 4 },
     },
     skotizo: {
-        "21273": { name: "Skotos", rate: 1 / 65, type: "main", order: 1 },
-        "19701": { name: "Jar of darkness", rate: 1 / 200, type: "main", order: 2 },
+        "21273": { name: "Skotos", rate: 1 / 65, type: "tertiary", order: 1 },
+        "19701": { name: "Jar of darkness", rate: 1 / 200, type: "tertiary", order: 2 },
         "21275": { name: "Dark claw", rate: 1 / 25, type: "main", order: 3 },
         "19685": { name: "Dark totem", rate: 1 / 128, type: "main", order: 4 },
         "6571": { name: "Uncut onyx", rate: 1 / 1000, type: "main", order: 5 },
@@ -401,8 +416,8 @@ export const RAW_BOSS_DATA = {
         "25524": { name: "Jar of smoke", rate: 1 / 2000, type: "tertiary", order: 5 },
     },
     tormented_demon: {
-        "29580": { name: "Tormented synapse", rate: 1 / 500, type: "main", pieces: 3, order: 1 },
-        "29574": { name: "Burning claw", rate: 1 / 501, type: "main", pieces: 2, order: 2 },
+        "29580": { name: "Tormented synapse", rate: 1 / 500, type: "main", pieces: 3, defaultPieces: 1, order: 1 },
+        "29574": { name: "Burning claw", rate: 1 / 501, type: "main", pieces: 2, defaultPieces: 1, order: 2 },
     },
     vardorvis: {
         "28248": { name: "Butch", rate: 1 / 3000, type: "tertiary", order: 1 },
@@ -414,7 +429,7 @@ export const RAW_BOSS_DATA = {
         "28276": { name: "Chromium ingot", rate: 1 / 362.66, type: "main", order: 7 },
     },
     venenatis: {
-        "13177": { name: "Venenatis spiderling", rate: 1 / 1500, type: "main", order: 1 },
+        "13177": { name: "Venenatis spiderling", rate: 1 / 1500, type: "tertiary", order: 1 },
         "12605": { name: "Treasonous ring", rate: 1 / 512, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 256, type: "main", order: 3 },
         "7158": { name: "Dragon 2h sword", rate: 1 / 256, type: "main", order: 4 },
@@ -422,7 +437,7 @@ export const RAW_BOSS_DATA = {
         "27687": { name: "Voidwaker gem", rate: 1 / 360, type: "main", order: 6 },
     },
     vetion: {
-        "13179": { name: "Vet'ion jr.", rate: 1 / 1500, type: "main", order: 1 },
+        "13179": { name: "Vet'ion jr.", rate: 1 / 1500, type: "tertiary", order: 1 },
         "12601": { name: "Ring of the gods", rate: 1 / 512, type: "main", order: 2 },
         "11920": { name: "Dragon pickaxe", rate: 1 / 256, type: "main", order: 3 },
         "7158": { name: "Dragon 2h sword", rate: 1 / 256, type: "main", order: 4 },
@@ -491,14 +506,14 @@ export const RAW_BOSS_DATA = {
         "21003": { name: "Elder maul", rate: 2, type: "main", order: 4 },
         "21043": { name: "Kodai insignia", rate: 2, type: "main", order: 5 },
         "13652": { name: "Dragon claws", rate: 3, type: "main", order: 6 },
-        "21018": { name: "Ancestral hat", rate: 3, type: "main", order: 7 },
-        "21021": { name: "Ancestral robe top", rate: 3, type: "main", order: 8 },
-        "21024": { name: "Ancestral robe bottom", rate: 3, type: "main", order: 9 },
+        "21018": { name: "Ancestral hat", rate: 4, type: "main", order: 7 },
+        "21021": { name: "Ancestral robe top", rate: 4, type: "main", order: 8 },
+        "21024": { name: "Ancestral robe bottom", rate: 4, type: "main", order: 9 },
         "21015": { name: "Dinh's bulwark", rate: 3, type: "main", order: 10 },
         "21012": { name: "Dragon hunter crossbow", rate: 4, type: "main", order: 11 },
         "21000": { name: "Twisted buckler", rate: 4, type: "main", order: 12 },
-        "21034": { name: "Dexterous prayer scroll", rate: 20, type: "main", hidden: true, order: 13 },
-        "21079": { name: "Arcane prayer scroll", rate: 20, type: "main", hidden: true, order: 14 },
+        "21034": { name: "Dexterous prayer scroll", rate: 14, type: "main", hidden: true, order: 13 },
+        "21079": { name: "Arcane prayer scroll", rate: 14, type: "main", hidden: true, order: 14 },
         "21047": { name: "Torn prayer scroll", rate: 2 / 33, type: "tertiary", hidden: true, order: 15 },
     },
     theatre_of_blood: {

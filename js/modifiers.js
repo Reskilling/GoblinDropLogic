@@ -214,11 +214,16 @@ function adjustRatesForColosseum(items, { isSacrificing = false }) {
     });
 }
 
+// Normal-mode unique weights total 60 since the August 2026 rework (previously 69)
+const COX_TOTAL_WEIGHT = 60;
+// 1% per 8,676 points, capped at 65.7% (570,000 points); the extra uniques past the cap aren't modelled
+const COX_POINTS_CAP = 570000;
+
 function adjustRatesForCox(items, { points = 30000 }) {
-    const uniqueChance = points / 867600; 
-    
+    const uniqueChance = Math.min(points, COX_POINTS_CAP) / 867600;
+
     return items.map(item => {
-        if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / 69) };
+        if (item.type === 'main') return { ...item, rate: uniqueChance * (item.rate / COX_TOTAL_WEIGHT) };
         if (item.name === 'Olmlet') return { ...item, rate: uniqueChance * item.rate };
         return item;
     });
@@ -243,7 +248,7 @@ function adjustRatesForToa(items, { level = 150, points = 15000 }) {
     }
     
     const denom = 100 * (10500 - 20 * adjLevel);
-    const uniqueChance = points / denom;
+    const uniqueChance = Math.min(points / denom, 0.55);
 
     let fangW = 70; 
     let lbW = 70;
@@ -276,7 +281,9 @@ function adjustRatesForToa(items, { level = 150, points = 15000 }) {
             return { ...item, rate: uniqueChance * (w / totalWeight) };
         }
         if (item.name === "Tumeken's guardian") {
-            const petDenom = 100 * (350000 - 700 * Math.min(adjLevel, 466));
+            // The pet uses its own raid-level scaling, separate from the unique table's
+            const petLevel = level <= 400 ? level : 400 + (Math.min(level, 550) - 400) / 3;
+            const petDenom = 100 * (350000 - 700 * petLevel);
             return { ...item, rate: points / petDenom };
         }
         return item;
