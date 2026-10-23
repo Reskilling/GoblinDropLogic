@@ -334,7 +334,7 @@ const BOSS_UI_INJECTORS = {
         container.innerHTML = `
             <button type="button" id="araxxor-sacrifice-btn" value="false" 
                 style="width: 100%; margin-bottom: 12px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-primary); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                Loot Egg Sac (Standard)
+                Harvest Corpse (Standard)
             </button>`;
         
         document.getElementById('araxxor-sacrifice-btn').addEventListener('click', function() {
@@ -342,13 +342,13 @@ const BOSS_UI_INJECTORS = {
             this.value = newState ? 'true' : 'false';
 
             if (newState) {
-                this.innerText = 'Smash Egg Sac (2x Pet)';
+                this.innerText = 'Destroy Corpse (2x Pet)';
                 this.style.borderColor = 'var(--accent-orange)';
                 this.style.color = 'var(--accent-orange)';
                 this.style.background = 'rgba(249, 115, 22, 0.05)';
                 forceItemSelection(["Nid"]);
             } else {
-                this.innerText = 'Loot Egg Sac (Standard)';
+                this.innerText = 'Harvest Corpse (Standard)';
                 this.style.borderColor = 'var(--border)';
                 this.style.color = 'var(--text)';
                 this.style.background = 'rgba(255,255,255,0.05)';
@@ -383,6 +383,11 @@ function renderDynamicSettings(bossKey) {
         container = document.createElement('div');
         container.id = 'dynamic-raid-settings';
         container.style.marginBottom = '24px';
+        // Toggle buttons update their own value first, so these bubbled listeners see the new state
+        container.addEventListener('input', refreshResults);
+        container.addEventListener('click', (e) => {
+            if (e.target.closest('button')) refreshResults();
+        });
         DOM.bossPreview.insertBefore(container, document.querySelector('.collection-header'));
     }
 
@@ -431,19 +436,13 @@ function bindEvents() {
         btn.addEventListener('click', () => updateKC(parseInt(btn.dataset.add, 10)));
     });
 
-    if (DOM.kcInput) {
-        DOM.kcInput.addEventListener('input', () => {
-            if (!DOM.resultsSection.classList.contains("hidden")) {
-                handleCalculation();
-            }
-        });
-    }
+    if (DOM.kcInput) DOM.kcInput.addEventListener('input', refreshResults);
 
     if (DOM.kcResetBtn) {
-        DOM.kcResetBtn.addEventListener('click', () => { 
+        DOM.kcResetBtn.addEventListener('click', () => {
             if (DOM.kcInput) {
-                DOM.kcInput.value = 0; 
-                if (!DOM.resultsSection.classList.contains("hidden")) handleCalculation();
+                DOM.kcInput.value = 0;
+                refreshResults();
             }
         });
     }
@@ -451,7 +450,7 @@ function bindEvents() {
     if (DOM.selectAllBtn) DOM.selectAllBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(true); });
     if (DOM.selectNoneBtn) DOM.selectNoneBtn.addEventListener('click', (e) => { e.preventDefault(); setAllItemsSelection(false); });
 
-    if (DOM.calcBtn) DOM.calcBtn.addEventListener('click', handleCalculation);
+    if (DOM.calcBtn) DOM.calcBtn.addEventListener('click', () => handleCalculation({ scrollToResults: true }));
 
     if (DOM.mobileBtn && DOM.mobileMenu) { 
         DOM.mobileBtn.addEventListener('click', (e) => { 
@@ -469,7 +468,11 @@ function setupGoalCard(card) {
     
     if (!wrapper || !checkAllBox || goalCheckboxes.length === 0) return;
 
-    const getStorageKey = (name) => `goal-${name.trim().replace(/\s+/g, '-')}`;
+    const tier = card.querySelector('h3')?.textContent ?? '';
+    const slugify = (text) => text.trim().replace(/\s+/g, '-');
+    // Keys include the tier because goal names repeat across tiers (e.g. Construction)
+    const getStorageKey = (name) => `goal-${slugify(tier)}-${slugify(name)}`;
+    const getLegacyStorageKey = (name) => `goal-${slugify(name)}`;
 
     const updateMasterVisuals = () => {
         const checkedCount = card.querySelectorAll('.goal-item input[type="checkbox"]:checked').length;
@@ -487,7 +490,8 @@ function setupGoalCard(card) {
         if (!nameEl) return;
         
         const saveKey = getStorageKey(nameEl.textContent);
-        cb.checked = localStorage.getItem(saveKey) === 'true';
+        const savedValue = localStorage.getItem(saveKey) ?? localStorage.getItem(getLegacyStorageKey(nameEl.textContent));
+        cb.checked = savedValue === 'true';
         
         cb.addEventListener('change', () => {
             localStorage.setItem(saveKey, cb.checked);
@@ -526,17 +530,22 @@ function handleBossSelection(e) {
     renderItemGrid(BOSS_CONFIG[activeBossKey].items);
     renderDynamicSettings(activeBossKey);
     DOM.bossPreview.classList.remove("hidden");
-    
-    if (!DOM.resultsSection.classList.contains("hidden")) {
-        handleCalculation();
-    }
+    refreshResults();
 }
 
-function updateKC(amount) { 
-    const currentVal = parseInt(DOM.kcInput.value, 10) || 0; 
+function updateKC(amount) {
+    const currentVal = parseInt(DOM.kcInput.value, 10) || 0;
     DOM.kcInput.value = Math.max(0, currentVal + amount);
-    
-    if (!DOM.resultsSection.classList.contains("hidden")) {
+    refreshResults();
+}
+
+// Keeps an already-visible chart in sync with the inputs; does nothing before the first calculation
+function refreshResults() {
+    if (DOM.resultsSection.classList.contains("hidden")) return;
+
+    if (getSelectedItems().length === 0) {
+        DOM.resultsSection.classList.add("hidden");
+    } else {
         handleCalculation();
     }
 }
@@ -570,14 +579,8 @@ function toggleItemSelection(e) {
         const badge = box.querySelector('.item-badge');
         if (badge) badge.innerText = `${current}/${maxPieces}`;
     }
-    
-    if (!DOM.resultsSection.classList.contains("hidden")) {
-        if (getSelectedItems().length === 0) {
-            DOM.resultsSection.classList.add("hidden");
-        } else {
-            handleCalculation();
-        }
-    }
+
+    refreshResults();
 }
 
 function setAllItemsSelection(select) { 
@@ -589,20 +592,15 @@ function setAllItemsSelection(select) {
         if (select) {
             const max = parseInt(box.dataset.maxPieces, 10) || 1;
             if (max > 1) {
-                box.dataset.selectedPieces = max;
+                const start = parseInt(box.dataset.defaultPieces, 10) || max;
+                box.dataset.selectedPieces = start;
                 const badge = box.querySelector('.item-badge');
-                if (badge) badge.innerText = `${max}/${max}`;
+                if (badge) badge.innerText = `${start}/${max}`;
             }
         }
-    }); 
-    
-    if (!DOM.resultsSection.classList.contains("hidden")) {
-        if (getSelectedItems().length === 0) {
-            DOM.resultsSection.classList.add("hidden");
-        } else {
-            handleCalculation();
-        }
-    }
+    });
+
+    refreshResults();
 }
 
 function isSacrificeModeActive() {
@@ -615,12 +613,13 @@ function renderItemGrid(items) {
     
     DOM.itemGrid.innerHTML = sortedItems.map(item => {
         const maxPieces = item.pieces || 1;
-        const badge = maxPieces > 1 ? `<span class="item-badge">${maxPieces}/${maxPieces}</span>` : '';
+        const startPieces = item.defaultPieces ?? maxPieces;
+        const badge = maxPieces > 1 ? `<span class="item-badge">${startPieces}/${maxPieces}</span>` : '';
         const fallbackFilename = item.name.replaceAll(' ', '_') + '.png';
         const liveUrl = `https://oldschool.runescape.wiki/w/Special:Redirect/file/${fallbackFilename}?width=120`;
         
         return `
-        <div class="item-box selected" data-id="${item.id}" data-rate="${item.rate}" data-type="${item.type}" data-max-pieces="${maxPieces}" data-selected-pieces="${maxPieces}" data-pool="${item.pool || ''}" title="${item.name}">
+        <div class="item-box selected" data-id="${item.id}" data-rate="${item.rate}" data-type="${item.type}" data-max-pieces="${maxPieces}" data-default-pieces="${startPieces}" data-selected-pieces="${startPieces}" data-pool="${item.pool || ''}" title="${item.name}">
             <img src="${getWikiUrl(item.name)}" alt="${item.name}" onerror="this.onerror=null; this.src='${liveUrl}';">
             ${badge}
         </div>
@@ -637,18 +636,18 @@ function getSelectedItems() {
     }));
 }
 
-function handleCalculation() {
+function handleCalculation({ scrollToResults = false } = {}) {
     const selectedItems = getSelectedItems();
-    
-    if (!selectedItems.length) { 
-        showToast("Please select at least one item from the log.", true); 
-        return; 
+
+    if (!selectedItems.length) {
+        showToast("Please select at least one item from the log.", true);
+        return;
     }
-    
+
     const currentKC = parseInt(DOM.kcInput.value, 10) || 0;
     const results = executeSimulation(selectedItems, currentKC);
-    
-    if (results) displayResults(results, currentKC);
+
+    if (results) displayResults(results, currentKC, scrollToResults);
 }
 
 // ==========================================
@@ -698,7 +697,7 @@ function executeSimulation(selectedItems, currentKC) {
     return { ...rawResults, targetP, curveData };
 }
 
-function displayResults(results, currentKC) {
+function displayResults(results, currentKC, scrollToResults) {
     DOM.resultsSection.classList.remove("hidden");
     DOM.statChance.textContent = `${(results.targetP * 100).toFixed(2)}%`;
     
@@ -707,16 +706,14 @@ function displayResults(results, currentKC) {
         `<span style="color: var(--text); font-size: 1em; font-weight: 700;">${description}</span> ` +
         `<b style="color: ${color}; font-size: 1.05em; margin-left: 4px;">${value} <span style="font-size: 0.85em; opacity: 0.9;">KC</span></b>`;
         
-    DOM.phraseMode.innerHTML = formatStat(COLORS.mode, "Mode", "Luckiest players finish as early as", results.modeKC.toLocaleString());
-    DOM.phraseMedian.innerHTML = formatStat(COLORS.progress, "Median", "Half of players complete at or before", results.median.toLocaleString());
-    DOM.phraseMean.innerHTML = formatStat(COLORS.mean, "Mean", "Average player completes at", Math.round(results.mean).toLocaleString());
+    DOM.phraseMode.innerHTML = formatStat(COLORS.mode, "Mode", "Most likely single KC to finish on", results.modeKC.toLocaleString());
+    DOM.phraseMedian.innerHTML = formatStat(COLORS.progress, "Median", "Half of players finish at or before", results.median.toLocaleString());
+    DOM.phraseMean.innerHTML = formatStat(COLORS.mean, "Mean", "Expected KC, pulled up by unlucky players", Math.round(results.mean).toLocaleString());
     DOM.phraseUser.innerHTML = formatStat(COLORS.user, "Current", "Your current progress in the log", currentKC.toLocaleString());
-    
+
     renderChart(results.curveData, results, currentKC);
-    
-    if (event && event.target && event.target.id === 'calculate-btn') {
-        DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
-    }
+
+    if (scrollToResults) DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 // --- CHART RENDERING ---
@@ -842,9 +839,12 @@ function getChartPlugins(transformX, stats, userKC, modeY, medianY) {
 
 function forceItemSelection(allowedNames) {
     DOM.itemGrid.querySelectorAll(".item-box").forEach(box => {
+        // Remember the user's choice so unlockItemSelection can put it back
+        box.dataset.wasSelected = box.classList.contains("selected");
+
         const isAllowed = allowedNames.includes(box.title);
         box.classList.toggle("selected", isAllowed);
-        
+
         box.style.opacity = isAllowed ? "1" : "0.3";
         box.style.pointerEvents = isAllowed ? "auto" : "none";
     });
@@ -852,6 +852,11 @@ function forceItemSelection(allowedNames) {
 
 function unlockItemSelection() {
     DOM.itemGrid.querySelectorAll(".item-box").forEach(box => {
+        if (box.dataset.wasSelected !== undefined) {
+            box.classList.toggle("selected", box.dataset.wasSelected === 'true');
+            delete box.dataset.wasSelected;
+        }
+
         box.style.opacity = "1";
         box.style.pointerEvents = "auto";
     });
