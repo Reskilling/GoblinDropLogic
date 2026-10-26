@@ -48,9 +48,9 @@ export function getItemImagePath(name) {
     return `assets/items/${getItemImageFilename(name)}`;
 }
 
-/** Gets the path of a boss's portrait, downloaded from the Wiki by download_icons.js. */
+/** Gets the path of a boss's portrait, downloaded from the Wiki and standardised by download_icons.js. */
 export function getBossImagePath(bossKey) {
-    return `assets/bosses/${bossKey}.png`;
+    return `assets/bosses/${bossKey}.webp`;
 }
 
 export function getItemWikiImageUrl(name) {

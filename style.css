@@ -316,11 +316,16 @@ header { margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bo
 .droplogic-controls .card { margin-bottom: 0; }
 .droplogic-controls .input-group { margin-bottom: 24px; }
 
-/* The selected boss's portrait, under the picker; it fades and rises in once loaded */
-.boss-portrait { display: flex; justify-content: center; align-items: center; height: 168px; margin: -8px 0 24px; }
+/* The selected boss's portrait, under the picker. Every portrait shares one 3:2 canvas with the boss standing
+   on the same floor line (see download_icons.js), so one floor shadow fits them all. Fades and rises in once loaded. */
+.boss-portrait { position: relative; display: flex; justify-content: center; margin: -8px 0 24px; }
+.boss-portrait::before {
+    content: ''; position: absolute; left: 50%; bottom: 0; width: 52%; height: 14px; transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(0, 0, 0, 0.6), transparent);
+}
 .boss-portrait img {
-    max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px;
-    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6));
+    position: relative; height: 168px; width: auto; max-width: 100%; aspect-ratio: 3 / 2; object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
     opacity: 0; transform: translateY(8px); transition: opacity var(--dur) var(--ease-out), transform 0.4s var(--ease-out);
 }
 .boss-portrait img.is-loaded { opacity: 1; transform: none; }
@@ -770,6 +775,7 @@ pre {
 
 @media (max-width: 650px) {
     .boss-settings { grid-template-columns: 1fr; }
+    .boss-portrait img { height: 128px; }
     .chart-wrapper { height: 360px; padding: 8px; }
     .milestone dd { font-size: 1.125rem; }
     .result-header { flex-direction: column; align-items: center; text-align: center; gap: 12px; }

@@ -112,7 +112,7 @@ check('Shellbane Gryphon is listed under Slayer', await page.$eval('#boss-select
 
 await page.selectOption('#boss-select', 'theatre_of_blood');
 check('selecting a boss waits for Calculate', await isHidden('#results'));
-check('the selected boss’s portrait loads', await page.waitForFunction(() => document.getElementById('boss-image').classList.contains('is-loaded') && document.getElementById('boss-image').src.endsWith('/assets/bosses/theatre_of_blood.png'), null, { timeout: 5000 }).then(() => true, () => false));
+check('the selected boss’s portrait loads', await page.waitForFunction(() => document.getElementById('boss-image').classList.contains('is-loaded') && document.getElementById('boss-image').src.endsWith('/assets/bosses/theatre_of_blood.webp'), null, { timeout: 5000 }).then(() => true, () => false));
 await page.hover('.item-box[data-name="Scythe of Vitur (uncharged)"]');
 check('hover caption names the item', (await text('#item-caption')).startsWith('Scythe of Vitur'));
 await page.click('#calculate-btn');

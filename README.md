@@ -73,7 +73,7 @@ GoblinDropLogic/
 │   ├── copy-code.js    # Copy buttons on code blocks
 │   └── toast.js        # Notifications
 ├── assets/
-│   ├── bosses/         # Boss portraits
+│   ├── bosses/         # Boss portraits, standardised by download_icons.js
 │   ├── brand/          # Logo, resized hero images and the link-preview image
 │   ├── fonts/          # Self-hosted fonts and their licences
 │   └── items/          # Item icons
@@ -118,14 +118,19 @@ Before you begin, install [Node.js](https://nodejs.org/) 20 or later. You need i
 
 ## Add a boss
 
-1. Add the boss's drop table to `js/drops.js`, then fetch its item icons and portrait:
+1. Add the boss's drop table to `js/drops.js`, then fetch its item icons and portrait. The script needs the image library sharp, so run `npm install` once first:
 
    ```bash
+   npm install
    npm run icons
    ```
 
+   The script trims each portrait, scales it to the same visual weight as the others and stands it on a shared floor line, so every boss looks like part of one set.
+
 2. If the boss needs a category, display name, extra rolls or settings, add an entry to `js/bosses.js`. Settings declared there reach the boss's adjuster in `js/modifiers.js` by key.
-3. Check the new portrait in `assets/bosses/`. The script uses the image from the boss's Wiki page; if that's a logo or a location rather than the boss, delete the file, add the right Wiki file to `WIKI_IMAGE_OVERRIDES` in `js/bosses.js`, and run `npm run icons` again.
+3. Check the new portrait in `assets/bosses/`. The script uses the image from the boss's Wiki page. If that's a logo or a location rather than the boss, add the right Wiki file to `WIKI_IMAGE_OVERRIDES` in `js/bosses.js`, delete the boss's files from `assets/bosses/` and `.cache/bosses/`, and run `npm run icons` again.
+
+   To re-process every portrait after changing the standardising settings in `download_icons.js`, run `node download_icons.js --rebuild`. It works from the cached Wiki originals, so nothing is downloaded again.
 4. Run `npm test`. The data tests check that the icons and portraits exist, that main-table rates don't exceed one roll, and that every adjuster produces valid rates.
 
 ## Add a JavaScript file

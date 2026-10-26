@@ -237,7 +237,6 @@ const WIKI_IMAGE_OVERRIDES = {
     theatre_of_blood: 'Verzik_Vitur.png',
     tombs_of_amascut: "Tumeken's_Warden.png",
     wintertodt: 'Phoenix_(follower).png' // the Wintertodt has no clean portrait on the Wiki, so its pet stands in
-    // mad_angel: the Wiki only has Mad_Angel.webp, so assets/bosses/mad_angel.png was converted from it by hand
 };
 
 /** Gets the Wiki file to use for a boss's portrait, or null to use its Wiki page's own image. */
