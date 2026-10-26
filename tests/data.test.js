@@ -74,7 +74,7 @@ test('every item a setting can lock to exists in that boss', () => {
         const states = toggles.reduce((acc, t) => acc.flatMap(state => t.options.map(o => ({ ...state, [t.key]: o.value }))), [getDefaultState(def)]);
         const names = new Set(BOSS_ITEMS[key].map(item => item.name));
 
-        states.forEach(state => (def.lockItems(state) ?? []).forEach(name => assert.ok(names.has(name), `${key} locks to unknown item ${name}`)));
+        states.forEach(state => (def.lockItems(state, BOSS_ITEMS[key]) ?? []).forEach(name => assert.ok(names.has(name), `${key} locks to unknown item ${name}`)));
     });
 });
 

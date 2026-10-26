@@ -482,7 +482,6 @@ export const RAW_BOSS_DATA = {
         "30753": { name: "Oathplate chest", rate: 1 / 600, type: "main", order: 4 },
         "30756": { name: "Oathplate legs", rate: 1 / 600, type: "main", order: 5 },
         "30759": { name: "Soulflame horn", rate: 1 / 300, type: "main", order: 6 },
-        "30765": { name: "Oathplate shards", rate: 1 / 17.07, type: "main", order: 7 },
         "30763": { name: "Forgotten lockbox", rate: 1 / 33, type: "main", order: 9 },
         "30805": { name: "Dossier", rate: 1 / 12.1, type: "main", hidden: true, order: 10 },
         "30795": { name: "Barrel of demonic tallow (full)", rate: 5 / 78, type: "main", hidden: true, order: 11 },
@@ -511,8 +510,6 @@ export const RAW_BOSS_DATA = {
         "34042": { name: "Aggy", rate: 1 / 2000, type: "tertiary", order: 1 },
         "34027": { name: "Hallowfell", rate: 1 / 127, type: "main", order: 2 },
         "34030": { name: "Jar of Light", rate: 1 / 1000, type: "main", order: 3 },
-        "34033": { name: "Ardeaglais teleport", rate: 1 / 25, type: "main", order: 4 },
-        "21726": { name: "Granite dust", rate: 1, type: "tertiary", order: 5 },
     },
     maggot_king: {
         "33642": { name: "Maggot marquess", rate: 1 / 3500, type: "tertiary", order: 1 },

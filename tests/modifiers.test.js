@@ -42,6 +42,12 @@ test("ToA loot ignores the 5,000 points every player starts with", () => {
     assert.equal(atStart, 0);
 });
 
+test("Each Royal Titan locks only the other titan's own items", () => {
+    const branda = modifiers.titanItemsFor('branda', BOSS_ITEMS.royal_titans);
+    assert.ok(branda.includes('Fire element staff crown') && branda.includes('Giantsoul amulet (uncharged)'));
+    assert.ok(!branda.includes('Ice element staff crown') && !branda.includes('Deadeye prayer scroll'));
+});
+
 test('Doom uniques unlock at their own delve levels', () => {
     assert.deepEqual(modifiers.doomItemsAvailableAt(2), ['Mokhaiotl cloth']);
     assert.deepEqual(modifiers.doomItemsAvailableAt(4), ['Mokhaiotl cloth', 'Eye of Ayak (uncharged)', 'Avernic treads']);

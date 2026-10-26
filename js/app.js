@@ -96,8 +96,11 @@ function handleBossSelection() {
     loadChartLibrary(); // start the download now, so it's ready by the time Calculate is pressed
     activeBoss = { key, definition: getBossDefinition(key) };
     renderSettings(DOM.settings, activeBoss.definition.settings);
-    showBossPortrait(getPortraitId(key, readBossState()));
+    const state = readBossState();
+    showBossPortrait(getPortraitId(key, state));
     renderItemGrid(BOSS_ITEMS[key]);
+    // A setting's default can already lock items (e.g. the Royal Titans' looted titan)
+    lockItems(activeBoss.definition.lockItems?.(state, BOSS_ITEMS[key]) ?? null);
     DOM.bossPreview.classList.remove('hidden');
     refreshResults();
 }
@@ -110,7 +113,7 @@ function handleSettingsChanged() {
     clearTimeout(settingsInputTimer);
     const state = readBossState();
     syncDisabledSettings(DOM.settings, activeBoss.definition.settings, state);
-    lockItems(activeBoss.definition.lockItems?.(state) ?? null);
+    lockItems(activeBoss.definition.lockItems?.(state, BOSS_ITEMS[activeBoss.key]) ?? null);
     showBossPortrait(getPortraitId(activeBoss.key, state));
     refreshResults();
 }

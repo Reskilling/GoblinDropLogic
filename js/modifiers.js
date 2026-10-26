@@ -22,6 +22,11 @@ const TITAN_RESTRICTIONS = {
     eldric: new Set(["Mystic vigour prayer scroll", "Fire element staff crown"])
 };
 
+/** Gets the Royal Titans items the looted titan can drop: everything but the other titan's own items. */
+export function titanItemsFor(target, items) {
+    return items.map(item => item.name).filter(name => !TITAN_RESTRICTIONS[target]?.has(name));
+}
+
 const PHOSANI_RATES = {
     "Little Nightmare": 1 / 1400, "Inquisitor's mace": 1 / 1129, "Inquisitor's great helm": 1 / 700,
     "Inquisitor's hauberk": 1 / 700, "Inquisitor's plateskirt": 1 / 700, "Nightmare staff": 1 / 507.2,
@@ -192,7 +197,8 @@ export function adjustRatesForYama(items, { contrib }) {
         { chance: contribution / 120, drops: { "Oathplate helm": 1 / 5, "Oathplate chest": 1 / 5, "Oathplate legs": 1 / 5, "Soulflame horn": 2 / 5 } },
         { chance: contribution / 12, drops: { "Dossier": 1 } },
         { chance: 1 / 30, drops: { "Forgotten lockbox": 1 } },
-        { chance: 1 / 15, drops: { "Oathplate shards": 1 } },
+        // Oathplate shards: not tracked, but their table still decides whether the barrel table gets rolled
+        { chance: 1 / 15, drops: {} },
         { chance: 5 / 78, drops: { "Barrel of demonic tallow (full)": 1 } }
     ];
 

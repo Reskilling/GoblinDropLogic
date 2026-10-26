@@ -7,6 +7,8 @@
  * Setting shapes:
  * - number: { key, type: 'number', label, default, min?, max?, disabledWhen?(state), disabledValue? }
  * - toggle: { key, type: 'toggle', label, options: [{ value, label, tone? }] }; the first option is the default.
+ * Either can have a `hint`: a short line shown under the control.
+ * `lockItems(state, items)` returns the names a setting leaves droppable (others are locked in the grid), or null.
  * Each setting's `key` is the property name its `adjust` function reads from the state.
  */
 
@@ -47,17 +49,21 @@ const DEFINITIONS = {
         name: 'The Royal Titans',
         adjust: modifiers.adjustRatesForTitans,
         settings: [
-            toggle('target', 'Target', [
-                { value: 'branda', label: 'Branda', tone: 'fire' },
-                { value: 'eldric', label: 'Eldric', tone: 'ice' }
-            ]),
+            {
+                ...toggle('target', 'Loot from', [
+                    { value: 'branda', label: 'Branda', tone: 'fire' },
+                    { value: 'eldric', label: 'Eldric', tone: 'ice' }
+                ]),
+                hint: 'You kill both titans but loot one. Branda: fire crown, Mystic vigour scroll. Eldric: ice crown, Deadeye scroll. Either: Giantsoul amulet, Bran.'
+            },
             toggle('action', 'Loot', [
                 { value: 'loot', label: 'Standard' },
                 { value: 'sacrifice', label: 'Sacrifice (2x pet)', tone: 'accent' }
             ]),
             contribution
         ],
-        lockItems: (state) => state.action === 'sacrifice' ? ['Bran'] : null
+        // Sacrificing leaves only the pet; otherwise the other titan's own items are locked
+        lockItems: (state, items) => state.action === 'sacrifice' ? ['Bran'] : modifiers.titanItemsFor(state.target, items)
     },
     the_nightmare: {
         adjust: modifiers.adjustRatesForNightmare,

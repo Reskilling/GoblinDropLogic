@@ -4,6 +4,8 @@
  * Inputs are found by their data-setting attribute, so no element IDs need to stay in sync.
  */
 
+const hintHtml = (setting) => (setting.hint ? `<p class="field-hint">${setting.hint}</p>` : '');
+
 function numberSettingHtml(setting) {
     const id = `setting-${setting.key}`;
     const min = setting.min !== undefined ? `min="${setting.min}"` : '';
@@ -14,6 +16,7 @@ function numberSettingHtml(setting) {
             <label for="${id}">${setting.label}</label>
             <input type="number" id="${id}" data-setting="${setting.key}" value="${setting.default}" ${min} ${max} inputmode="numeric" aria-describedby="${id}-note">
             <p class="field-note" id="${id}-note" aria-live="polite"></p>
+            ${hintHtml(setting)}
         </div>`;
 }
 
@@ -29,6 +32,7 @@ function toggleSettingHtml(setting) {
         <fieldset class="setting-toggle">
             <legend>${setting.label}</legend>
             <div class="segments">${options}</div>
+            ${hintHtml(setting)}
         </fieldset>`;
 }
 
