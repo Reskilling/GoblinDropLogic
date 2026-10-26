@@ -37,7 +37,7 @@ export function showToast(message, { tone = 'error', action = null } = {}) {
     const icon = document.createElement('span');
     icon.className = 'toast-icon';
     icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = tone === 'error' ? '⚠️' : 'ℹ️';
+    icon.textContent = tone === 'error' ? '!' : 'i'; // drawn as a badge by CSS; emoji render differently per system
 
     const text = document.createElement('span');
     text.textContent = message;

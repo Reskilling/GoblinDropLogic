@@ -75,7 +75,8 @@ function render({ animate }) {
         if (animate) focusDestination(tabId);
         document.dispatchEvent(new CustomEvent('sectionchange', { detail: { tabId } }));
     });
-    window.scrollTo({ top: 0, behavior: animate ? 'smooth' : 'auto' });
+    // 'auto' would follow the stylesheet's smooth scrolling, so first load says 'instant' explicitly
+    window.scrollTo({ top: 0, behavior: animate ? 'smooth' : 'instant' });
 }
 
 function initMobileMenu() {

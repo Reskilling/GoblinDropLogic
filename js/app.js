@@ -217,12 +217,37 @@ const statRowHtml = (label, description, value) =>
     `<span class="stat-label">${label}</span> <span class="stat-desc">${description}</span> ` +
     `<b class="stat-value">${value} <span class="stat-unit">KC</span></b>`;
 
-/** Shows the headline everywhere it appears: the card, the phone bar and the screen-reader announcement. */
-function setHeadline(value, label) {
+const COUNT_UP_MS = 700;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let countUpFrame = 0;
+
+/** Counts the headline up from zero with an expo-out curve, then settles on the exact text. */
+function countUp(element, { to, format }, finalText) {
+    if (prefersReducedMotion.matches) {
+        element.textContent = finalText;
+        return;
+    }
+
+    const start = performance.now();
+    const step = (now) => {
+        const t = Math.min((now - start) / COUNT_UP_MS, 1);
+        element.textContent = t < 1 ? format(to * (1 - Math.pow(2, -10 * t))) : finalText;
+        if (t < 1) countUpFrame = requestAnimationFrame(step);
+    };
+    step(start);
+}
+
+/**
+ * Shows the headline everywhere it appears: the card, the phone bar and the screen-reader announcement.
+ * Pass `count` ({ to, format }) to count the card's number up; only the first reveal does, not live updates.
+ */
+function setHeadline(value, label, count = null) {
     const bossName = activeBoss.definition.name;
 
     DOM.resultsTitle.textContent = bossName;
-    DOM.statChance.textContent = value;
+    cancelAnimationFrame(countUpFrame);
+    if (count) countUp(DOM.statChance, count, value);
+    else DOM.statChance.textContent = value;
     DOM.statChanceLabel.textContent = label;
     DOM.resultsAnnouncer.textContent = `${bossName}: ${label}, ${value}.`;
     DOM.resultPeek.querySelector('.peek-boss').textContent = bossName;
@@ -244,6 +269,7 @@ function displayImpossible() {
 }
 
 function displayResults(results, currentKC) {
+    const isFirstReveal = DOM.resultsSection.classList.contains('hidden');
     setResultsVisible(true);
     const limit = KC_LIMIT.toLocaleString();
 
@@ -260,8 +286,14 @@ function displayResults(results, currentKC) {
     setResultsMessage(null);
 
     // At 0 KC the chance is always 0%, so lead with the typical finish instead
-    if (currentKC === 0) setHeadline(`${results.median.toLocaleString()} KC`, 'Typical KC to finish');
-    else setHeadline(`${(results.targetP * 100).toFixed(2)}%`, `Chance you'd be done by ${currentKC.toLocaleString()} KC`);
+    if (currentKC === 0) {
+        const count = isFirstReveal ? { to: results.median, format: n => `${Math.round(n).toLocaleString()} KC` } : null;
+        setHeadline(`${results.median.toLocaleString()} KC`, 'Typical KC to finish', count);
+    } else {
+        const percent = results.targetP * 100;
+        const count = isFirstReveal ? { to: percent, format: n => `${n.toFixed(2)}%` } : null;
+        setHeadline(`${percent.toFixed(2)}%`, `Chance you'd be done by ${currentKC.toLocaleString()} KC`, count);
+    }
 
     // Past the KC limit the mean only counts unfinished players at the limit, so it's a lower bound
     const mean = `${Math.round(results.mean).toLocaleString()}${results.reachedLimit ? '+' : ''}`;

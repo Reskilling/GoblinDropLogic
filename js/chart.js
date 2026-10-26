@@ -22,8 +22,9 @@ function readColors() {
         mean: css('--stat-mean'),
         user: css('--stat-user'),
         text: css('--text-dim'),
+        marker: css('--text'),
         border: css('--border'),
-        font: css('--font-numeric')
+        font: css('--font-body')
     };
 }
 
@@ -60,7 +61,7 @@ function createDataset(label, data, yKey, color, yAxisID, borderWidth) {
 }
 
 function getScales(xMaxRaw, colors) {
-    const axisTitle = (text, color = colors.text) => ({ display: true, text, color, font: { size: 11, weight: 600 } });
+    const axisTitle = (text, color = colors.text) => ({ display: true, text, color, font: { size: 12, weight: 600 } });
 
     return {
         x: {
@@ -69,7 +70,7 @@ function getScales(xMaxRaw, colors) {
             max: transformX(xMaxRaw),
             title: axisTitle('Kill count (compressed scale)'),
             grid: { color: 'rgba(68, 64, 60, 0.2)', drawTicks: false },
-            ticks: { color: colors.text, font: { size: 10, weight: 700 }, maxTicksLimit: 8, callback: formatAxisTick }
+            ticks: { color: colors.text, font: { size: 12, weight: 600 }, maxTicksLimit: 8, callback: formatAxisTick }
         },
         // Headroom so the mode marker at the peak isn't clipped
         yPMF: { display: false, beginAtZero: true, grace: '8%' },
@@ -80,7 +81,7 @@ function getScales(xMaxRaw, colors) {
             max: 1,
             title: axisTitle('Finished by this KC', colors.progress),
             grid: { display: false },
-            ticks: { callback: v => `${(v * 100).toFixed(0)}%`, color: colors.progress, font: { size: 10, weight: 700 } }
+            ticks: { callback: v => `${(v * 100).toFixed(0)}%`, color: colors.progress, font: { size: 12, weight: 600 } }
         }
     };
 }
@@ -91,15 +92,15 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
             display: true,
             position: 'top',
             align: 'start',
-            labels: { color: colors.text, usePointStyle: true, pointStyle: 'line', boxWidth: 24, font: { size: 12, weight: 600 } }
+            labels: { color: colors.text, usePointStyle: true, pointStyle: 'line', boxWidth: 24, font: { size: 13, weight: 600 } }
         },
         tooltip: {
-            backgroundColor: 'rgba(10,10,10,0.95)',
+            backgroundColor: 'rgba(12, 10, 9, 0.95)',
             borderColor: colors.border,
             borderWidth: 1,
             padding: 12,
-            titleFont: { weight: 800, size: 13 },
-            bodyFont: { weight: 600, size: 12 },
+            titleFont: { weight: 700, size: 14 },
+            bodyFont: { weight: 500, size: 13 },
             callbacks: {
                 title: items => `KC: ${items[0].raw.rawX.toLocaleString()}`,
                 label: c => {
@@ -112,8 +113,8 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
         },
         annotation: {
             annotations: {
-                modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: colors.mode, borderColor: '#fff', borderWidth: 2, radius: 5 },
-                medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: colors.progress, borderColor: '#fff', borderWidth: 2, radius: 5 },
+                modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: colors.mode, borderColor: colors.marker, borderWidth: 2, radius: 5 },
+                medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: colors.progress, borderColor: colors.marker, borderWidth: 2, radius: 5 },
                 mean: { type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean), borderColor: colors.mean, borderWidth: 2, borderDash: [5, 5] },
                 user: { type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: colors.user, borderWidth: 2, borderDash: [6, 4] }
             }
