@@ -11,8 +11,8 @@ export const GOAL_TIERS = [
         goals: [
             { name: "Graceful Outfit", detail: "260 Marks of Grace" },
             { name: "Rogue Equipment" },
-            { name: "Magic Secateurs", detail: "Fairytale I - Growing Pains" },
-            { name: "Fairy Rings", detail: "Fairytale II - Cure a Queen" },
+            { name: "Magic Secateurs", detail: "Fairytale I – Growing Pains" },
+            { name: "Fairy Rings", detail: "Fairytale II – Cure a Queen" },
             { name: "Ardougne Cloak 1" },
             { name: "Bird House Trapping" },
             { name: "Dorgeshuun Crossbow", detail: "The Lost Tribe" },

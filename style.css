@@ -124,6 +124,10 @@ p { text-wrap: pretty; }
 
 :focus-visible { outline: 2px solid var(--accent-green); outline-offset: 3px; border-radius: 2px; }
 
+/* Section headings receive focus after navigation so screen readers announce the new page;
+   they aren't controls, so they don't get a ring */
+[tabindex="-1"]:focus, [tabindex="-1"]:focus-visible { outline: none; }
+
 a { color: var(--accent-green); text-decoration: none; transition: color var(--dur) var(--ease-out), text-shadow var(--dur) var(--ease-out); }
 a:hover { color: var(--text); text-shadow: 0 0 8px rgba(var(--accent-green-rgb), 0.4); }
 
