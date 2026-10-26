@@ -233,7 +233,8 @@ await page.goto(URL_ROOT + '#plugins');
 await settle();
 const copyButton = page.locator('.code-block .copy-btn').first();
 await copyButton.click();
-check('Copy button confirms on itself', (await copyButton.textContent()) === 'Copied');
+// The label changes once the clipboard write resolves, so wait for it rather than reading straight away
+check('Copy button confirms on itself', await copyButton.filter({ hasText: 'Copied' }).waitFor({ timeout: 3000 }).then(() => true, () => false));
 check('Copy puts the radius markers on the clipboard', (await page.evaluate(() => navigator.clipboard.readText())).startsWith('[{"id"'));
 
 // --- Phone ---
