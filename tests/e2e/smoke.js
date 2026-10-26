@@ -108,6 +108,7 @@ await page.click('.kc-btn[data-add="1"]');
 check('+1 before choosing a boss shows no error', !(await toastShown()));
 const optionNames = await page.$$eval('#boss-select option', os => os.map(o => o.textContent));
 check('boss display names', ['Theatre of Blood', "Kree'arra", "Vet'ion"].every(n => optionNames.includes(n)));
+check('Shellbane Gryphon is listed under Slayer', await page.$eval('#boss-select optgroup[label="Slayer"]', g => [...g.children].some(o => o.textContent === 'Shellbane Gryphon')));
 
 await page.selectOption('#boss-select', 'theatre_of_blood');
 check('selecting a boss waits for Calculate', await isHidden('#results'));
@@ -249,7 +250,7 @@ await phone.click('.mobile-nav-item[href="#droplogic"]');
 await settle(phone);
 await phone.selectOption('#boss-select', 'demonic_gorilla');
 await phone.tap('.item-box[data-name="Zenyte shard"]');
-check('tap caption describes the item', (await phone.textContent('#item-caption')).startsWith('Zenyte shard'));
+check('tap caption names the item in title case', (await phone.textContent('#item-caption')).trim() === 'Zenyte Shard');
 
 const peekShown = () => phone.isVisible('#result-peek');
 await phone.tap('#calculate-btn');

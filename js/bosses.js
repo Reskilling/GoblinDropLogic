@@ -136,6 +136,7 @@ const DEFINITIONS = {
     demonic_gorilla: { category: 'Slayer' },
     grotesque_guardians: { category: 'Slayer', rolls: 2 },
     kraken: { category: 'Slayer' },
+    shellbane_gryphon: { category: 'Slayer' },
     thermonuclear_smoke_devil: { category: 'Slayer' },
     tormented_demon: { category: 'Slayer' },
 

@@ -26,6 +26,20 @@ export const BOSS_ITEMS = Object.fromEntries(
     Object.entries(RAW_BOSS_DATA).map(([bossKey, rawItems]) => [bossKey, parseBossItems(rawItems)])
 );
 
+const MINOR_WORDS = new Set(['a', 'an', 'and', 'for', 'in', 'of', 'on', 'the', 'to', 'with']);
+
+/**
+ * Gets an item's name for display in title case: "Abyssal whip" -> "Abyssal Whip", "(inert)" -> "(Inert)".
+ * The data keeps the Wiki's spelling, which icon paths and Wiki links depend on.
+ */
+export function formatItemName(name) {
+    return name.split(' ').map((word, i) => {
+        const [, lead, rest] = word.match(/^(\W*)(.*)$/); // keeps a leading "(" in place
+        if (i > 0 && MINOR_WORDS.has(rest)) return word;
+        return lead + rest.charAt(0).toUpperCase() + rest.slice(1);
+    }).join(' ');
+}
+
 export function getItemImageFilename(name) {
     return IMAGE_OVERRIDES[name] ?? `${name.replaceAll(' ', '_')}.png`;
 }

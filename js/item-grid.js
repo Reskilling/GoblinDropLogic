@@ -6,7 +6,7 @@
  * Multi-piece tiles step down N/N -> ... -> 1/N -> off -> N/N.
  */
 
-import { getItemImagePath, getItemWikiImageUrl } from './data.js';
+import { getItemImagePath, getItemWikiImageUrl, formatItemName } from './data.js';
 
 let grid;
 let caption;
@@ -23,7 +23,7 @@ function tileHtml(item) {
     const badge = maxPieces > 1 ? `<span class="item-badge" aria-hidden="true">${startPieces}/${maxPieces}</span>` : '';
 
     return `
-        <button type="button" class="item-box selected" aria-pressed="true" title="${item.name}"
+        <button type="button" class="item-box selected" aria-pressed="true" title="${formatItemName(item.name)}"
             data-name="${item.name}" data-max-pieces="${maxPieces}" data-default-pieces="${startPieces}" data-selected-pieces="${startPieces}">
             <img src="${getItemImagePath(item.name)}" data-fallback="${getItemWikiImageUrl(item.name)}" alt="">
             ${badge}
@@ -42,20 +42,14 @@ function updateLabel(box) {
     const count = max > 1 && isSelected ? `, need ${box.dataset.selectedPieces} of ${max}` : '';
 
     box.setAttribute('aria-pressed', String(isSelected));
-    box.setAttribute('aria-label', `${box.dataset.name}${count}`);
+    box.setAttribute('aria-label', `${formatItemName(box.dataset.name)}${count}`);
 }
 
+// The tile's highlight and badge already show whether it counts and how many pieces are needed,
+// so the caption just names the item (plus why a locked tile can't be picked)
 function describe(box) {
-    const name = box.dataset.name;
-    const max = Number(box.dataset.maxPieces);
-    const pieces = Number(box.dataset.selectedPieces);
-
-    if (box.disabled) return `${name}: not available with the current settings.`;
-    if (!box.classList.contains('selected')) return `${name}: not counted. Tap to include it.`;
-    if (max === 1) return `${name}: counted. Tap to leave it out.`;
-    return pieces > 1
-        ? `${name}: need ${pieces} of ${max}. Tap to need ${pieces - 1}.`
-        : `${name}: need 1 of ${max}. Tap to leave it out, then again to need all ${max}.`;
+    const name = formatItemName(box.dataset.name);
+    return box.disabled ? `${name}: not available with the current settings.` : name;
 }
 
 function showDefaultCaption() {
