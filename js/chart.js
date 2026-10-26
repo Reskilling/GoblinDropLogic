@@ -58,21 +58,33 @@ function readColors() {
     };
 }
 
-function roundedKcLabel(value) {
-    let kc = reverseX(value);
-    if (kc < 1) return null;
+// Round KC values for the axis, most preferred first: powers of ten, then fives, then twos
+const POWERS_OF_TEN = [1, 10, 100, 1000, 10000, 100000, 1000000];
+const NICE_KCS = [...POWERS_OF_TEN, ...POWERS_OF_TEN.map(kc => kc * 5), ...POWERS_OF_TEN.map(kc => kc * 2)];
+const MIN_TICK_GAP_PX = 44; // so labels never crowd, even on a phone
 
-    if (kc > 1000) kc = Math.round(kc / 100) * 100;
-    else if (kc > 100) kc = Math.round(kc / 10) * 10;
-    else kc = Math.round(kc);
-
-    return kc.toLocaleString();
+/** Replaces the default ticks with round KCs, keeping only those far enough from ones already placed. */
+function useNiceKcTicks(scale) {
+    const minGap = (scale.max - scale.min) * MIN_TICK_GAP_PX / scale.chart.width;
+    const picked = [];
+    for (const kc of NICE_KCS) {
+        const x = transformX(kc);
+        if (x <= scale.max && picked.every(p => Math.abs(x - p) >= minGap)) picked.push(x);
+    }
+    scale.ticks = picked.sort((a, b) => a - b).map(value => ({ value }));
 }
 
-// On short ranges neighbouring ticks round to the same KC; only label the first of each
-function formatAxisTick(value, index, ticks) {
-    const label = roundedKcLabel(value);
-    return index > 0 && label === roundedKcLabel(ticks[index - 1].value) ? null : label;
+const formatKc = (value) => {
+    const kc = Math.round(reverseX(value));
+    if (kc >= 1000000) return `${kc / 1000000}M`;
+    return kc >= 1000 ? `${kc / 1000}k` : String(kc);
+};
+
+// Short share for a chart label: "16%", with "<1%" and ">99%" so a real chance never shows as 0% or 100%
+function formatShare(p) {
+    if (p > 0 && p < 0.01) return '<1%';
+    if (p > 0.99 && p < 1) return '>99%';
+    return `${Math.round(p * 100)}%`;
 }
 
 // `area` shades under the line, so the two curves stay distinguishable without colour
@@ -102,7 +114,8 @@ function getScales(xMaxRaw, colors) {
             max: transformX(xMaxRaw),
             title: axisTitle('Kill count (early kills spread out)'),
             grid: { color: 'rgba(68, 64, 60, 0.2)', drawTicks: false },
-            ticks: { color: colors.text, font: { size: 12, weight: 600 }, maxTicksLimit: 8, callback: formatAxisTick }
+            afterBuildTicks: useNiceKcTicks,
+            ticks: { color: colors.text, font: { size: 12, weight: 600 }, callback: formatKc }
         },
         // Headroom so the mode marker at the peak isn't clipped
         yPMF: { display: false, beginAtZero: true, grace: '15%' },
@@ -111,7 +124,7 @@ function getScales(xMaxRaw, colors) {
             position: 'right',
             min: 0,
             max: 1,
-            title: axisTitle('Finished by this KC', colors.progress),
+            title: axisTitle('Done by this KC', colors.progress),
             grid: { display: false },
             ticks: { callback: v => `${(v * 100).toFixed(0)}%`, color: colors.progress, font: { size: 12, weight: 600 } }
         }
@@ -126,14 +139,32 @@ const textLabel = (colors) => ({
     borderRadius: 4
 });
 
-// A label beside a marker, so its meaning doesn't depend on matching colours to a legend
-const markerLabel = (kc, y, yScaleID, content, colors) => ({
+// A label beside a marker, so its meaning doesn't depend on matching colours to a legend.
+// `side` is where the label sits relative to the marker.
+const markerLabel = (kc, y, yScaleID, content, colors, side = 'right') => ({
     type: 'label', xValue: transformX(kc), yValue: y, yScaleID, content,
-    position: { x: 'start', y: 'center' }, xAdjust: 12, ...textLabel(colors)
+    position: { x: side === 'right' ? 'start' : 'end', y: 'center' }, xAdjust: side === 'right' ? 12 : -12, ...textLabel(colors)
 });
 
-function getPlugins(stats, userKC, modeY, medianY, colors) {
+const marker = (kc, y, yScaleID, color, colors) => ({
+    type: 'point', xValue: transformX(kc), yValue: y, yScaleID, backgroundColor: color, borderColor: colors.marker, borderWidth: 2, radius: 5
+});
+
+// Narrow charts drop the numbers from labels (the stat rows list them) so the labels don't overlap
+const COMPACT_WIDTH = 500;
+
+function getPlugins(stats, userKC, modeY, medianY, colors, { xMaxRaw, isCompact }) {
     const mean = `${Math.round(stats.mean).toLocaleString()}${stats.reachedLimit ? '+' : ''}`;
+    const named = (name, value) => (isCompact ? name : `${name} ${value}`);
+
+    // The player's dot sits on the blue curve; its label goes left of the dot (clear of the Median label
+    // to its right) unless the dot is near the left edge
+    const userShare = formatShare(stats.targetP);
+    const userSide = (transformX(userKC) - transformX(1)) / (transformX(xMaxRaw) - transformX(1)) < 0.25 ? 'right' : 'left';
+    const user = userKC >= 1 ? {
+        userPoint: marker(userKC, stats.targetP, 'yCDF', colors.user, colors),
+        userLabel: markerLabel(userKC, stats.targetP, 'yCDF', `You · ${userShare}`, colors, userSide)
+    } : {};
 
     return {
         legend: {
@@ -154,26 +185,26 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
                 label: c => {
                     if (c.raw.y === 0) return null;
                     return c.datasetIndex === 0
-                        ? ` Finishing on exactly this KC: ~1/${Math.round(1 / c.raw.y).toLocaleString()}`
-                        : ` Finished by this KC: ${(c.raw.y * 100).toFixed(2)}%`;
+                        ? ` Finish on this KC: ~1 in ${Math.round(1 / c.raw.y).toLocaleString()}`
+                        : ` Done by this KC: ${(c.raw.y * 100).toFixed(2)}%`;
                 }
             }
         },
         annotation: {
             annotations: {
-                modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: colors.mode, borderColor: colors.marker, borderWidth: 2, radius: 5 },
-                medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: colors.progress, borderColor: colors.marker, borderWidth: 2, radius: 5 },
-                modeLabel: markerLabel(stats.modeKC, modeY, 'yPMF', `Mode ${stats.modeKC.toLocaleString()}`, colors),
-                medianLabel: markerLabel(stats.median, medianY, 'yCDF', `Median ${stats.median.toLocaleString()}`, colors),
+                modePoint: marker(stats.modeKC, modeY, 'yPMF', colors.mode, colors),
+                medianPoint: marker(stats.median, medianY, 'yCDF', colors.progress, colors),
+                modeLabel: markerLabel(stats.modeKC, modeY, 'yPMF', named('Mode', stats.modeKC.toLocaleString()), colors),
+                medianLabel: markerLabel(stats.median, medianY, 'yCDF', named('Median', stats.median.toLocaleString()), colors),
                 mean: {
                     type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean), borderColor: colors.mean, borderWidth: 2, borderDash: [5, 5],
-                    label: { display: true, content: `Mean ${mean}`, position: 'start', ...textLabel(colors) }
+                    label: { display: true, content: named('Mean', mean), position: 'start', ...textLabel(colors) }
                 },
                 // At 0 KC the line would sit left of the axis
-                user: {
-                    type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: colors.user, borderWidth: 2, display: userKC >= 1,
-                    label: { display: true, content: `You ${userKC.toLocaleString()}`, position: 'end', ...textLabel(colors) }
-                }
+                userLine: {
+                    type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: colors.user, borderWidth: 2, display: userKC >= 1
+                },
+                ...user
             }
         }
     };
@@ -182,7 +213,7 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
 /**
  * @param {HTMLCanvasElement} canvas
  * @param {{ x: number, pmf: number, cdf: number }[]} data
- * @param {{ modeKC: number, median: number, mean: number }} stats
+ * @param {{ modeKC: number, median: number, mean: number, targetP: number, reachedLimit: boolean }} stats
  * @param {number} userKC
  * @returns {boolean} false when Chart.js isn't available (e.g. the CDN was blocked)
  */
@@ -205,8 +236,8 @@ export function renderChart(canvas, data, stats, userKC) {
         type: 'line',
         data: {
             datasets: [
-                createDataset('Chance of finishing on this KC', data, 'pmf', colors.mode, 'yPMF', 3, colors.modeArea),
-                createDataset('Chance of having finished by this KC', data, 'cdf', colors.progress, 'yCDF', 2)
+                createDataset('Finish on this KC', data, 'pmf', colors.mode, 'yPMF', 3, colors.modeArea),
+                createDataset('Done by this KC', data, 'cdf', colors.progress, 'yCDF', 2)
             ]
         },
         options: {
@@ -215,7 +246,7 @@ export function renderChart(canvas, data, stats, userKC) {
             animation: false,
             interaction: { mode: 'index', intersect: false },
             scales: getScales(xMaxRaw, colors),
-            plugins: getPlugins(stats, userKC, modeY, medianY, colors)
+            plugins: getPlugins(stats, userKC, modeY, medianY, colors, { xMaxRaw, isCompact: canvas.parentElement.clientWidth < COMPACT_WIDTH })
         }
     });
     return true;
