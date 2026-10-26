@@ -8,7 +8,8 @@
   "scripts": {
     "test": "node --test",
     "test:e2e": "node tests/e2e/smoke.js",
-    "icons": "node download_icons.js"
+    "icons": "node download_icons.js",
+    "audit-rates": "node audit_rates.js"
   },
   "devDependencies": {
     "playwright-core": "1.55.0",

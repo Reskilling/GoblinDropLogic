@@ -209,13 +209,13 @@ export const RAW_BOSS_DATA = {
         "6570": { name: "Fire cape", rate: 1 / 1, type: "main", order: 2 },
     },
     // One "kill" = one full 12-wave run. Rates are the wiki's chance of at least one drop per run,
-    // combined from its per-wave Rewards Chest tables (Sunfire: 1/24.47 per piece, x3 for any piece).
+    // combined from its per-wave Rewards Chest tables (Sunfire: 1/24.47 per piece, so 1 - (1 - 1/24.47)^3 = 1/8.50 for any piece).
     fortis_colosseum: {
         "28960": { name: "Smol Heredit", rate: 1 / 200, type: "tertiary", order: 1 },
         "28947": { name: "Dizana's quiver (uncharged)", rate: 1 / 1, type: "tertiary", order: 2 },
-        "28936": { name: "Sunfire fanatic cuirass", rate: 1 / 8.43, type: "tertiary", pool: "sunfire", order: 3 },
-        "28939": { name: "Sunfire fanatic chausses", rate: 1 / 8.43, type: "tertiary", pool: "sunfire", order: 4 },
-        "28933": { name: "Sunfire fanatic helm", rate: 1 / 8.43, type: "tertiary", pool: "sunfire", order: 5 },
+        "28936": { name: "Sunfire fanatic cuirass", rate: 1 / 8.50, type: "tertiary", pool: "sunfire", order: 3 },
+        "28939": { name: "Sunfire fanatic chausses", rate: 1 / 8.50, type: "tertiary", pool: "sunfire", order: 4 },
+        "28933": { name: "Sunfire fanatic helm", rate: 1 / 8.50, type: "tertiary", pool: "sunfire", order: 5 },
         "28942": { name: "Echo crystal", rate: 1 / 12.44, type: "tertiary", order: 6 },
         "28919": { name: "Tonalztics of Ralos (uncharged)", rate: 1 / 83.61, type: "tertiary", order: 7 },
     },
@@ -344,7 +344,7 @@ export const RAW_BOSS_DATA = {
         "24511": { name: "Harmonised orb", rate: 1 / 960, type: "main", order: 8 },
         "24517": { name: "Eldritch orb", rate: 1 / 960, type: "main", order: 9 },
         "24495": { name: "Jar of Dreams", rate: 1 / 2000, type: "tertiary", order: 10 },
-        "25837": { name: "Slepey tablet", rate: 1 / 100, type: "tertiary", order: 11 },
+        "25837": { name: "Slepey tablet", rate: 1 / 25, type: "tertiary", order: 11 },
         "25838": { name: "Parasitic egg", rate: 1 / 200, type: "tertiary", order: 12 },
     },
     obor: {
@@ -538,7 +538,7 @@ export const RAW_BOSS_DATA = {
         "21000": { name: "Twisted buckler", weight: 4, type: "main", order: 12 },
         "21034": { name: "Dexterous prayer scroll", weight: 14, type: "main", hidden: true, order: 13 },
         "21079": { name: "Arcane prayer scroll", weight: 14, type: "main", hidden: true, order: 14 },
-        "21047": { name: "Torn prayer scroll", rate: 2 / 33, type: "tertiary", hidden: true, order: 15 },
+        "21047": { name: "Torn prayer scroll", rate: 1 / 33, type: "tertiary", hidden: true, order: 15 },
     },
     theatre_of_blood: {
         "22473": { name: "Lil' Zik", rate: 1 / 650, type: "tertiary", order: 1 },

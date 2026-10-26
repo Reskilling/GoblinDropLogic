@@ -34,7 +34,19 @@ test('ToA unique chance is capped at 55%', () => {
 
 test("ToA's pet uses its own raid-level scaling, capped at level 550", () => {
     const pet = rateOf(modifiers.adjustRatesForToa(BOSS_ITEMS.tombs_of_amascut, { level: 600, points: 30000 }), "Tumeken's guardian");
-    assertClose(pet, 30000 / (100 * (350000 - 700 * 450)), 1e-9, 'pet');
+    assertClose(pet, (30000 - 5000) / (100 * (350000 - 700 * 450)), 1e-9, 'pet');
+});
+
+test("ToA loot ignores the 5,000 points every player starts with", () => {
+    const atStart = rateOf(modifiers.adjustRatesForToa(BOSS_ITEMS.tombs_of_amascut, { level: 300, points: 5000 }), "Tumeken's shadow (uncharged)");
+    assert.equal(atStart, 0);
+});
+
+test("Nightmare's jar keeps its flat rate whatever the team size", () => {
+    const solo = rateOf(modifiers.adjustRatesForNightmare(BOSS_ITEMS.the_nightmare, { variant: 'standard', teamSize: 1 }), 'Jar of Dreams');
+    const team = rateOf(modifiers.adjustRatesForNightmare(BOSS_ITEMS.the_nightmare, { variant: 'standard', teamSize: 5 }), 'Jar of Dreams');
+    assert.equal(solo, 1 / 2000);
+    assert.equal(team, 1 / 2000);
 });
 
 test('Yama tallow matches the wiki overall rate of 5/95.11', () => {

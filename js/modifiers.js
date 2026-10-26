@@ -238,6 +238,8 @@ export function adjustRatesForTob(items, { size, deaths }) {
 }
 
 const TOA_UNIQUE_CAP = 0.55;
+// Every player starts a raid on 5,000 points, which are subtracted before loot is rolled
+const TOA_STARTING_POINTS = 5000;
 // Shadow 10 + Masori 3 x 20 + Ward 30; fang and Lightbearer weights vary with raid level
 const TOA_OTHER_UNIQUES_WEIGHT = 100;
 const TOA_LEVEL_SCALED_UNIQUES = ["Osmumten's fang", "Lightbearer"];
@@ -264,7 +266,8 @@ function toaFangAndLightbearerWeights(level) {
     return { fang: 70, lightbearer: 70 };
 }
 
-export function adjustRatesForToa(items, { level, points }) {
+export function adjustRatesForToa(items, { level, points: totalPoints }) {
+    const points = Math.max(0, totalPoints - TOA_STARTING_POINTS);
     const uniqueChance = Math.min(points / (100 * (10500 - 20 * toaUniqueTableLevel(level))), TOA_UNIQUE_CAP);
     const { fang, lightbearer } = toaFangAndLightbearerWeights(level);
     const totalWeight = TOA_OTHER_UNIQUES_WEIGHT + fang + lightbearer;
@@ -297,7 +300,6 @@ export function adjustRatesForDT2(items, { isAwakened }) {
 // Standard Nightmare: the pet is 1/(800 x team) up to five players, then a flat 1/4000
 const NIGHTMARE_PET_DENOMINATOR_PER_PLAYER = 800;
 const NIGHTMARE_MAX_PET_DENOMINATOR = 4000;
-const NIGHTMARE_JAR_DENOMINATOR_PER_PLAYER = 2000;
 const NIGHTMARE_MAX_TEAM = 80;
 
 export function adjustRatesForNightmare(items, { variant, teamSize }) {
@@ -318,9 +320,8 @@ export function adjustRatesForNightmare(items, { variant, teamSize }) {
             const denominator = safeTeamSize <= 5 ? NIGHTMARE_PET_DENOMINATOR_PER_PLAYER * safeTeamSize : NIGHTMARE_MAX_PET_DENOMINATOR;
             return { ...item, rate: 1 / denominator };
         }
-        if (item.name === "Jar of Dreams") {
-            return { ...item, rate: 1 / (NIGHTMARE_JAR_DENOMINATOR_PER_PLAYER * safeTeamSize) };
-        }
+        // The jar keeps its flat rate: the Wiki notes team-size scaling for the pet only
+        if (item.name === "Jar of Dreams") return item;
         if (item.type === "main") {
             return { ...item, rate: (item.rate * scale) / safeTeamSize };
         }

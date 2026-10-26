@@ -75,7 +75,7 @@ const DEFINITIONS = {
     yama: { adjust: modifiers.adjustRatesForYama, settings: [contribution] },
     doom_of_mokhaiotl: {
         adjust: modifiers.adjustRatesForDoom,
-        settings: [{ key: 'delveLevel', type: 'number', label: 'Delve level (2–15)', default: 9, min: 2, max: 15 }]
+        settings: [{ key: 'delveLevel', type: 'number', label: 'Deepest delve level per run (2–15)', default: 9, min: 2, max: 15 }]
     },
     zulrah: { rolls: 2 },
     maggot_king: {
@@ -185,7 +185,8 @@ const DEFINITIONS = {
         adjust: modifiers.adjustRatesForToa,
         settings: [
             { key: 'level', type: 'number', label: 'Raid level', default: 150, min: 0, max: 600 },
-            { key: 'points', type: 'number', label: 'Your points per raid', default: 15000, min: 0 }
+            // The total shown in-game; the adjuster subtracts the 5,000 every player starts with
+            { key: 'points', type: 'number', label: 'Your total points (in-game)', default: 15000, min: 0 }
         ]
     }
 };

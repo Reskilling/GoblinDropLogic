@@ -55,6 +55,7 @@ The site is plain HTML, CSS and JavaScript modules, with no build step or framew
 GoblinDropLogic/
 ├── index.html          # Page shell and content for every section
 ├── style.css           # Design tokens and responsive layout
+├── audit_rates.js      # Checks every drop rate against the OSRS Wiki's drop database
 ├── download_icons.js   # Downloads item icons and boss portraits from the OSRS Wiki
 ├── js/
 │   ├── app.js          # Entry point and the DropLogic calculator UI
@@ -131,7 +132,14 @@ Before you begin, install [Node.js](https://nodejs.org/) 20 or later. You need i
 3. Check the new portrait in `assets/bosses/`. The script uses the image from the boss's Wiki page. If that's a logo or a location rather than the boss, add the right Wiki file to `WIKI_IMAGE_OVERRIDES` in `js/bosses.js`, delete the boss's files from `assets/bosses/` and `.cache/bosses/`, and run `npm run icons` again.
 
    To re-process every portrait after changing the standardising settings in `download_icons.js`, run `node download_icons.js --rebuild`. It works from the cached Wiki originals, so nothing is downloaded again.
-4. Run `npm test`. The data tests check that the icons and portraits exist, that main-table rates don't exceed one roll, and that every adjuster produces valid rates.
+4. Check the new rates against the Wiki's drop database. The audit prints only the items that don't match, which you then compare with the Wiki by hand (some have a known reason, such as a rate that varies with raid level):
+
+   ```bash
+   npm run audit-rates
+   ```
+
+   Run it again after game updates that change drop rates.
+5. Run `npm test`. The data tests check that the icons and portraits exist, that main-table rates don't exceed one roll, and that every adjuster produces valid rates.
 
 ## Add a JavaScript file
 
