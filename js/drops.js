@@ -238,6 +238,7 @@ export const RAW_BOSS_DATA = {
     },
     giant_mole: {
         "12646": { name: "Baby Mole", rate: 1 / 3000, type: "tertiary", order: 1 },
+        "33382": { name: "Immaculate mole skin", rate: 1 / 50, type: "tertiary", order: 2 },
     },
     grotesque_guardians: {
         "21748": { name: "Noon", rate: 1 / 3000, type: "tertiary", order: 1 },
