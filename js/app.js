@@ -9,7 +9,7 @@ import { getBossDefinition, groupBossesByCategory } from './bosses.js';
 import { renderSettings, readSettings, clampNumberInput, syncDisabledSettings } from './settings.js';
 import { initItemGrid, renderItemGrid, getSelectedItems, setAllItems, lockItems, getSelection, restoreSelection } from './item-grid.js';
 import { runSimulation, buildChartData, KC_LIMIT } from './solvers.js';
-import { renderChart } from './chart.js';
+import { renderChart, loadChartLibrary } from './chart.js';
 import { showToast } from './toast.js';
 import { initNavigation } from './nav.js';
 import { initChecklist } from './checklist.js';
@@ -72,6 +72,7 @@ function handleBossSelection() {
         return;
     }
 
+    loadChartLibrary(); // start the download now, so it's ready by the time Calculate is pressed
     activeBoss = { key, definition: getBossDefinition(key) };
     renderSettings(DOM.settings, activeBoss.definition.settings);
     renderItemGrid(BOSS_ITEMS[key]);
@@ -317,9 +318,11 @@ function displayResults(results, currentKC) {
     DOM.phraseMean.innerHTML = statRowHtml('Mean', 'Expected KC, pulled up by unlucky players', mean);
     DOM.phraseUser.innerHTML = statRowHtml('Current', 'Your current progress in the log', currentKC.toLocaleString());
 
-    if (!renderChart(DOM.chartCanvas, results.curveData, results, currentKC)) {
-        showToast("The chart couldn't load. The numbers below are still correct.");
-    }
+    loadChartLibrary().then(isLoaded => {
+        if (!isLoaded || !renderChart(DOM.chartCanvas, results.curveData, results, currentKC)) {
+            showToast("The chart couldn't load. The numbers below are still correct.");
+        }
+    });
 }
 
 // Clearing also hides the results, so it offers an Undo that brings both back

@@ -12,7 +12,7 @@ import { chromium } from 'playwright-core';
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const CONTENT_TYPES = {
     '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
-    '.png': 'image/png', '.webp': 'image/webp', '.json': 'application/json'
+    '.png': 'image/png', '.webp': 'image/webp', '.json': 'application/json', '.woff2': 'font/woff2'
 };
 
 function startServer() {
@@ -78,7 +78,8 @@ const textChanges = (sel, before) => page.waitForFunction(
 // --- Routing, titles, focus ---
 await page.goto(URL_ROOT);
 check('landing view on plain URL', await page.isVisible('#hero-view'));
-check('landing logo is the resized image', (await page.$eval('.showcase-logo', img => img.currentSrc)).endsWith('wise-goblin-hero.webp'));
+check('landing logo is a resized image', /wise-goblin-hero-\d+\.webp$/.test(await page.$eval('.showcase-logo', img => img.currentSrc)));
+check('fonts are self-hosted', await page.evaluate(() => document.fonts.check('16px Inter') && !document.querySelector('link[href*="fonts.googleapis"]')));
 await page.goto(URL_ROOT + '#guides');
 await settle();
 check('deep link opens Guides & Tools', await page.isVisible('#guides') && !(await page.isVisible('#hero-view')));
@@ -101,7 +102,7 @@ await settle();
 check('landing link opens DropLogic', await page.isVisible('#droplogic'));
 
 // --- Calculator ---
-check('Chart.js loaded', await page.evaluate(() => typeof Chart !== 'undefined'));
+check('Chart.js waits until a boss is chosen', await page.evaluate(() => typeof Chart === 'undefined'));
 check('empty state before calculating', await page.isVisible('.empty-state'));
 await page.click('.kc-btn[data-add="1"]');
 check('+1 before choosing a boss shows no error', !(await toastShown()));
@@ -114,6 +115,7 @@ await page.hover('.item-box[data-name="Scythe of Vitur (uncharged)"]');
 check('hover caption names the item', (await text('#item-caption')).startsWith('Scythe of Vitur'));
 await page.click('#calculate-btn');
 check('Calculate shows results', !(await isHidden('#results')) && !(await page.isVisible('.empty-state')));
+check('Chart.js loaded and drew the chart', await page.waitForFunction(() => typeof Chart !== 'undefined' && Chart.getChart('distributionChart'), null, { timeout: 10000 }).then(() => true, () => false));
 check('Calculate button hides once results update live', await isHidden('#calculate-btn'));
 check('results heading names the boss', (await text('#res-name')) === 'Theatre of Blood');
 check('KC 0 headline shows typical KC', (await text('#stat-chance')).endsWith('KC'));

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Only our own files, the Chart.js CDN, Google Fonts and wiki icon fallbacks may load -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://oldschool.runescape.wiki; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+    <!-- Only our own files, the Chart.js CDN and wiki icon fallbacks may load -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; font-src 'self'; img-src 'self' data: https://oldschool.runescape.wiki; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
     <title>Wise Goblin | Clan Hub & DropLogic</title>
     <meta name="description" content="The Wise Goblin clan hub: DropLogic forecasts your odds of finishing an OSRS boss collection log, plus guides, RuneLite plugin help, an Ironman FAQ and Zugrot's Checklist.">
     <meta name="theme-color" content="#0c0a09">
@@ -20,15 +20,27 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="assets/brand/wise-goblin-logo.png">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Inter:wght@400..800&display=swap" rel="stylesheet">
+    <!-- Fonts are self-hosted, so text doesn't wait on a third-party stylesheet; preloading starts them with the CSS -->
+    <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/big-shoulders-display-latin.woff2" as="font" type="font/woff2" crossorigin>
 
-    <!-- Pinned files with integrity hashes: the browser refuses them if the CDN copy ever changes -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"
-        integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG" crossorigin="anonymous" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"
-        integrity="sha384-oNtu+d18330MVFpltUTve1DatxCkkctlpA2AC3GulbVFOSqhHdDat3qHse/Lbuek" crossorigin="anonymous" defer></script>
+    <!-- The whole module graph, fetched in parallel instead of one import level at a time.
+         Chart.js itself loads from js/chart.js once a boss is chosen. -->
+    <link rel="modulepreload" href="js/app.js">
+    <link rel="modulepreload" href="js/matrix.js">
+    <link rel="modulepreload" href="js/data.js">
+    <link rel="modulepreload" href="js/drops.js">
+    <link rel="modulepreload" href="js/bosses.js">
+    <link rel="modulepreload" href="js/modifiers.js">
+    <link rel="modulepreload" href="js/settings.js">
+    <link rel="modulepreload" href="js/item-grid.js">
+    <link rel="modulepreload" href="js/solvers.js">
+    <link rel="modulepreload" href="js/chart.js">
+    <link rel="modulepreload" href="js/toast.js">
+    <link rel="modulepreload" href="js/nav.js">
+    <link rel="modulepreload" href="js/checklist.js">
+    <link rel="modulepreload" href="js/goals.js">
+    <link rel="modulepreload" href="js/copy-code.js">
 </head>
 <body>
 
@@ -39,7 +51,8 @@
         </div>
 
         <div class="logo-pedestal">
-            <img src="assets/brand/wise-goblin-hero.webp" alt="" class="showcase-logo" width="1000" height="1200" fetchpriority="high">
+            <img src="assets/brand/wise-goblin-hero-900.webp" srcset="assets/brand/wise-goblin-hero-600.webp 600w, assets/brand/wise-goblin-hero-900.webp 900w"
+                sizes="(max-width: 768px) 34vh, min(50vh, 500px)" alt="" class="showcase-logo" width="900" height="1080" fetchpriority="high">
         </div>
 
         <div class="hero-titles">

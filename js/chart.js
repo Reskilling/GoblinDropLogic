@@ -11,6 +11,35 @@ const reverseX = (x) => Math.pow(x, 1 / X_AXIS_POWER);
 
 let chartInstance = null;
 let defaultsApplied = false;
+let libraryPromise = null;
+
+// Pinned files with integrity hashes: the browser refuses them if the CDN copy ever changes
+const LIBRARY_SCRIPTS = [
+    { src: 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js', integrity: 'sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG' },
+    { src: 'https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js', integrity: 'sha384-oNtu+d18330MVFpltUTve1DatxCkkctlpA2AC3GulbVFOSqhHdDat3qHse/Lbuek' }
+];
+
+function loadScript({ src, integrity }) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.integrity = integrity;
+        script.crossOrigin = 'anonymous';
+        script.async = false; // download in parallel, but run in order: the plugin needs Chart first
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.append(script);
+    });
+}
+
+/**
+ * Chart.js is only needed once a boss is chosen, so pages that never chart don't download it.
+ * Starts the download once; resolves true when ready, false if it couldn't load (e.g. the CDN was blocked).
+ */
+export function loadChartLibrary() {
+    libraryPromise ??= Promise.all(LIBRARY_SCRIPTS.map(loadScript)).then(() => true, () => false);
+    return libraryPromise;
+}
 
 function readColors() {
     const style = getComputedStyle(document.documentElement);
