@@ -259,6 +259,11 @@ await phone.tap('.kc-btn[data-add="100"]');
 await phone.waitForFunction(() => !document.getElementById('result-peek').hidden, null, { timeout: 3000 }).catch(() => {});
 check('phone shows a results bar while the results are off-screen', await peekShown());
 check('results bar shows the updated chance', (await phone.textContent('#result-peek .peek-value')).endsWith('%'));
+await phone.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+await phone.waitForTimeout(300);
+check('results bar never covers the last stat row', await phone.evaluate(() =>
+    document.getElementById('result-peek').hidden ||
+    document.getElementById('phrase-user').getBoundingClientRect().bottom <= document.getElementById('result-peek').getBoundingClientRect().top));
 await phone.tap('#result-peek');
 await phone.waitForFunction(() => document.getElementById('result-peek').hidden, null, { timeout: 3000 }).catch(() => {});
 check('tapping the bar scrolls to the results and hides it', !(await peekShown()));

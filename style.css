@@ -542,6 +542,9 @@ button#calculate-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #9
 
     /* Keep notifications above the bar */
     body.has-result-peek .toast { bottom: 96px; }
+
+    /* Room below the page for the bar, so it never covers the last stat row */
+    body.has-result-peek { padding-bottom: 104px; }
 }
 
 /* ==========================================
