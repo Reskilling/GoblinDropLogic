@@ -338,7 +338,7 @@ function displayResults(results, currentKC) {
 
     DOM.phraseMode.innerHTML = statRowHtml('Mode', 'Most likely single KC to finish on', results.modeKC.toLocaleString());
     DOM.phraseMedian.innerHTML = statRowHtml('Median', 'Half of players finish at or before', results.median.toLocaleString());
-    DOM.phraseMean.innerHTML = statRowHtml('Mean', 'Expected KC, pulled up by unlucky players', mean);
+    DOM.phraseMean.innerHTML = statRowHtml('Mean', 'Average KC to finish', mean);
     DOM.phraseUser.innerHTML = statRowHtml('Current', 'Your current progress in the log', currentKC.toLocaleString());
     renderMilestones(results);
 

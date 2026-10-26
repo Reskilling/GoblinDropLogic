@@ -158,12 +158,14 @@ function getPlugins(stats, userKC, modeY, medianY, colors, { xMaxRaw, isCompact 
     const named = (name, value) => (isCompact ? name : `${name} ${value}`);
 
     // The player's dot sits on the blue curve; its label goes left of the dot (clear of the Median label
-    // to its right) unless the dot is near the left edge
+    // to its right) unless the dot is near the left edge. A KC past the end of the curve pins to the right edge.
+    const shownKC = Math.min(userKC, xMaxRaw);
     const userShare = formatShare(stats.targetP);
-    const userSide = (transformX(userKC) - transformX(1)) / (transformX(xMaxRaw) - transformX(1)) < 0.25 ? 'right' : 'left';
+    const userSide = (transformX(shownKC) - transformX(1)) / (transformX(xMaxRaw) - transformX(1)) < 0.25 ? 'right' : 'left';
     const user = userKC >= 1 ? {
-        userPoint: marker(userKC, stats.targetP, 'yCDF', colors.user, colors),
-        userLabel: markerLabel(userKC, stats.targetP, 'yCDF', `You · ${userShare}`, colors, userSide)
+        userPoint: marker(shownKC, stats.targetP, 'yCDF', colors.user, colors),
+        // Near 100% the dot sits on the top edge, so its label drops just below it
+        userLabel: { ...markerLabel(shownKC, stats.targetP, 'yCDF', `You · ${userShare}`, colors, userSide), yAdjust: stats.targetP > 0.92 ? 16 : 0 }
     } : {};
 
     return {
@@ -191,6 +193,7 @@ function getPlugins(stats, userKC, modeY, medianY, colors, { xMaxRaw, isCompact 
             }
         },
         annotation: {
+            clip: false, // markers on the plot's edge (e.g. a KC past the curve) draw whole
             annotations: {
                 modePoint: marker(stats.modeKC, modeY, 'yPMF', colors.mode, colors),
                 medianPoint: marker(stats.median, medianY, 'yCDF', colors.progress, colors),
@@ -202,7 +205,7 @@ function getPlugins(stats, userKC, modeY, medianY, colors, { xMaxRaw, isCompact 
                 },
                 // At 0 KC the line would sit left of the axis
                 userLine: {
-                    type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: colors.user, borderWidth: 2, display: userKC >= 1
+                    type: 'line', xMin: transformX(shownKC), xMax: transformX(shownKC), borderColor: colors.user, borderWidth: 2, display: userKC >= 1
                 },
                 ...user
             }
@@ -228,7 +231,8 @@ export function renderChart(canvas, data, stats, userKC) {
         defaultsApplied = true;
     }
 
-    const xMaxRaw = Math.max(data[data.length - 1].x, userKC * 1.1);
+    // The axis ends where the curve reaches 100%, however high the player's KC; extra kills don't add empty space
+    const xMaxRaw = data[data.length - 1].x;
     const modeY = data.find(d => d.x === stats.modeKC)?.pmf || 0;
     const medianY = data.find(d => d.x === stats.median)?.cdf || 0;
 

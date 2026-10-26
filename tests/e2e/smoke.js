@@ -183,6 +183,13 @@ await page.selectOption('#boss-select', 'vorkath');
 await page.fill('#target-kc', '-50');
 await page.dispatchEvent('#target-kc', 'change');
 check('negative KC is treated as 0', (await page.inputValue('#target-kc')) === '0' && (await text('#stat-chance-label')) === 'Typical KC to finish');
+await page.fill('#target-kc', '99999999');
+await textChanges('#stat-chance-label', 'Typical KC to finish');
+check('a huge KC doesn’t stretch the chart past the end of the curve', await page.evaluate(() => {
+    const chart = Chart.getChart('distributionChart');
+    return chart.scales.x.max === chart.data.datasets[0].data.at(-1).x;
+}));
+await page.fill('#target-kc', '0');
 
 await page.selectOption('#boss-select', 'tempoross');
 await page.fill('#setting-points', '0');
