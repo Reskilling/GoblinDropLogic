@@ -13,6 +13,7 @@ import { renderChart } from './chart.js';
 import { showToast } from './toast.js';
 import { initNavigation } from './nav.js';
 import { initChecklist } from './checklist.js';
+import { initCopyButtons } from './copy-code.js';
 
 const MATRIX_BUILDERS = {
     master: (items, definition) => createMasterMatrix(items, definition.rolls),
@@ -116,7 +117,15 @@ function bindSettingsEvents() {
 // ==========================================
 
 function updateKC(amount) {
-    DOM.kcInput.value = Math.max(0, readKC() + amount);
+    setKC(Math.max(0, readKC() + amount));
+}
+
+// Used by the KC buttons, which change the field without the user looking at it, so it briefly highlights
+function setKC(kc) {
+    DOM.kcInput.value = kc;
+    DOM.kcInput.classList.remove('is-bumped');
+    void DOM.kcInput.offsetWidth; // restart the highlight animation
+    DOM.kcInput.classList.add('is-bumped');
     refreshResults();
 }
 
@@ -330,10 +339,7 @@ function bindEvents() {
     });
     DOM.kcInput.addEventListener('input', refreshResults);
     DOM.kcInput.addEventListener('change', () => { DOM.kcInput.value = readKC(); });
-    DOM.kcResetBtn.addEventListener('click', () => {
-        DOM.kcInput.value = 0;
-        refreshResults();
-    });
+    DOM.kcResetBtn.addEventListener('click', () => setKC(0));
 
     DOM.selectAllBtn.addEventListener('click', () => setAllItems(true));
     DOM.selectNoneBtn.addEventListener('click', () => setAllItems(false));
@@ -350,3 +356,4 @@ bindEvents();
 initResultPeek();
 initNavigation();
 initChecklist();
+initCopyButtons();

@@ -18,6 +18,7 @@ function readColors() {
 
     return {
         mode: css('--stat-mode'),
+        modeArea: css('--stat-mode-area'),
         progress: css('--stat-progress'),
         mean: css('--stat-mean'),
         user: css('--stat-user'),
@@ -45,18 +46,20 @@ function formatAxisTick(value, index, ticks) {
     return index > 0 && label === roundedKcLabel(ticks[index - 1].value) ? null : label;
 }
 
-function createDataset(label, data, yKey, color, yAxisID, borderWidth) {
+// `area` shades under the line, so the two curves stay distinguishable without colour
+function createDataset(label, data, yKey, color, yAxisID, borderWidth, area = null) {
     return {
         label,
         data: data.map(d => ({ x: transformX(d.x), y: d[yKey], rawX: d.x })),
         borderColor: color,
-        backgroundColor: color,
+        backgroundColor: area ?? color,
         borderWidth,
         pointRadius: 0,
         yAxisID,
         tension: 0.2,
         cubicInterpolationMode: 'monotone',
-        fill: false
+        fill: area ? 'origin' : false,
+        pointStyle: area ? 'rect' : 'line'
     };
 }
 
@@ -92,7 +95,7 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
             display: true,
             position: 'top',
             align: 'start',
-            labels: { color: colors.text, usePointStyle: true, pointStyle: 'line', boxWidth: 24, font: { size: 13, weight: 600 } }
+            labels: { color: colors.text, usePointStyle: true, boxWidth: 24, font: { size: 13, weight: 600 } }
         },
         tooltip: {
             backgroundColor: 'rgba(12, 10, 9, 0.95)',
@@ -116,7 +119,7 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
                 modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: colors.mode, borderColor: colors.marker, borderWidth: 2, radius: 5 },
                 medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: colors.progress, borderColor: colors.marker, borderWidth: 2, radius: 5 },
                 mean: { type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean), borderColor: colors.mean, borderWidth: 2, borderDash: [5, 5] },
-                user: { type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: colors.user, borderWidth: 2, borderDash: [6, 4] }
+                user: { type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: colors.user, borderWidth: 2 }
             }
         }
     };
@@ -148,7 +151,7 @@ export function renderChart(canvas, data, stats, userKC) {
         type: 'line',
         data: {
             datasets: [
-                createDataset('Chance of finishing on this KC', data, 'pmf', colors.mode, 'yPMF', 3),
+                createDataset('Chance of finishing on this KC', data, 'pmf', colors.mode, 'yPMF', 3, colors.modeArea),
                 createDataset('Chance of having finished by this KC', data, 'cdf', colors.progress, 'yCDF', 2)
             ]
         },

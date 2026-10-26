@@ -202,6 +202,15 @@ const constructionTicked = await page.$$eval('#ironman-goals .goal-item', items 
 check('ambiguous old progress is not copied to repeated goals', constructionTicked.every(c => !c), constructionTicked.join(','));
 check('unambiguous old progress still loads', await easy.locator('.goal-item', { hasText: 'Graceful Outfit' }).locator('input').isChecked());
 
+// --- Copy buttons ---
+await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: URL_ROOT });
+await page.goto(URL_ROOT + '#plugins');
+await settle();
+const copyButton = page.locator('.code-block .copy-btn').first();
+await copyButton.click();
+check('Copy button confirms on itself', (await copyButton.textContent()) === 'Copied');
+check('Copy puts the radius markers on the clipboard', (await page.evaluate(() => navigator.clipboard.readText())).startsWith('[{"id"'));
+
 // --- Phone ---
 const phone = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 watchErrors(phone);
