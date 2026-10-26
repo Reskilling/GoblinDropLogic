@@ -229,6 +229,7 @@ const WIKI_IMAGE_OVERRIDES = {
     chambers_of_xeric: 'Great_Olm.png',
     fortis_colosseum: 'Sol_Heredit.png',
     grotesque_guardians: 'Dusk.png',
+    moons_of_peril: 'Blood_Moon.png',
     the_corrupted_gauntlet: 'Corrupted_Hunllef.png',
     the_fight_caves: 'TzTok-Jad.png',
     the_gauntlet: 'Crystalline_Hunllef.png',
@@ -241,3 +242,15 @@ const WIKI_IMAGE_OVERRIDES = {
 
 /** Gets the Wiki file to use for a boss's portrait, or null to use its Wiki page's own image. */
 export const getBossWikiImage = (key) => WIKI_IMAGE_OVERRIDES[key] ?? null;
+
+// Per-boss adjustments to the standardised portrait (see download_icons.js):
+// - cropBottom: share of the image's height to cut from the bottom, for a ground disc baked into the Wiki image
+//   that would otherwise use up the figure's height
+// - scale: multiplies the size the shared rules pick; the portrait still stays within the canvas
+const PORTRAIT_TWEAKS = {
+    amoxliatl: { cropBottom: 0.13 },
+    moons_of_peril: { cropBottom: 0.12 }
+};
+
+/** Gets a boss's portrait adjustments: { cropBottom = 0, scale = 1 }. */
+export const getBossPortraitTweaks = (key) => ({ cropBottom: 0, scale: 1, ...PORTRAIT_TWEAKS[key] });

@@ -17,7 +17,7 @@ import { finished } from 'stream/promises';
 import sharp from 'sharp';
 import { RAW_BOSS_DATA } from './js/drops.js';
 import { getItemImageFilename, getItemWikiImageUrl, getBossImagePath } from './js/data.js';
-import { getBossDefinition, getBossWikiImage } from './js/bosses.js';
+import { getBossDefinition, getBossWikiImage, getBossPortraitTweaks } from './js/bosses.js';
 
 const ITEMS_DIR = './assets/items';
 const BOSSES_DIR = './assets/bosses';
@@ -149,14 +149,18 @@ function measureFigure({ data, info }) {
 }
 
 /** Trims, scales and places one figure on the shared portrait canvas, standing on the floor line. */
-async function standardisePortrait(sourcePath, outputPath) {
+async function standardisePortrait(sourcePath, outputPath, { cropBottom, scale: tweakScale }) {
     // GIFs and animated images use their first frame
-    const raw = await sharp(sourcePath, { pages: 1 }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const source = sharp(sourcePath, { pages: 1 });
+    const { width: sourceWidth, height: sourceHeight } = await source.metadata();
+    const raw = await source
+        .extract({ left: 0, top: 0, width: sourceWidth, height: Math.round(sourceHeight * (1 - cropBottom)) })
+        .ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     const figure = measureFigure(raw);
 
     // Equal visual weight, except where that would break the size limits (very tall or very wide figures)
     const scale = Math.min(
-        Math.sqrt(PORTRAIT.targetWeight / figure.opaque),
+        Math.sqrt(PORTRAIT.targetWeight / figure.opaque) * tweakScale,
         PORTRAIT.maxFigureWidth / figure.width,
         PORTRAIT.maxFigureHeight / figure.height
     );
@@ -188,7 +192,7 @@ async function downloadBossImages() {
 
     for (const key of toBuild) {
         try {
-            await standardisePortrait(cachedOriginal(key), getBossImagePath(key));
+            await standardisePortrait(cachedOriginal(key), getBossImagePath(key), getBossPortraitTweaks(key));
         } catch (err) {
             console.error(`[ERROR] Failed to process ${key}:`, err.message);
         }
