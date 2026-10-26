@@ -62,6 +62,13 @@ const PRECOMPUTED_WT_RATES = (() => {
 // MODIFIER FUNCTIONS
 // ==========================================
 
+/** Gets the Doom items that can drop by the given delve level, or null when they all can. */
+export function doomItemsAvailableAt(delveLevel) {
+    const names = Object.keys(DOOM_FLOOR_RATES);
+    const available = names.filter(name => Object.keys(DOOM_FLOOR_RATES[name]).some(floor => Number(floor) <= delveLevel));
+    return available.length === names.length ? null : available;
+}
+
 export function adjustRatesForDoom(items, { delveLevel }) {
     const targetLevel = Math.min(Math.max(delveLevel, 2), 15);
 

@@ -12,7 +12,7 @@ let grid;
 let caption;
 let onChange;
 let itemsByName = new Map();
-let isLocked = false;
+let lockedNames = null; // while the grid is locked to some items (by a boss setting), their names
 let gridVersion = 0; // bumped whenever the grid is rebuilt or (un)locked, so stale undo snapshots are refused
 
 const tiles = () => grid.querySelectorAll('.item-box');
@@ -112,7 +112,7 @@ export function renderItemGrid(items) {
     const visible = items.filter(item => !item.hidden).sort((a, b) => a.order - b.order);
 
     itemsByName = new Map(visible.map(item => [item.name, item]));
-    isLocked = false;
+    lockedNames = null;
     gridVersion++;
     grid.innerHTML = visible.map(tileHtml).join('');
     tiles().forEach(updateLabel);
@@ -167,26 +167,37 @@ export function restoreSelection(snapshot) {
     return true;
 }
 
-/** Restricts the grid to `allowedNames` (e.g. a sacrifice option), or restores it when given null. */
+/**
+ * Locks the grid to `allowedNames` (items a boss setting leaves droppable, e.g. a sacrifice option or a
+ * delve level), or unlocks it when given null. Other tiles are disabled and left out, remembering whether
+ * they were selected for when they come back. Allowed tiles keep their selection, unless none would be
+ * left selected, in which case they're all selected.
+ */
 export function lockItems(allowedNames) {
-    const shouldLock = allowedNames !== null;
-    if (shouldLock === isLocked) return;
-    isLocked = shouldLock;
+    if (JSON.stringify(allowedNames) === JSON.stringify(lockedNames)) return;
+    lockedNames = allowedNames;
     gridVersion++;
 
+    // Bring back the tiles the previous setting locked, before applying the new one
     tiles().forEach(box => {
-        if (shouldLock) {
-            box.dataset.wasSelected = box.classList.contains('selected');
-            const isAllowed = allowedNames.includes(box.dataset.name);
-            box.classList.toggle('selected', isAllowed);
-            box.disabled = !isAllowed;
-        } else {
-            box.classList.toggle('selected', box.dataset.wasSelected === 'true');
-            delete box.dataset.wasSelected;
-            box.disabled = false;
-        }
-        updateLabel(box);
+        if (!box.disabled) return;
+        box.classList.toggle('selected', box.dataset.wasSelected === 'true');
+        delete box.dataset.wasSelected;
+        box.disabled = false;
     });
 
+    if (allowedNames) {
+        const isAllowed = (box) => allowedNames.includes(box.dataset.name);
+        tiles().forEach(box => {
+            if (isAllowed(box)) return;
+            box.dataset.wasSelected = box.classList.contains('selected');
+            box.classList.remove('selected');
+            box.disabled = true;
+        });
+        const allowed = [...tiles()].filter(isAllowed);
+        if (!allowed.some(box => box.classList.contains('selected'))) allowed.forEach(box => box.classList.add('selected'));
+    }
+
+    tiles().forEach(updateLabel);
     showDefaultCaption();
 }

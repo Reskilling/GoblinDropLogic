@@ -42,6 +42,12 @@ test("ToA loot ignores the 5,000 points every player starts with", () => {
     assert.equal(atStart, 0);
 });
 
+test('Doom uniques unlock at their own delve levels', () => {
+    assert.deepEqual(modifiers.doomItemsAvailableAt(2), ['Mokhaiotl cloth']);
+    assert.deepEqual(modifiers.doomItemsAvailableAt(4), ['Mokhaiotl cloth', 'Eye of Ayak (uncharged)', 'Avernic treads']);
+    assert.equal(modifiers.doomItemsAvailableAt(6), null);
+});
+
 test("Nightmare's jar keeps its flat rate whatever the team size", () => {
     const solo = rateOf(modifiers.adjustRatesForNightmare(BOSS_ITEMS.the_nightmare, { variant: 'standard', teamSize: 1 }), 'Jar of Dreams');
     const team = rateOf(modifiers.adjustRatesForNightmare(BOSS_ITEMS.the_nightmare, { variant: 'standard', teamSize: 5 }), 'Jar of Dreams');

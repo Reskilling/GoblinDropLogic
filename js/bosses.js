@@ -75,7 +75,9 @@ const DEFINITIONS = {
     yama: { adjust: modifiers.adjustRatesForYama, settings: [contribution] },
     doom_of_mokhaiotl: {
         adjust: modifiers.adjustRatesForDoom,
-        settings: [{ key: 'delveLevel', type: 'number', label: 'Deepest delve level per run (2–15)', default: 9, min: 2, max: 15 }]
+        settings: [{ key: 'delveLevel', type: 'number', label: 'Deepest delve level per run (2–15)', default: 9, min: 2, max: 15 }],
+        // Each unique starts dropping at its own delve level (Dom from 6), so shallower runs lock the rest
+        lockItems: (state) => modifiers.doomItemsAvailableAt(state.delveLevel)
     },
     zulrah: { rolls: 2 },
     maggot_king: {

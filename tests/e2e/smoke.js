@@ -159,6 +159,14 @@ check('Space toggles a focused tile', await page.$eval('.item-box[data-name="Ara
 await page.selectOption('#boss-select', 'the_nightmare');
 await page.check('[data-setting="variant"][value="1"]');
 check("Phosani's Nightmare disables team size", await page.$eval('#setting-teamSize', i => i.disabled));
+await page.selectOption('#boss-select', 'doom_of_mokhaiotl');
+await page.fill('#setting-delveLevel', '4');
+await page.dispatchEvent('#setting-delveLevel', 'change');
+check('Doom locks Dom below delve level 6', await page.$eval('.item-box[data-name="Dom"]', b => b.disabled && !b.classList.contains('selected')));
+await page.fill('#setting-delveLevel', '6');
+await page.dispatchEvent('#setting-delveLevel', 'change');
+check('Dom comes back, selected, from delve level 6', await page.$eval('.item-box[data-name="Dom"]', b => !b.disabled && b.classList.contains('selected')));
+
 await page.selectOption('#boss-select', 'demonic_gorilla');
 check('Zenyte shard starts at 1/4', await text('.item-box[data-name="Zenyte shard"] .item-badge') === '1/4');
 check('caption explains numbered tiles up front', (await text('#item-caption')).includes('numbered tiles'));
