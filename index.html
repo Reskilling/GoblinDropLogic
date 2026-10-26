@@ -163,7 +163,12 @@
                                 </div>
                                 <p id="results-message" class="results-message" hidden></p>
                                 <div class="chart-wrapper">
-                                    <canvas id="distributionChart" role="img" aria-label="Chart of how likely you are to have finished by each kill count"></canvas>
+                                    <canvas id="distributionChart" role="img" aria-label="Chart of how likely you are to have finished by each kill count; the milestones below list the key values"></canvas>
+                                </div>
+                                <!-- The chart's answer as text -->
+                                <div class="milestones">
+                                    <p class="milestones-title">Players finished by</p>
+                                    <dl id="milestones" class="milestone-list"></dl>
                                 </div>
                                 <div class="stats-list">
                                     <div class="stat-item" id="phrase-mode"></div>

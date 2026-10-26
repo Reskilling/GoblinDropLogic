@@ -105,7 +105,7 @@ function getScales(xMaxRaw, colors) {
             ticks: { color: colors.text, font: { size: 12, weight: 600 }, maxTicksLimit: 8, callback: formatAxisTick }
         },
         // Headroom so the mode marker at the peak isn't clipped
-        yPMF: { display: false, beginAtZero: true, grace: '8%' },
+        yPMF: { display: false, beginAtZero: true, grace: '15%' },
         yCDF: {
             display: true,
             position: 'right',
@@ -118,7 +118,23 @@ function getScales(xMaxRaw, colors) {
     };
 }
 
+const textLabel = (colors) => ({
+    color: colors.marker,
+    backgroundColor: 'rgba(28, 25, 23, 0.9)',
+    font: { size: 12, weight: 600 },
+    padding: { x: 6, y: 3 },
+    borderRadius: 4
+});
+
+// A label beside a marker, so its meaning doesn't depend on matching colours to a legend
+const markerLabel = (kc, y, yScaleID, content, colors) => ({
+    type: 'label', xValue: transformX(kc), yValue: y, yScaleID, content,
+    position: { x: 'start', y: 'center' }, xAdjust: 12, ...textLabel(colors)
+});
+
 function getPlugins(stats, userKC, modeY, medianY, colors) {
+    const mean = `${Math.round(stats.mean).toLocaleString()}${stats.reachedLimit ? '+' : ''}`;
+
     return {
         legend: {
             display: true,
@@ -147,8 +163,17 @@ function getPlugins(stats, userKC, modeY, medianY, colors) {
             annotations: {
                 modePoint: { type: 'point', xValue: transformX(stats.modeKC), yValue: modeY, yScaleID: 'yPMF', backgroundColor: colors.mode, borderColor: colors.marker, borderWidth: 2, radius: 5 },
                 medianPoint: { type: 'point', xValue: transformX(stats.median), yValue: medianY, yScaleID: 'yCDF', backgroundColor: colors.progress, borderColor: colors.marker, borderWidth: 2, radius: 5 },
-                mean: { type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean), borderColor: colors.mean, borderWidth: 2, borderDash: [5, 5] },
-                user: { type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: colors.user, borderWidth: 2 }
+                modeLabel: markerLabel(stats.modeKC, modeY, 'yPMF', `Mode ${stats.modeKC.toLocaleString()}`, colors),
+                medianLabel: markerLabel(stats.median, medianY, 'yCDF', `Median ${stats.median.toLocaleString()}`, colors),
+                mean: {
+                    type: 'line', xMin: transformX(stats.mean), xMax: transformX(stats.mean), borderColor: colors.mean, borderWidth: 2, borderDash: [5, 5],
+                    label: { display: true, content: `Mean ${mean}`, position: 'start', ...textLabel(colors) }
+                },
+                // At 0 KC the line would sit left of the axis
+                user: {
+                    type: 'line', xMin: transformX(userKC), xMax: transformX(userKC), borderColor: colors.user, borderWidth: 2, display: userKC >= 1,
+                    label: { display: true, content: `You ${userKC.toLocaleString()}`, position: 'end', ...textLabel(colors) }
+                }
             }
         }
     };

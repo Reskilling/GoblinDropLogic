@@ -47,7 +47,8 @@ const DOM = {
     phraseMedian: document.getElementById('phrase-median'),
     phraseMean: document.getElementById('phrase-mean'),
     phraseUser: document.getElementById('phrase-user'),
-    chartCanvas: document.getElementById('distributionChart')
+    chartCanvas: document.getElementById('distributionChart'),
+    milestones: document.getElementById('milestones')
 };
 
 // ==========================================
@@ -317,12 +318,24 @@ function displayResults(results, currentKC) {
     DOM.phraseMedian.innerHTML = statRowHtml('Median', 'Half of players finish at or before', results.median.toLocaleString());
     DOM.phraseMean.innerHTML = statRowHtml('Mean', 'Expected KC, pulled up by unlucky players', mean);
     DOM.phraseUser.innerHTML = statRowHtml('Current', 'Your current progress in the log', currentKC.toLocaleString());
+    renderMilestones(results);
 
     loadChartLibrary().then(isLoaded => {
         if (!isLoaded || !renderChart(DOM.chartCanvas, results.curveData, results, currentKC)) {
             showToast("The chart couldn't load. The numbers below are still correct.");
         }
     });
+}
+
+const MILESTONES = [0.25, 0.5, 0.75, 0.9, 0.99];
+
+/** "Players finished by": the KC by which each share of players is done; the chart's answer as text. */
+function renderMilestones({ historyCDF }) {
+    const limit = `${KC_LIMIT.toLocaleString()}+`;
+    DOM.milestones.innerHTML = MILESTONES.map(share => {
+        const kc = historyCDF.findIndex(p => p >= share);
+        return `<div class="milestone"><dt>${share * 100}%</dt><dd>${kc === -1 ? limit : kc.toLocaleString()}</dd></div>`;
+    }).join('');
 }
 
 // Clearing also hides the results, so it offers an Undo that brings both back
