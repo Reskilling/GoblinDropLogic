@@ -59,7 +59,10 @@ function describe(box) {
 
 function showDefaultCaption() {
     const counted = grid.querySelectorAll('.item-box.selected').length;
-    caption.textContent = `${counted} of ${tiles().length} items counted. Hover or tap an item to see what it is.`;
+    const hint = grid.querySelector('.item-badge')
+        ? 'Hover or tap an item to see what it is; on numbered tiles, each tap lowers how many you still need.'
+        : 'Hover or tap an item to see what it is.';
+    caption.textContent = `${counted} of ${tiles().length} items counted. ${hint}`;
 }
 
 function toggle(box) {
@@ -132,6 +135,28 @@ export function setAllItems(select) {
     grid.querySelectorAll('.item-box:not(:disabled)').forEach(box => {
         box.classList.toggle('selected', select);
         if (select) setPieces(box, Number(box.dataset.defaultPieces));
+        updateLabel(box);
+    });
+
+    showDefaultCaption();
+    onChange();
+}
+
+/** Which tiles are selected and how many pieces each needs, so a change can be undone. */
+export function getSelection() {
+    return Array.from(tiles(), box => ({
+        name: box.dataset.name,
+        isSelected: box.classList.contains('selected'),
+        pieces: box.dataset.selectedPieces
+    }));
+}
+
+export function restoreSelection(snapshot) {
+    snapshot.forEach(({ name, isSelected, pieces }) => {
+        const box = grid.querySelector(`.item-box[data-name="${CSS.escape(name)}"]`);
+        if (!box || box.disabled) return;
+        box.classList.toggle('selected', isSelected);
+        setPieces(box, pieces);
         updateLabel(box);
     });
 

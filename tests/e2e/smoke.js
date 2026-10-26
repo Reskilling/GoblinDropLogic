@@ -135,21 +135,28 @@ await page.selectOption('#boss-select', 'araxxor');
 await page.click('.item-box[data-name="Araxyte fang"]');
 const selectedNames = () => page.$$eval('.item-box.selected', bs => bs.map(b => b.dataset.name).sort().join(','));
 const beforeSacrifice = await selectedNames();
-const sacrifice = '.setting-toggle[data-setting="isSacrificing"]';
-await page.click(sacrifice);
+const sacrifice = '[data-setting="isSacrificing"][value="1"]';
+await page.check(sacrifice);
 check('sacrifice locks the grid to Nid', await selectedNames() === 'Nid');
-check('toggle exposes aria-pressed', await page.$eval(sacrifice, b => b.getAttribute('aria-pressed')) === 'true');
-await page.click(sacrifice);
+check('toggle is a checked radio option', await page.isChecked(sacrifice));
+await page.check('[data-setting="isSacrificing"][value="0"]');
 check('turning sacrifice off restores the selection', await selectedNames() === beforeSacrifice);
 await page.focus('.item-box[data-name="Araxyte head"]');
 await page.keyboard.press('Space');
 check('Space toggles a focused tile', await page.$eval('.item-box[data-name="Araxyte head"]', b => b.getAttribute('aria-pressed')) === 'false');
 
 await page.selectOption('#boss-select', 'the_nightmare');
-await page.click('.setting-toggle[data-setting="variant"]');
+await page.check('[data-setting="variant"][value="1"]');
 check("Phosani's Nightmare disables team size", await page.$eval('#setting-teamSize', i => i.disabled));
 await page.selectOption('#boss-select', 'demonic_gorilla');
 check('Zenyte shard starts at 1/4', await text('.item-box[data-name="Zenyte shard"] .item-badge') === '1/4');
+check('caption explains numbered tiles up front', (await text('#item-caption')).includes('numbered tiles'));
+// Results are already showing from earlier bosses, so they follow the selection live
+const countedBefore = await page.locator('.item-box.selected').count();
+await page.click('#select-none');
+check('Clear hides the results', await isHidden('#results'));
+await page.click('.toast-action');
+check('Undo restores the selection and results', (await page.locator('.item-box.selected').count()) === countedBefore && !(await isHidden('#results')));
 await page.selectOption('#boss-select', 'moons_of_peril');
 check('Moons of Peril calculates', (await text('#phrase-mean')).includes('KC'));
 
@@ -167,6 +174,11 @@ check('impossible settings replace stale results with a message', await headline
 await page.fill('#setting-points', '4000');
 check('fixing the setting brings the results back', await textChanges('#stat-chance', '—') && !(await showsMessage()) && await page.isVisible('.chart-wrapper'));
 
+await page.selectOption('#boss-select', 'chambers_of_xeric');
+await page.selectOption('#boss-select', 'tombs_of_amascut');
+await page.fill('#setting-level', '900');
+await page.dispatchEvent('#setting-level', 'change');
+check('out-of-range setting explains the cap', (await page.textContent('.toast')).includes('Raid level can be 0–600'));
 await page.selectOption('#boss-select', 'chambers_of_xeric');
 await page.fill('#setting-points', '1e9');
 await page.dispatchEvent('#setting-points', 'change');

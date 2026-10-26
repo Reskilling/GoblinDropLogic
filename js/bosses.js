@@ -6,7 +6,7 @@
  *
  * Setting shapes:
  * - number: { key, type: 'number', label, default, min?, max?, disabledWhen?(state), disabledValue? }
- * - toggle: { key, type: 'toggle', options: [{ value, label, tone? }] }; the first option is the default.
+ * - toggle: { key, type: 'toggle', label, options: [{ value, label, tone? }] }; the first option is the default.
  * Each setting's `key` is the property name its `adjust` function reads from the state.
  */
 
@@ -25,16 +25,16 @@ const DEFAULT_DEFINITION = {
     lockItems: null
 };
 
-const toggle = (key, options) => ({ key, type: 'toggle', options });
+const toggle = (key, label, options) => ({ key, type: 'toggle', label, options });
 const contribution = { key: 'contrib', type: 'number', label: 'Contribution %', default: 100, min: 0, max: 100 };
 
 const forgottenFour = {
     category: 'The Forgotten Four',
     adjust: modifiers.adjustRatesForDT2,
     settings: [
-        toggle('isAwakened', [
-            { value: false, label: 'Standard variant' },
-            { value: true, label: 'Awakened variant (3x uniques)', tone: 'accent' }
+        toggle('isAwakened', 'Variant', [
+            { value: false, label: 'Standard' },
+            { value: true, label: 'Awakened (3x uniques)', tone: 'accent' }
         ])
     ]
 };
@@ -47,13 +47,13 @@ const DEFINITIONS = {
         name: 'The Royal Titans',
         adjust: modifiers.adjustRatesForTitans,
         settings: [
-            toggle('target', [
-                { value: 'branda', label: 'Target: Branda', tone: 'fire' },
-                { value: 'eldric', label: 'Target: Eldric', tone: 'ice' }
+            toggle('target', 'Target', [
+                { value: 'branda', label: 'Branda', tone: 'fire' },
+                { value: 'eldric', label: 'Eldric', tone: 'ice' }
             ]),
-            toggle('action', [
-                { value: 'loot', label: 'Loot: standard' },
-                { value: 'sacrifice', label: 'Loot: sacrifice (2x pet)', tone: 'accent' }
+            toggle('action', 'Loot', [
+                { value: 'loot', label: 'Standard' },
+                { value: 'sacrifice', label: 'Sacrifice (2x pet)', tone: 'accent' }
             ]),
             contribution
         ],
@@ -62,8 +62,8 @@ const DEFINITIONS = {
     the_nightmare: {
         adjust: modifiers.adjustRatesForNightmare,
         settings: [
-            toggle('variant', [
-                { value: 'standard', label: 'Standard mode' },
+            toggle('variant', 'Mode', [
+                { value: 'standard', label: 'Standard' },
                 { value: 'phosani', label: "Phosani's Nightmare", tone: 'accent' }
             ]),
             {
@@ -81,7 +81,7 @@ const DEFINITIONS = {
     maggot_king: {
         adjust: modifiers.adjustRatesForMaggotKing,
         settings: [
-            toggle('loot', [
+            toggle('loot', 'Loot', [
                 { value: 'stomach', label: 'Open stomach (standard)' },
                 { value: 'eggs', label: 'Take eggs (2.3x pet)', tone: 'accent' }
             ])
@@ -111,9 +111,9 @@ const DEFINITIONS = {
         category: 'Minigame',
         adjust: modifiers.adjustRatesForColosseum,
         settings: [
-            toggle('isSacrificing', [
-                { value: false, label: 'Keep quivers (standard)' },
-                { value: true, label: 'Sacrifice quivers for pet chance', tone: 'accent' }
+            toggle('isSacrificing', 'Quivers', [
+                { value: false, label: 'Keep (standard)' },
+                { value: true, label: 'Sacrifice for pet chance', tone: 'accent' }
             ])
         ]
     },
@@ -125,9 +125,9 @@ const DEFINITIONS = {
         category: 'Slayer',
         adjust: modifiers.adjustRatesForAraxxor,
         settings: [
-            toggle('isSacrificing', [
-                { value: false, label: 'Harvest corpse (standard)' },
-                { value: true, label: 'Destroy corpse (2x pet)', tone: 'accent' }
+            toggle('isSacrificing', 'Corpse', [
+                { value: false, label: 'Harvest (standard)' },
+                { value: true, label: 'Destroy (2x pet)', tone: 'accent' }
             ])
         ],
         lockItems: (state) => state.isSacrificing ? ['Nid'] : null

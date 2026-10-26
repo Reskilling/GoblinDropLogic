@@ -16,17 +16,20 @@ function numberSettingHtml(setting) {
         </div>`;
 }
 
+// Every option is visible side by side, so the choice and the current state read at a glance
 function toggleSettingHtml(setting) {
-    const first = setting.options[0];
-    return `
-        <button type="button" class="setting-toggle" data-setting="${setting.key}" data-index="0"
-            data-tone="${first.tone ?? ''}" ${isOnOffToggle(setting) ? 'aria-pressed="false"' : ''}>
-            ${first.label}
-        </button>`;
-}
+    const options = setting.options.map((option, index) => `
+            <label class="segment" data-tone="${option.tone ?? ''}">
+                <input type="radio" name="setting-${setting.key}" value="${index}" data-setting="${setting.key}" ${index === 0 ? 'checked' : ''}>
+                <span>${option.label}</span>
+            </label>`).join('');
 
-// A two-option toggle whose first option is the plain default reads as on/off to assistive tech
-const isOnOffToggle = (setting) => setting.options.length === 2 && !setting.options[0].tone;
+    return `
+        <fieldset class="setting-toggle">
+            <legend>${setting.label}</legend>
+            <div class="segments">${options}</div>
+        </fieldset>`;
+}
 
 const findInput = (container, key) => container.querySelector(`[data-setting="${key}"]`);
 
@@ -42,7 +45,8 @@ export function readSettings(container, settings) {
         const input = findInput(container, setting.key);
 
         if (setting.type === 'toggle') {
-            return [setting.key, setting.options[Number(input.dataset.index)].value];
+            const checked = container.querySelector(`[data-setting="${setting.key}"]:checked`);
+            return [setting.key, setting.options[Number(checked.value)].value];
         }
 
         return [setting.key, parseNumberSetting(input.value, setting)];
@@ -57,23 +61,25 @@ function parseNumberSetting(value, setting) {
 }
 
 /** Advances a toggle to its next option. */
-export function cycleToggle(button, setting) {
-    const index = (Number(button.dataset.index) + 1) % setting.options.length;
-    const option = setting.options[index];
-
-    button.dataset.index = index;
-    button.dataset.tone = option.tone ?? '';
-    button.textContent = option.label;
-    if (isOnOffToggle(setting)) button.setAttribute('aria-pressed', String(index !== 0));
-}
-
 function clamp(value, { min = -Infinity, max = Infinity }) {
     return Math.min(Math.max(value, min), max);
 }
 
 /** Rewrites an out-of-range number input once the user has finished typing. */
+/** Rewrites the input as a valid whole number; returns a message when an out-of-range value was capped. */
 export function clampNumberInput(input, setting) {
-    input.value = parseNumberSetting(input.value, setting);
+    const typed = Math.floor(Number(input.value));
+    const value = parseNumberSetting(input.value, setting);
+    input.value = value;
+
+    if (input.value.trim() === '' || !Number.isFinite(typed) || typed === value) return null;
+    const name = setting.label.replace(/\s*\(.*\)$/, ''); // "Delve level (2–15)" -> "Delve level"
+    return `${name} can be ${describeRange(setting)}, so it's been set to ${value.toLocaleString()}.`;
+}
+
+function describeRange({ min, max }) {
+    if (min !== undefined && max !== undefined) return `${min.toLocaleString()}–${max.toLocaleString()}`;
+    return min !== undefined ? `at least ${min.toLocaleString()}` : `at most ${max.toLocaleString()}`;
 }
 
 export function syncDisabledSettings(container, settings, state) {

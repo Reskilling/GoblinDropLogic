@@ -6,8 +6,8 @@
 import { createMasterMatrix, createBarrowsMatrix } from './matrix.js';
 import { BOSS_ITEMS } from './data.js';
 import { getBossDefinition, groupBossesByCategory } from './bosses.js';
-import { renderSettings, readSettings, cycleToggle, clampNumberInput, syncDisabledSettings } from './settings.js';
-import { initItemGrid, renderItemGrid, getSelectedItems, setAllItems, lockItems } from './item-grid.js';
+import { renderSettings, readSettings, clampNumberInput, syncDisabledSettings } from './settings.js';
+import { initItemGrid, renderItemGrid, getSelectedItems, setAllItems, lockItems, getSelection, restoreSelection } from './item-grid.js';
 import { runSimulation, buildChartData, KC_LIMIT } from './solvers.js';
 import { renderChart } from './chart.js';
 import { showToast } from './toast.js';
@@ -92,22 +92,19 @@ function handleSettingsChanged() {
 }
 
 function bindSettingsEvents() {
-    DOM.settings.addEventListener('click', (e) => {
-        const button = e.target.closest('.setting-toggle');
-        const setting = button && findSetting(button.dataset.setting);
-        if (!setting) return;
-        cycleToggle(button, setting);
-        handleSettingsChanged();
-    });
+    // Number fields recalculate after a pause in typing; toggles (radio groups) on `change` below
     DOM.settings.addEventListener('input', (e) => {
-        if (!findSetting(e.target.dataset.setting)) return;
+        if (findSetting(e.target.dataset.setting)?.type !== 'number') return;
         clearTimeout(settingsInputTimer);
         settingsInputTimer = setTimeout(handleSettingsChanged, SETTINGS_INPUT_DELAY_MS);
     });
     DOM.settings.addEventListener('change', (e) => {
         const setting = findSetting(e.target.dataset.setting);
-        if (!setting || setting.type !== 'number') return;
-        clampNumberInput(e.target, setting);
+        if (!setting) return;
+        if (setting.type === 'number') {
+            const notice = clampNumberInput(e.target, setting);
+            if (notice) showToast(notice, { tone: 'info' });
+        }
         handleSettingsChanged();
     });
 }
@@ -326,6 +323,25 @@ function displayResults(results, currentKC) {
     }
 }
 
+// Clearing also hides the results, so it offers an Undo that brings both back
+function clearSelection() {
+    if (!getSelectedItems().length) return;
+
+    const snapshot = { bossKey: activeBoss.key, selection: getSelection(), hadResults: !DOM.resultsSection.classList.contains('hidden') };
+    setAllItems(false);
+    showToast('Selection cleared.', {
+        tone: 'info',
+        action: {
+            label: 'Undo',
+            onClick: () => {
+                if (activeBoss?.key !== snapshot.bossKey) return;
+                restoreSelection(snapshot.selection);
+                if (snapshot.hadResults) handleCalculation();
+            }
+        }
+    });
+}
+
 // ==========================================
 // INIT
 // ==========================================
@@ -342,7 +358,7 @@ function bindEvents() {
     DOM.kcResetBtn.addEventListener('click', () => setKC(0));
 
     DOM.selectAllBtn.addEventListener('click', () => setAllItems(true));
-    DOM.selectNoneBtn.addEventListener('click', () => setAllItems(false));
+    DOM.selectNoneBtn.addEventListener('click', clearSelection);
     DOM.calcBtn.addEventListener('click', () => handleCalculation({ scrollToResults: true }));
 }
 

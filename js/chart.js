@@ -71,7 +71,7 @@ function getScales(xMaxRaw, colors) {
             type: 'linear',
             min: transformX(1),
             max: transformX(xMaxRaw),
-            title: axisTitle('Kill count (compressed scale)'),
+            title: axisTitle('Kill count (early kills spread out)'),
             grid: { color: 'rgba(68, 64, 60, 0.2)', drawTicks: false },
             ticks: { color: colors.text, font: { size: 12, weight: 600 }, maxTicksLimit: 8, callback: formatAxisTick }
         },
