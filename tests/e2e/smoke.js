@@ -135,6 +135,13 @@ const coxBefore = await text('#phrase-mean');
 await page.fill('#setting-points', '60000');
 check('setting change recalculates', await textChanges('#phrase-mean', coxBefore));
 
+await page.selectOption('#boss-select', 'royal_titans');
+const portraitSrc = () => page.$eval('#boss-image', img => img.src);
+await page.check('[data-setting="target"][value="1"]');
+check('Eldric target shows Eldric’s portrait', (await portraitSrc()).endsWith('/assets/bosses/royal_titans-eldric.webp'));
+await page.check('[data-setting="target"][value="0"]');
+check('Branda target shows Branda’s portrait', (await portraitSrc()).endsWith('/assets/bosses/royal_titans.webp'));
+
 await page.selectOption('#boss-select', 'araxxor');
 await page.click('.item-box[data-name="Araxyte fang"]');
 const selectedNames = () => page.$$eval('.item-box.selected', bs => bs.map(b => b.dataset.name).sort().join(','));

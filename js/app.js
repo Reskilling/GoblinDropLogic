@@ -5,7 +5,7 @@
 
 import { createMasterMatrix, createBarrowsMatrix } from './matrix.js';
 import { BOSS_ITEMS, getBossImagePath } from './data.js';
-import { getBossDefinition, groupBossesByCategory } from './bosses.js';
+import { getBossDefinition, groupBossesByCategory, getPortraitId } from './bosses.js';
 import { renderSettings, readSettings, clampNumberInput, syncDisabledSettings } from './settings.js';
 import { initItemGrid, renderItemGrid, getSelectedItems, setAllItems, lockItems, getSelection, restoreSelection } from './item-grid.js';
 import { runSimulation, buildChartData, KC_LIMIT } from './solvers.js';
@@ -64,11 +64,16 @@ function populateBossSelect() {
     DOM.bossSelect.innerHTML = '<option value="">Choose a boss…</option>' + groups.join('');
 }
 
-// The portrait fades in once its image has loaded, and stays hidden if it can't load
-function showBossPortrait(key) {
-    DOM.bossPortrait.hidden = !key;
+// The portrait fades in once its image has loaded, and stays hidden if it can't load.
+// `portraitId` is a boss key, or a variant like "royal_titans-eldric" that follows a setting.
+let shownPortraitId = null;
+
+function showBossPortrait(portraitId) {
+    if (portraitId === shownPortraitId) return;
+    shownPortraitId = portraitId;
+    DOM.bossPortrait.hidden = !portraitId;
     DOM.bossImage.classList.remove('is-loaded');
-    if (key) DOM.bossImage.src = getBossImagePath(key);
+    if (portraitId) DOM.bossImage.src = getBossImagePath(portraitId);
 }
 
 function initBossPortrait() {
@@ -79,9 +84,9 @@ function initBossPortrait() {
 function handleBossSelection() {
     const key = DOM.bossSelect.value;
     DOM.kcInput.value = 0;
-    showBossPortrait(key);
 
     if (!key) {
+        showBossPortrait(null);
         activeBoss = null;
         DOM.bossPreview.classList.add('hidden');
         setResultsVisible(false);
@@ -91,6 +96,7 @@ function handleBossSelection() {
     loadChartLibrary(); // start the download now, so it's ready by the time Calculate is pressed
     activeBoss = { key, definition: getBossDefinition(key) };
     renderSettings(DOM.settings, activeBoss.definition.settings);
+    showBossPortrait(getPortraitId(key, readBossState()));
     renderItemGrid(BOSS_ITEMS[key]);
     DOM.bossPreview.classList.remove('hidden');
     refreshResults();
@@ -105,6 +111,7 @@ function handleSettingsChanged() {
     const state = readBossState();
     syncDisabledSettings(DOM.settings, activeBoss.definition.settings, state);
     lockItems(activeBoss.definition.lockItems?.(state) ?? null);
+    showBossPortrait(getPortraitId(activeBoss.key, state));
     refreshResults();
 }
 

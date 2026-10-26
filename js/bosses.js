@@ -240,8 +240,27 @@ const WIKI_IMAGE_OVERRIDES = {
     wintertodt: 'Phoenix_(follower).png' // the Wintertodt has no clean portrait on the Wiki, so its pet stands in
 };
 
-/** Gets the Wiki file to use for a boss's portrait, or null to use its Wiki page's own image. */
-export const getBossWikiImage = (key) => WIKI_IMAGE_OVERRIDES[key] ?? null;
+// Bosses whose portrait follows a setting: each value listed here shows its own Wiki file, with the
+// portrait id "<boss>-<value>"; the setting's other values show the boss's main portrait
+const PORTRAIT_VARIANTS = {
+    royal_titans: { setting: 'target', files: { eldric: 'Eldric_the_Ice_King.png' } }
+};
+
+/** Lists the extra portraits that setting variants need: [{ id, wikiImage }]. */
+export const listPortraitVariants = () => Object.entries(PORTRAIT_VARIANTS).flatMap(([key, { files }]) =>
+    Object.entries(files).map(([value, wikiImage]) => ({ id: `${key}-${value}`, wikiImage })));
+
+/** Gets the portrait to show for a boss with the given settings: the boss key, or "<key>-<value>" for a variant. */
+export function getPortraitId(key, state) {
+    const variant = PORTRAIT_VARIANTS[key];
+    const value = variant && state[variant.setting];
+    return variant?.files[value] ? `${key}-${value}` : key;
+}
+
+const VARIANT_FILES = Object.fromEntries(listPortraitVariants().map(({ id, wikiImage }) => [id, wikiImage]));
+
+/** Gets the Wiki file to use for a portrait id, or null to use the boss's Wiki page's own image. */
+export const getBossWikiImage = (id) => WIKI_IMAGE_OVERRIDES[id] ?? VARIANT_FILES[id] ?? null;
 
 // Per-boss adjustments to the standardised portrait (see download_icons.js):
 // - cropBottom: share of the image's height to cut from the bottom, for a ground disc baked into the Wiki image

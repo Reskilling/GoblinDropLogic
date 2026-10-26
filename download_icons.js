@@ -17,7 +17,7 @@ import { finished } from 'stream/promises';
 import sharp from 'sharp';
 import { RAW_BOSS_DATA } from './js/drops.js';
 import { getItemImageFilename, getItemWikiImageUrl, getBossImagePath } from './js/data.js';
-import { getBossDefinition, getBossWikiImage, getBossPortraitTweaks } from './js/bosses.js';
+import { getBossDefinition, getBossWikiImage, getBossPortraitTweaks, listPortraitVariants } from './js/bosses.js';
 
 const ITEMS_DIR = './assets/items';
 const BOSSES_DIR = './assets/bosses';
@@ -184,10 +184,11 @@ async function standardisePortrait(sourcePath, outputPath, { cropBottom, scale: 
 }
 
 async function downloadBossImages() {
-    const bossKeys = Object.keys(RAW_BOSS_DATA);
-    await cacheBossOriginals(bossKeys);
+    // One portrait per boss, plus one per setting variant (e.g. the Royal Titans' Eldric)
+    const portraitIds = [...Object.keys(RAW_BOSS_DATA), ...listPortraitVariants().map(({ id }) => id)];
+    await cacheBossOriginals(portraitIds);
 
-    const toBuild = bossKeys.filter(key => fs.existsSync(cachedOriginal(key)) && (REBUILD || !fs.existsSync(getBossImagePath(key))));
+    const toBuild = portraitIds.filter(key => fs.existsSync(cachedOriginal(key)) && (REBUILD || !fs.existsSync(getBossImagePath(key))));
     console.log(`Standardising ${toBuild.length} boss portraits...`);
 
     for (const key of toBuild) {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 
 import { BOSS_ITEMS, getItemImagePath, getBossImagePath } from '../js/data.js';
-import { DEFINED_BOSS_KEYS, getBossDefinition, getDefaultState } from '../js/bosses.js';
+import { DEFINED_BOSS_KEYS, getBossDefinition, getDefaultState, listPortraitVariants } from '../js/bosses.js';
 
 const bossKeys = Object.keys(BOSS_ITEMS);
 
@@ -19,8 +19,9 @@ test('every item has a local icon', () => {
     assert.deepEqual([...new Set(missing)], []);
 });
 
-test('every boss has a local portrait', () => {
-    const missing = bossKeys.filter(key => !existsSync(new URL(`../${getBossImagePath(key)}`, import.meta.url)));
+test('every boss and portrait variant has a local portrait', () => {
+    const portraitIds = [...bossKeys, ...listPortraitVariants().map(({ id }) => id)];
+    const missing = portraitIds.filter(id => !existsSync(new URL(`../${getBossImagePath(id)}`, import.meta.url)));
     assert.deepEqual(missing, []);
 });
 
