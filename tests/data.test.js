@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 
-import { BOSS_ITEMS, getItemImagePath } from '../js/data.js';
+import { BOSS_ITEMS, getItemImagePath, getBossImagePath } from '../js/data.js';
 import { DEFINED_BOSS_KEYS, getBossDefinition, getDefaultState } from '../js/bosses.js';
 
 const bossKeys = Object.keys(BOSS_ITEMS);
@@ -17,6 +17,11 @@ test('every item has a local icon', () => {
         .filter(item => !existsSync(new URL(`../${getItemImagePath(item.name)}`, import.meta.url)))
         .map(item => item.name);
     assert.deepEqual([...new Set(missing)], []);
+});
+
+test('every boss has a local portrait', () => {
+    const missing = bossKeys.filter(key => !existsSync(new URL(`../${getBossImagePath(key)}`, import.meta.url)));
+    assert.deepEqual(missing, []);
 });
 
 // Main items are outcomes of one shared roll, so their chances can't add up past 100%.

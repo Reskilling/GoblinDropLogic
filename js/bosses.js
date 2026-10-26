@@ -101,6 +101,7 @@ const DEFINITIONS = {
         settings: [{ key: 'points', type: 'number', label: 'Points per game', default: 4000, min: 0 }]
     },
     zalcano: { category: 'Skilling', adjust: modifiers.adjustRatesForZalcano, settings: [contribution] },
+    hespori: { category: 'Skilling' },
 
     // Minigame
     the_gauntlet: { category: 'Minigame' },
@@ -220,3 +221,24 @@ export function groupBossesByCategory(bossKeys) {
 }
 
 export const DEFINED_BOSS_KEYS = Object.keys(DEFINITIONS);
+
+// Wiki files for bosses whose page image isn't a portrait of the boss (a logo, a location or a scene).
+// Raids and minigames use their final boss. download_icons.js uses each boss page's own image otherwise.
+const WIKI_IMAGE_OVERRIDES = {
+    barrows_chests: 'Dharok_the_Wretched.png',
+    chambers_of_xeric: 'Great_Olm.png',
+    fortis_colosseum: 'Sol_Heredit.png',
+    grotesque_guardians: 'Dusk.png',
+    the_corrupted_gauntlet: 'Corrupted_Hunllef.png',
+    the_fight_caves: 'TzTok-Jad.png',
+    the_gauntlet: 'Crystalline_Hunllef.png',
+    the_inferno: 'TzKal-Zuk.png',
+    royal_titans: 'Branda_the_Fire_Queen.png',
+    theatre_of_blood: 'Verzik_Vitur.png',
+    tombs_of_amascut: "Tumeken's_Warden.png",
+    wintertodt: 'Phoenix_(follower).png' // the Wintertodt has no clean portrait on the Wiki, so its pet stands in
+    // mad_angel: the Wiki only has Mad_Angel.webp, so assets/bosses/mad_angel.png was converted from it by hand
+};
+
+/** Gets the Wiki file to use for a boss's portrait, or null to use its Wiki page's own image. */
+export const getBossWikiImage = (key) => WIKI_IMAGE_OVERRIDES[key] ?? null;

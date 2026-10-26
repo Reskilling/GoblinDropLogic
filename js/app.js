@@ -4,7 +4,7 @@
  */
 
 import { createMasterMatrix, createBarrowsMatrix } from './matrix.js';
-import { BOSS_ITEMS } from './data.js';
+import { BOSS_ITEMS, getBossImagePath } from './data.js';
 import { getBossDefinition, groupBossesByCategory } from './bosses.js';
 import { renderSettings, readSettings, clampNumberInput, syncDisabledSettings } from './settings.js';
 import { initItemGrid, renderItemGrid, getSelectedItems, setAllItems, lockItems, getSelection, restoreSelection } from './item-grid.js';
@@ -29,6 +29,8 @@ let settingsInputTimer = null;
 
 const DOM = {
     bossSelect: document.getElementById('boss-select'),
+    bossPortrait: document.getElementById('boss-portrait'),
+    bossImage: document.getElementById('boss-image'),
     bossPreview: document.getElementById('boss-preview'),
     settings: document.getElementById('boss-settings'),
     kcInput: document.getElementById('target-kc'),
@@ -62,9 +64,22 @@ function populateBossSelect() {
     DOM.bossSelect.innerHTML = '<option value="">Choose a boss…</option>' + groups.join('');
 }
 
+// The portrait fades in once its image has loaded, and stays hidden if it can't load
+function showBossPortrait(key) {
+    DOM.bossPortrait.hidden = !key;
+    DOM.bossImage.classList.remove('is-loaded');
+    if (key) DOM.bossImage.src = getBossImagePath(key);
+}
+
+function initBossPortrait() {
+    DOM.bossImage.addEventListener('load', () => DOM.bossImage.classList.add('is-loaded'));
+    DOM.bossImage.addEventListener('error', () => { DOM.bossPortrait.hidden = true; });
+}
+
 function handleBossSelection() {
     const key = DOM.bossSelect.value;
     DOM.kcInput.value = 0;
+    showBossPortrait(key);
 
     if (!key) {
         activeBoss = null;
@@ -387,6 +402,7 @@ initItemGrid({
     onSelectionChange: refreshResults
 });
 populateBossSelect();
+initBossPortrait();
 bindEvents();
 initResultPeek();
 initNavigation();

@@ -316,6 +316,15 @@ header { margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bo
 .droplogic-controls .card { margin-bottom: 0; }
 .droplogic-controls .input-group { margin-bottom: 24px; }
 
+/* The selected boss's portrait, under the picker; it fades and rises in once loaded */
+.boss-portrait { display: flex; justify-content: center; align-items: center; height: 168px; margin: -8px 0 24px; }
+.boss-portrait img {
+    max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6));
+    opacity: 0; transform: translateY(8px); transition: opacity var(--dur) var(--ease-out), transform 0.4s var(--ease-out);
+}
+.boss-portrait img.is-loaded { opacity: 1; transform: none; }
+
 .unified-btn { padding: 12px 0; font-size: var(--step--2); text-align: center; }
 
 .kc-controls { display: flex; width: 100%; gap: 8px; margin-top: 12px; }

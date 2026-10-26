@@ -55,7 +55,7 @@ The site is plain HTML, CSS and JavaScript modules, with no build step or framew
 GoblinDropLogic/
 ├── index.html          # Page shell and content for every section
 ├── style.css           # Design tokens and responsive layout
-├── download_icons.js   # Downloads item icons from the OSRS Wiki into assets/items
+├── download_icons.js   # Downloads item icons and boss portraits from the OSRS Wiki
 ├── js/
 │   ├── app.js          # Entry point and the DropLogic calculator UI
 │   ├── bosses.js       # Per-boss name, category, rolls, matrix, settings and rate adjuster
@@ -73,6 +73,7 @@ GoblinDropLogic/
 │   ├── copy-code.js    # Copy buttons on code blocks
 │   └── toast.js        # Notifications
 ├── assets/
+│   ├── bosses/         # Boss portraits
 │   ├── brand/          # Logo, resized hero images and the link-preview image
 │   ├── fonts/          # Self-hosted fonts and their licences
 │   └── items/          # Item icons
@@ -117,14 +118,15 @@ Before you begin, install [Node.js](https://nodejs.org/) 20 or later. You need i
 
 ## Add a boss
 
-1. Add the boss's drop table to `js/drops.js`, then fetch any new item icons:
+1. Add the boss's drop table to `js/drops.js`, then fetch its item icons and portrait:
 
    ```bash
    npm run icons
    ```
 
 2. If the boss needs a category, display name, extra rolls or settings, add an entry to `js/bosses.js`. Settings declared there reach the boss's adjuster in `js/modifiers.js` by key.
-3. Run `npm test`. The data tests check that the icons exist, that main-table rates don't exceed one roll, and that every adjuster produces valid rates.
+3. Check the new portrait in `assets/bosses/`. The script uses the image from the boss's Wiki page; if that's a logo or a location rather than the boss, delete the file, add the right Wiki file to `WIKI_IMAGE_OVERRIDES` in `js/bosses.js`, and run `npm run icons` again.
+4. Run `npm test`. The data tests check that the icons and portraits exist, that main-table rates don't exceed one roll, and that every adjuster produces valid rates.
 
 ## Add a JavaScript file
 

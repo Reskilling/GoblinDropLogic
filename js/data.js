@@ -48,6 +48,11 @@ export function getItemImagePath(name) {
     return `assets/items/${getItemImageFilename(name)}`;
 }
 
+/** Gets the path of a boss's portrait, downloaded from the Wiki by download_icons.js. */
+export function getBossImagePath(bossKey) {
+    return `assets/bosses/${bossKey}.png`;
+}
+
 export function getItemWikiImageUrl(name) {
     return `https://oldschool.runescape.wiki/w/Special:Redirect/file/${encodeURIComponent(getItemImageFilename(name))}?width=120`;
 }
