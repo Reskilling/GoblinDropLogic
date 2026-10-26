@@ -12,7 +12,8 @@ function numberSettingHtml(setting) {
     return `
         <div class="input-group">
             <label for="${id}">${setting.label}</label>
-            <input type="number" id="${id}" data-setting="${setting.key}" value="${setting.default}" ${min} ${max} inputmode="numeric">
+            <input type="number" id="${id}" data-setting="${setting.key}" value="${setting.default}" ${min} ${max} inputmode="numeric" aria-describedby="${id}-note">
+            <p class="field-note" id="${id}-note" aria-live="polite"></p>
         </div>`;
 }
 
@@ -42,14 +43,12 @@ export function renderSettings(container, settings) {
 
 export function readSettings(container, settings) {
     return Object.fromEntries(settings.map(setting => {
-        const input = findInput(container, setting.key);
-
         if (setting.type === 'toggle') {
             const checked = container.querySelector(`[data-setting="${setting.key}"]:checked`);
             return [setting.key, setting.options[Number(checked.value)].value];
         }
 
-        return [setting.key, parseNumberSetting(input.value, setting)];
+        return [setting.key, parseNumberSetting(findInput(container, setting.key).value, setting)];
     }));
 }
 
@@ -60,21 +59,26 @@ function parseNumberSetting(value, setting) {
     return clamp(Number.isFinite(parsed) ? parsed : setting.default, setting);
 }
 
-/** Advances a toggle to its next option. */
 function clamp(value, { min = -Infinity, max = Infinity }) {
     return Math.min(Math.max(value, min), max);
 }
 
-/** Rewrites an out-of-range number input once the user has finished typing. */
-/** Rewrites the input as a valid whole number; returns a message when an out-of-range value was capped. */
+/**
+ * Rewrites the input as a valid whole number once the user has finished typing. When an out-of-range
+ * value was capped, the note under the field says so; a cleared or valid entry clears the note.
+ */
 export function clampNumberInput(input, setting) {
-    const typed = Math.floor(Number(input.value));
-    const value = parseNumberSetting(input.value, setting);
+    const raw = input.value;
+    const typed = raw.trim() === '' ? NaN : Math.floor(Number(raw));
+    const value = parseNumberSetting(raw, setting);
     input.value = value;
 
-    if (input.value.trim() === '' || !Number.isFinite(typed) || typed === value) return null;
+    // Blank or unreadable input falls back to the default, which isn't a cap worth explaining
+    const wasCapped = Number.isFinite(typed) && typed !== value;
     const name = setting.label.replace(/\s*\(.*\)$/, ''); // "Delve level (2–15)" -> "Delve level"
-    return `${name} can be ${describeRange(setting)}, so it's been set to ${value.toLocaleString()}.`;
+    input.parentElement.querySelector('.field-note').textContent = wasCapped
+        ? `${name} can be ${describeRange(setting)}, so it's been set to ${value.toLocaleString()}.`
+        : '';
 }
 
 function describeRange({ min, max }) {

@@ -157,6 +157,12 @@ await page.click('#select-none');
 check('Clear hides the results', await isHidden('#results'));
 await page.click('.toast-action');
 check('Undo restores the selection and results', (await page.locator('.item-box.selected').count()) === countedBefore && !(await isHidden('#results')));
+await page.click('#select-none');
+await page.selectOption('#boss-select', 'vorkath');
+await page.selectOption('#boss-select', 'demonic_gorilla');
+await page.click('.toast-action');
+check('Undo is refused after switching away and back', (await page.textContent('.toast')).includes("Can't undo") && (await page.locator('.item-box.selected').count()) === countedBefore);
+await page.click('#calculate-btn'); // the refused Undo left the results hidden; later checks expect live results
 await page.selectOption('#boss-select', 'moons_of_peril');
 check('Moons of Peril calculates', (await text('#phrase-mean')).includes('KC'));
 
@@ -178,7 +184,10 @@ await page.selectOption('#boss-select', 'chambers_of_xeric');
 await page.selectOption('#boss-select', 'tombs_of_amascut');
 await page.fill('#setting-level', '900');
 await page.dispatchEvent('#setting-level', 'change');
-check('out-of-range setting explains the cap', (await page.textContent('.toast')).includes('Raid level can be 0–600'));
+check('out-of-range setting explains the cap under the field', (await text('#setting-level-note')).startsWith('Raid level can be 0–600'));
+await page.fill('#setting-level', '');
+await page.dispatchEvent('#setting-level', 'change');
+check('clearing a field restores the default without a cap note', (await page.inputValue('#setting-level')) === '150' && (await text('#setting-level-note')) === '');
 await page.selectOption('#boss-select', 'chambers_of_xeric');
 await page.fill('#setting-points', '1e9');
 await page.dispatchEvent('#setting-points', 'change');

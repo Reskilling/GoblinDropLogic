@@ -13,6 +13,7 @@ let caption;
 let onChange;
 let itemsByName = new Map();
 let isLocked = false;
+let gridVersion = 0; // bumped whenever the grid is rebuilt or (un)locked, so stale undo snapshots are refused
 
 const tiles = () => grid.querySelectorAll('.item-box');
 
@@ -118,6 +119,7 @@ export function renderItemGrid(items) {
 
     itemsByName = new Map(visible.map(item => [item.name, item]));
     isLocked = false;
+    gridVersion++;
     grid.innerHTML = visible.map(tileHtml).join('');
     tiles().forEach(updateLabel);
     showDefaultCaption();
@@ -142,19 +144,25 @@ export function setAllItems(select) {
     onChange();
 }
 
-/** Which tiles are selected and how many pieces each needs, so a change can be undone. */
+/** Which enabled tiles are selected and how many pieces each needs, so a change can be undone. */
 export function getSelection() {
-    return Array.from(tiles(), box => ({
-        name: box.dataset.name,
-        isSelected: box.classList.contains('selected'),
-        pieces: box.dataset.selectedPieces
-    }));
+    const enabled = Array.from(tiles()).filter(box => !box.disabled);
+    return {
+        version: gridVersion,
+        tiles: enabled.map(box => ({
+            name: box.dataset.name,
+            isSelected: box.classList.contains('selected'),
+            pieces: box.dataset.selectedPieces
+        }))
+    };
 }
 
+/** Puts back a getSelection() snapshot; returns false (changing nothing) if the grid was rebuilt or relocked since. */
 export function restoreSelection(snapshot) {
-    snapshot.forEach(({ name, isSelected, pieces }) => {
+    if (snapshot.version !== gridVersion) return false;
+
+    snapshot.tiles.forEach(({ name, isSelected, pieces }) => {
         const box = grid.querySelector(`.item-box[data-name="${CSS.escape(name)}"]`);
-        if (!box || box.disabled) return;
         box.classList.toggle('selected', isSelected);
         setPieces(box, pieces);
         updateLabel(box);
@@ -162,6 +170,7 @@ export function restoreSelection(snapshot) {
 
     showDefaultCaption();
     onChange();
+    return true;
 }
 
 /** Restricts the grid to `allowedNames` (e.g. a sacrifice option), or restores it when given null. */
@@ -169,6 +178,7 @@ export function lockItems(allowedNames) {
     const shouldLock = allowedNames !== null;
     if (shouldLock === isLocked) return;
     isLocked = shouldLock;
+    gridVersion++;
 
     tiles().forEach(box => {
         if (shouldLock) {

@@ -99,12 +99,11 @@ function bindSettingsEvents() {
         settingsInputTimer = setTimeout(handleSettingsChanged, SETTINGS_INPUT_DELAY_MS);
     });
     DOM.settings.addEventListener('change', (e) => {
+        // A blur while switching bosses can fire `change` on the previous boss's removed input
+        if (!e.target.isConnected) return;
         const setting = findSetting(e.target.dataset.setting);
         if (!setting) return;
-        if (setting.type === 'number') {
-            const notice = clampNumberInput(e.target, setting);
-            if (notice) showToast(notice, { tone: 'info' });
-        }
+        if (setting.type === 'number') clampNumberInput(e.target, setting);
         handleSettingsChanged();
     });
 }
@@ -327,16 +326,20 @@ function displayResults(results, currentKC) {
 function clearSelection() {
     if (!getSelectedItems().length) return;
 
-    const snapshot = { bossKey: activeBoss.key, selection: getSelection(), hadResults: !DOM.resultsSection.classList.contains('hidden') };
+    const selection = getSelection();
+    const hadResults = !DOM.resultsSection.classList.contains('hidden');
     setAllItems(false);
     showToast('Selection cleared.', {
         tone: 'info',
         action: {
             label: 'Undo',
             onClick: () => {
-                if (activeBoss?.key !== snapshot.bossKey) return;
-                restoreSelection(snapshot.selection);
-                if (snapshot.hadResults) handleCalculation();
+                // Refused when the grid was rebuilt or re-locked since, e.g. by a boss switch or a sacrifice setting
+                if (!restoreSelection(selection)) {
+                    showToast("Can't undo: the boss or its settings changed since you cleared.", { tone: 'info' });
+                    return;
+                }
+                if (hadResults) handleCalculation();
             }
         }
     });
