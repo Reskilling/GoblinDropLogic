@@ -44,7 +44,7 @@
 
         <div class="hero-titles">
             <h1 class="visually-hidden">Wise Goblin</h1>
-            <p class="subtitle">Clan Intelligence // Bandosian Division</p>
+            <p class="subtitle tagline"><span>Clan Intelligence</span> <span class="tagline-sep">//</span> <span>Bandosian Division</span></p>
         </div>
 
         <nav class="premium-nav" aria-label="Sections">
@@ -162,6 +162,21 @@
                             <div class="card empty-state">
                                 <p class="empty-title">Your odds will appear here</p>
                                 <p class="sub-text">Choose a boss, pick the items you still need, enter your KC and press <b>Calculate</b>.</p>
+                                <!-- A faint outline of the results to come -->
+                                <div class="empty-preview" aria-hidden="true">
+                                    <div class="skeleton-chart">
+                                        <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+                                            <path class="skeleton-pmf" d="M0 150 C80 150 110 22 150 22 C190 22 220 150 400 150"/>
+                                            <path class="skeleton-cdf" d="M0 150 C140 150 160 14 400 12"/>
+                                        </svg>
+                                    </div>
+                                    <div class="skeleton-rows">
+                                        <div class="skeleton-row"></div>
+                                        <div class="skeleton-row"></div>
+                                        <div class="skeleton-row"></div>
+                                        <div class="skeleton-row"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -422,9 +437,9 @@
                         <div class="plugin-info-block">
                             <p><strong>Zulrah Snakeling Identifier</strong></p>
                             <p class="sub-text">Identify snakeling attack styles using either radius markers or the Better NPC Highlight plugin.</p>
-                            <ul class="stat-item callout is-orange">
-                                <li>• Melee Snakeling: <b>2045</b></li>
-                                <li>• Magic Snakeling: <b>2046</b></li>
+                            <ul class="stat-item callout is-green">
+                                <li>Melee Snakeling: <b>2045</b></li>
+                                <li>Magic Snakeling: <b>2046</b></li>
                             </ul>
                         </div>
                         <pre><code>[{"id":1745212907997,"name":"Magic Snake","visible":true,"collapsed":false,"z":0,"spawnX":3134,"spawnY":3629,"spawnColour":"#FF00FFFF","spawnVisible":false,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":true,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":true,"aggressionColour":"#FFFF0000","aggressionVisible":true,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":2046,"attackRadius":1,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":false,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":0,"interactionColour":"#FF0000FF","interactionVisible":true},{"id":1745212876543,"name":"Melee Snake","visible":true,"collapsed":false,"z":0,"spawnX":3150,"spawnY":3633,"spawnColour":"#FF00FFFF","spawnVisible":false,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":true,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":true,"aggressionColour":"#FFFF0000","aggressionVisible":true,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":2045,"attackRadius":1,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":false,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":0,"interactionColour":"#FFC80000","interactionVisible":true}]</code></pre>
@@ -432,8 +447,8 @@
                         <div class="plugin-info-block is-spaced">
                             <p><strong>Akkha Radius Markers</strong></p>
                             <p class="sub-text">Full mechanical radius markers for all three prayer phases.</p>
-                            <ul class="stat-item callout is-orange">
-                                <li>• Baba Boulder: <b>11783</b></li>
+                            <ul class="stat-item callout is-green">
+                                <li>Baba Boulder: <b>11783</b></li>
                             </ul>
                         </div>
                         <pre><code>[{"id":1670610425600,"name":"Akkha Ranged","visible":true,"collapsed":false,"z":0,"spawnX":3696,"spawnY":5407,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11791,"attackRadius":2,"attackColour":"#FF60FF00","attackType":"RANGED","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false},{"id":1670610245439,"name":"Akkha mage","visible":true,"collapsed":false,"z":0,"spawnX":3682,"spawnY":5412,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11792,"attackRadius":2,"attackColour":"#FF0013FF","attackType":"MAGIC","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false},{"id":1670610384507,"name":"Akkha melee","visible":true,"collapsed":false,"z":0,"spawnX":3694,"spawnY":5406,"spawnColour":"#FF00FFFF","spawnVisible":true,"wanderRadius":5,"wanderColour":"#FFFFFF00","wanderVisible":false,"maxRadius":7,"maxColour":"#FFFF00FF","maxVisible":false,"aggressionColour":"#FFFF0000","aggressionVisible":false,"retreatInteractionColour":"#FF0000FF","retreatInteractionVisible":false,"npcId":11790,"attackRadius":2,"attackColour":"#FF7F0000","attackType":"MELEE","attackVisible":true,"huntRadius":1,"huntColour":"#FFFF7F00","huntVisible":false,"interactionRadius":1,"interactionColour":"#FF00C800","interactionVisible":false}]</code></pre>
@@ -482,7 +497,7 @@
                         <div class="header-row"><h3>Combat & Slayer Strategy</h3></div>
 
                         <h4 class="category-label">PvM Progression Path</h4>
-                        <div class="stat-item callout is-orange">
+                        <div class="stat-item callout is-green">
                             <p><strong>Deployment Sequence:</strong> Morytania Hard Diary &rarr; Medium Combat Achievements &rarr; Barrows (Tank Gear) &rarr; Moons of Peril (Mid-tier sets) &rarr; Royal Titans.</p>
                         </div>
                         <ul class="compact-plugin-list">
@@ -490,16 +505,16 @@
                         </ul>
                         <h4 class="category-label">Slayer Optimization</h4>
 
-                        <div class="stat-item callout is-orange">
+                        <div class="stat-item callout is-green">
                             <p class="callout-lead"><strong>Strategic Sequence:</strong> Early Point Boosting &rarr; Superior Monsters &rarr; Task Skips/Blocks &rarr; Essential Unlocks &rarr; Long-term Efficiency.</p>
 
                             <div class="inset-panel">
                                 <p class="detail-heading"><b>Prioritize Point Boosting early to secure:</b></p>
                                 <ul class="detail-list">
-                                    <li>&bull; Immediate access to <b>Superior Slayer Monsters</b> for unique loot.</li>
-                                    <li>&bull; Capability to skip undesirable or inefficient tasks as they appear.</li>
-                                    <li>&bull; Faster path to essential unlocks (Slayer Helm, Broad Fletching, Slayer Ring).</li>
-                                    <li>&bull; Prevention of wasted time and supply resources on low-efficiency tasks.</li>
+                                    <li>Immediate access to <b>Superior Slayer Monsters</b> for unique loot.</li>
+                                    <li>Capability to skip undesirable or inefficient tasks as they appear.</li>
+                                    <li>Faster path to essential unlocks (Slayer Helm, Broad Fletching, Slayer Ring).</li>
+                                    <li>Prevention of wasted time and supply resources on low-efficiency tasks.</li>
                                 </ul>
                             </div>
                         </div>
@@ -512,13 +527,13 @@
                     <div class="card">
                         <div class="header-row"><h3>Item Upgrades</h3></div>
 
-                        <h4 class="category-label">Last Man Standing & Mage Training Arena Efficiency Upgrades</h4>
+                        <h4 class="category-label">LMS &amp; MTA Upgrades</h4>
                         <div class="stat-item callout is-green">
                             <p class="callout-lead"><strong>Rune Pouch Acquisition:</strong></p>
                             <ul class="detail-list">
-                                <li>&bull; <span class="val">750</span> Slayer points from any Slayer master.</li>
-                                <li>&bull; <span class="val">75</span> points from Last Man Standing (LMS).</li>
-                                <li>&bull; <span class="val">150</span> Telekinetic, <span class="val">150</span> Graveyard, <span class="val">1500</span> Enchantment, and <span class="val">200</span> Alchemist Pizazz points from MTA.</li>
+                                <li><span class="val">750</span> Slayer points from any Slayer master.</li>
+                                <li><span class="val">75</span> points from Last Man Standing (LMS).</li>
+                                <li><span class="val">150</span> Telekinetic, <span class="val">150</span> Graveyard, <span class="val">1500</span> Enchantment, and <span class="val">200</span> Alchemist Pizazz points from MTA.</li>
                             </ul>
 
                             <p class="callout-divider"><strong>Rune Arrows:</strong> Available at <span class="val">x300</span> arrows for <span class="val">3</span> points from LMS. High-value early Ranged ammo for zero GP.</p>
@@ -527,16 +542,16 @@
                         <h4 class="category-label">Item Imbuing (Emir’s Arena)</h4>
                         <div class="stat-item callout is-green">
                             <ul class="detail-list">
-                                <li>&bull; Earn <b>Scrolls of Imbuing</b> via participation (playing or leaving earns points).</li>
-                                <li>&bull; <b>Speed:</b> One scroll typically takes under one hour to obtain.</li>
-                                <li>&bull; <b>Utility:</b> Scrolls are reusable and can be removed/transferred between items.</li>
-                                <li>&bull; <b>Wilderness Meta:</b> Dying in the Wildy with a scroll-imbued item grants <span class="val">650,000</span> NMZ points.</li>
+                                <li>Earn <b>Scrolls of Imbuing</b> via participation (playing or leaving earns points).</li>
+                                <li><b>Speed:</b> One scroll typically takes under one hour to obtain.</li>
+                                <li><b>Utility:</b> Scrolls are reusable and can be removed/transferred between items.</li>
+                                <li><b>Wilderness Meta:</b> Dying in the Wildy with a scroll-imbued item grants <span class="val">650,000</span> NMZ points.</li>
                             </ul>
                         </div>
                     </div>
 
                     <div class="card">
-                        <div class="header-row"><h3>Surviving The Early Game</h3></div>
+                        <div class="header-row"><h3>Surviving the Early Game</h3></div>
 
                         <h4 class="category-label">Early-Game Food Directory</h4>
                         <div class="food-list">
@@ -556,11 +571,11 @@
                         </div>
 
                         <h4 class="category-label">Early-Game Capital (GP)</h4>
-                        <div class="stat-item callout is-orange">
+                        <div class="stat-item callout is-green">
                             <ul class="detail-list">
-                                <li>&bull; <b>Stronghold of Security:</b> Awards <span class="val">10,000</span> GP (One-time).</li>
-                                <li>&bull; <b>Agility Pyramid:</b> Awards <span class="val">10,000</span> GP for every successful lap.</li>
-                                <li>&bull; <b>Eclipse Red Wine:</b> Averages <span class="val">280,000</span> GP per hour.</li>
+                                <li><b>Stronghold of Security:</b> Awards <span class="val">10,000</span> GP (One-time).</li>
+                                <li><b>Agility Pyramid:</b> Awards <span class="val">10,000</span> GP for every successful lap.</li>
+                                <li><b>Eclipse Red Wine:</b> Averages <span class="val">280,000</span> GP per hour.</li>
                             </ul>
                         </div>
                         <ul class="compact-plugin-list">
@@ -575,9 +590,9 @@
                         <div class="stat-item callout is-green">
                             <p class="callout-lead"><strong>Method:</strong> Catch <b>Moonlight Moths</b> at 75 Hunter.</p>
                             <ul class="detail-list">
-                                <li>&bull; Base version restores 1 dose of prayer potion.</li>
-                                <li>&bull; Mixed versions (using specific meats) restore 2 doses.</li>
-                                <li>&bull; Provides consistent protection prayer usage without relying on Ranarr drops.</li>
+                                <li>Base version restores 1 dose of prayer potion.</li>
+                                <li>Mixed versions (using specific meats) restore 2 doses.</li>
+                                <li>Provides consistent protection prayer usage without relying on Ranarr drops.</li>
                             </ul>
                         </div>
 

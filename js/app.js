@@ -255,6 +255,13 @@ function setHeadline(value, label, count = null) {
     DOM.resultPeek.querySelector('.peek-label').textContent = label;
 }
 
+// Two decimals would show a slim but real chance as "0.00%", and a near-certainty as "100.00%"
+function formatChance(percent) {
+    if (percent > 0 && percent < 0.01) return '<0.01%';
+    if (percent > 99.99 && percent < 100) return '>99.99%';
+    return `${percent.toFixed(2)}%`;
+}
+
 /** Replaces the chart and stats with an explanation when they would be meaningless, or restores them. */
 function setResultsMessage(message) {
     DOM.resultsMessage.textContent = message ?? '';
@@ -291,8 +298,10 @@ function displayResults(results, currentKC) {
         setHeadline(`${results.median.toLocaleString()} KC`, 'Typical KC to finish', count);
     } else {
         const percent = results.targetP * 100;
-        const count = isFirstReveal ? { to: percent, format: n => `${n.toFixed(2)}%` } : null;
-        setHeadline(`${percent.toFixed(2)}%`, `Chance you'd be done by ${currentKC.toLocaleString()} KC`, count);
+        const value = formatChance(percent);
+        // A capped value like "<0.01%" has nothing meaningful to count through
+        const count = isFirstReveal && !/^[<>]/.test(value) ? { to: percent, format: n => `${n.toFixed(2)}%` } : null;
+        setHeadline(value, `Chance you'd be done by ${currentKC.toLocaleString()} KC`, count);
     }
 
     // Past the KC limit the mean only counts unfinished players at the limit, so it's a lower bound

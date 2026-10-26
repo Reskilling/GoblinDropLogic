@@ -188,6 +188,12 @@ a[target="_blank"]:not(.resource-card)::after,
 .hero-titles { text-align: center; margin-bottom: 48px; z-index: 10; }
 .hero-titles .subtitle { margin-top: 4px; color: var(--text); font-size: clamp(0.8125rem, 0.7rem + 0.5vw, 1rem); letter-spacing: 0.24em; }
 
+/* Where the tagline can't fit on one line, stack its halves rather than leave "//" dangling */
+@media (max-width: 560px) {
+    .tagline > span { display: block; }
+    .tagline > .tagline-sep { display: none; }
+}
+
 /* The landing view arrives in order: logo, then tagline, then the section buttons */
 #hero-view:not([hidden]) .logo-pedestal { animation: rise 0.8s var(--ease-out) 0.05s backwards; }
 #hero-view:not([hidden]) .hero-titles { animation: rise 0.7s var(--ease-out) 0.25s backwards; }
@@ -398,6 +404,26 @@ button#calculate-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #9
 .empty-title { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); line-height: 1.1; color: var(--text); margin-bottom: 12px; }
 .empty-state .sub-text { margin-inline: auto; max-width: 44ch; }
 
+/* A static outline of the chart and stat rows: it shows what's coming without pretending to load */
+.empty-preview { margin-top: 32px; text-align: left; }
+.skeleton-chart { height: 240px; padding: 16px; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 12px; background: rgba(17, 15, 14, 0.4); }
+.skeleton-chart svg { display: block; width: 100%; height: 100%; }
+.skeleton-chart path { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; opacity: 0.3; }
+.skeleton-pmf { stroke: var(--stat-mode); }
+.skeleton-cdf { stroke: var(--stat-progress); }
+.skeleton-rows { display: flex; flex-direction: column; gap: 8px; }
+.skeleton-row { display: flex; align-items: center; height: 56px; padding: 0 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); border-left: 4px solid; opacity: 0.45; }
+.skeleton-row::after { content: ""; width: 55%; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, 0.08); }
+.skeleton-row:nth-child(1) { border-left-color: var(--stat-mode); }
+.skeleton-row:nth-child(2) { border-left-color: var(--stat-progress); }
+.skeleton-row:nth-child(3) { border-left-color: var(--stat-mean); }
+.skeleton-row:nth-child(4) { border-left-color: var(--stat-user); }
+
+/* In the single-column layout the empty state sits below the inputs; keep it short there */
+@media (max-width: 1000px) {
+    .empty-preview { display: none; }
+}
+
 .result-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px; }
 .prob-container { text-align: right; }
 
@@ -511,6 +537,13 @@ button#calculate-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #9
 .detail-list { list-style: none; font-size: var(--step-0); color: var(--text-dim); line-height: 1.6; padding-left: 8px; margin-bottom: 12px; max-width: var(--measure); }
 .detail-list:last-child { margin-bottom: 0; }
 .detail-list.is-nested { font-size: 0.9375rem; margin-top: 4px; padding-left: 12px; line-height: 1.5; }
+
+/* Drawn bullets, so wrapped lines hang under the text rather than the bullet */
+.detail-list:not(.is-nested) li, ul.callout li { position: relative; padding-left: 16px; }
+.detail-list:not(.is-nested) li::before, ul.callout li::before {
+    content: ""; position: absolute; left: 2px; top: calc(0.8em - 2.5px);
+    width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.7;
+}
 .detail-heading { font-size: var(--step--1); font-weight: 600; color: var(--text-dim); margin-bottom: 8px; }
 .inset-panel { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px; }
 
