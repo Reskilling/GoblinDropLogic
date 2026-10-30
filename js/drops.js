@@ -9,9 +9,7 @@
  * - `pieces`:
  * Triggers the sequential/invisible roll logic in createMasterMatrix
  * (e.g., DT2 Vestiges & Ingots where you need 3 invisible rolls to get the item).
- * - `defaultPieces`:
- * How many of `pieces` the tile starts with (defaults to all of them). Use 1 when a single
- * drop completes the collection log but players may want more (e.g., 4 Zenyte shards for gear).
+ * The tile starts needing 1; the player taps it up to `pieces`.
  * - `weight`:
  * Raid uniques (CoX, ToB, ToA) use a unique-table weight instead of `rate`; the raid's
  * adjuster in modifiers.js turns it into a rate from points, team size or raid level.
@@ -179,7 +177,7 @@ export const RAW_BOSS_DATA = {
         "6739": { name: "Dragon axe", rate: 1 / 128, type: "main", order: 4 },
     },
     demonic_gorilla: {
-        "19529": { name: "Zenyte shard", rate: 1 / 300, type: "main", pieces: 4, defaultPieces: 1, order: 1 },
+        "19529": { name: "Zenyte shard", rate: 1 / 300, type: "main", pieces: 4, order: 1 },
         "19592": { name: "Ballista limbs", rate: 1 / 500, type: "main", order: 2 },
         "19601": { name: "Ballista spring", rate: 1 / 500, type: "main", order: 2 },
         "19586": { name: "Light frame", rate: 1 / 750, type: "main", order: 2 },
@@ -221,7 +219,7 @@ export const RAW_BOSS_DATA = {
     },
     the_corrupted_gauntlet: {
         "23757": { name: "Youngllef", rate: 1 / 800, type: "tertiary", order: 1 },
-        "23956": { name: "Crystal armour seed", rate: 1 / 50, type: "main", order: 2 },
+        "23956": { name: "Crystal armour seed", rate: 1 / 50, type: "main", pieces: 6, order: 2 },
         "4207": { name: "Crystal weapon seed", rate: 1 / 50, type: "main", order: 3 },
         "25859": { name: "Enhanced crystal weapon seed", rate: 1 / 400, type: "main", order: 4 },
         "23859": { name: "Gauntlet cape", rate: 1 / 1, type: "tertiary", order: 5 },
@@ -419,8 +417,8 @@ export const RAW_BOSS_DATA = {
         "25524": { name: "Jar of Smoke", rate: 1 / 2000, type: "tertiary", order: 5 },
     },
     tormented_demon: {
-        "29580": { name: "Tormented synapse", rate: 1 / 500, type: "main", pieces: 3, defaultPieces: 1, order: 1 },
-        "29574": { name: "Burning claw", rate: 1 / 501, type: "main", pieces: 2, defaultPieces: 1, order: 2 },
+        "29580": { name: "Tormented synapse", rate: 1 / 500, type: "main", pieces: 3, order: 1 },
+        "29574": { name: "Burning claw", rate: 1 / 501, type: "main", pieces: 2, order: 2 },
     },
     vardorvis: {
         "28248": { name: "Butch", rate: 1 / 3000, type: "tertiary", order: 1 },
@@ -518,7 +516,7 @@ export const RAW_BOSS_DATA = {
     },
     the_gauntlet: {
         "23757": { name: "Youngllef", rate: 1 / 2000, type: "tertiary", order: 1 },
-        "23956": { name: "Crystal armour seed", rate: 1 / 120, type: "main", order: 2 },
+        "23956": { name: "Crystal armour seed", rate: 1 / 120, type: "main", pieces: 6, order: 2 },
         "4207": { name: "Crystal weapon seed", rate: 1 / 120, type: "main", order: 3 },
         "25859": { name: "Enhanced crystal weapon seed", rate: 1 / 2000, type: "main", order: 4 },
     },

@@ -448,7 +448,7 @@ button#calculate-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #9
     border: 1px solid rgba(0,0,0,0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.8); pointer-events: none; z-index: 2;
 }
 
-/* A multi-piece item you have all of isn't counted; its badge stays, muted, showing the full set */
+/* A multi-piece item that isn't counted keeps its badge, muted, at 0 */
 .item-box:not(.selected) .item-badge { background: var(--border); color: var(--text-dim); }
 
 .item-caption { min-height: 3.2em; margin: 12px 0 24px; font-size: var(--step--1); line-height: 1.6; color: var(--text-dim); }

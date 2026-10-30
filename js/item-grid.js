@@ -3,8 +3,7 @@
  * The collection log grid: which items count towards the result, how many of each
  * multi-piece item are still needed, and the caption that names the item under the pointer.
  *
- * Multi-piece tiles count up what the player already has, like the collection log:
- * 0/N -> 1/N -> ... -> N/N (done, not counted) -> 0/N. Internally a tile stores how many are still needed.
+ * Multi-piece tiles count up how many the player still needs: 1/N -> 2/N -> ... -> N/N -> 0/N (not counted) -> 1/N.
  */
 
 import { getItemImagePath, getItemWikiImageUrl, formatItemName } from './data.js';
@@ -20,18 +19,16 @@ const tiles = () => grid.querySelectorAll('.item-box');
 
 function tileHtml(item) {
     const maxPieces = item.pieces || 1;
-    const startPieces = item.defaultPieces ?? maxPieces;
-    const badge = maxPieces > 1 ? `<span class="item-badge" aria-hidden="true">${maxPieces - startPieces}/${maxPieces}</span>` : '';
+    const badge = maxPieces > 1 ? `<span class="item-badge" aria-hidden="true">1/${maxPieces}</span>` : '';
 
     return `
         <button type="button" class="item-box selected" aria-pressed="true" title="${formatItemName(item.name)}"
-            data-name="${item.name}" data-max-pieces="${maxPieces}" data-default-pieces="${startPieces}" data-selected-pieces="${startPieces}">
+            data-name="${item.name}" data-max-pieces="${maxPieces}" data-selected-pieces="1">
             <img src="${getItemImagePath(item.name)}" data-fallback="${getItemWikiImageUrl(item.name)}" alt="">
             ${badge}
         </button>`;
 }
 
-// `pieces` is how many are still needed; the badge shows how many the player has
 function setPieces(box, pieces) {
     box.dataset.selectedPieces = pieces;
     updateBadge(box);
@@ -41,14 +38,14 @@ function updateBadge(box) {
     const badge = box.querySelector('.item-badge');
     if (!badge) return;
     const max = Number(box.dataset.maxPieces);
-    const have = box.classList.contains('selected') ? max - Number(box.dataset.selectedPieces) : max;
-    badge.textContent = `${have}/${max}`;
+    const needed = box.classList.contains('selected') ? box.dataset.selectedPieces : 0;
+    badge.textContent = `${needed}/${max}`;
 }
 
 function updateLabel(box) {
     const isSelected = box.classList.contains('selected');
     const max = Number(box.dataset.maxPieces);
-    const count = max > 1 ? `, have ${isSelected ? max - Number(box.dataset.selectedPieces) : max} of ${max}` : '';
+    const count = max > 1 && isSelected ? `, need ${box.dataset.selectedPieces} of ${max}` : '';
 
     box.setAttribute('aria-pressed', String(isSelected));
     updateBadge(box);
@@ -65,7 +62,7 @@ function describe(box) {
 function showDefaultCaption() {
     const counted = grid.querySelectorAll('.item-box.selected').length;
     const hint = grid.querySelector('.item-badge')
-        ? 'Hover or tap an item to see what it is; on numbered tiles, tap to add one you already have.'
+        ? 'Hover or tap an item to see what it is; on numbered tiles, each tap raises how many you need.'
         : 'Hover or tap an item to see what it is.';
     caption.textContent = `${counted} of ${tiles().length} items counted. ${hint}`;
 }
@@ -75,9 +72,9 @@ function toggle(box) {
 
     if (!box.classList.contains('selected')) {
         box.classList.add('selected');
-        setPieces(box, maxPieces);
-    } else if (Number(box.dataset.selectedPieces) > 1) {
-        setPieces(box, Number(box.dataset.selectedPieces) - 1);
+        setPieces(box, 1);
+    } else if (Number(box.dataset.selectedPieces) < maxPieces) {
+        setPieces(box, Number(box.dataset.selectedPieces) + 1);
     } else {
         box.classList.remove('selected');
     }
@@ -140,7 +137,7 @@ export function getSelectedItems() {
 export function setAllItems(select) {
     grid.querySelectorAll('.item-box:not(:disabled)').forEach(box => {
         box.classList.toggle('selected', select);
-        if (select) setPieces(box, Number(box.dataset.defaultPieces));
+        if (select) setPieces(box, 1);
         updateLabel(box);
     });
 
