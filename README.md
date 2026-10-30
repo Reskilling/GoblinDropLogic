@@ -1,4 +1,4 @@
-# Wise Goblin clan hub and DropLogic
+# Wise Goblin Clan Hub and DropLogic
 
 The Wise Goblin site at [thewisegoblin.com](https://thewisegoblin.com) collects Old School RuneScape (OSRS) guides, RuneLite plugin help and an Ironman checklist for the clan, along with DropLogic, a calculator that forecasts how many kills you need to finish a boss's collection log.
 
