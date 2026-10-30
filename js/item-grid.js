@@ -59,12 +59,8 @@ function describe(box) {
     return box.disabled ? `${name}: not available with the current settings.` : name;
 }
 
-function showDefaultCaption() {
-    const counted = grid.querySelectorAll('.item-box.selected').length;
-    const hint = grid.querySelector('.item-badge')
-        ? 'Hover or tap an item to see what it is; on numbered tiles, each tap raises how many you need.'
-        : 'Hover or tap an item to see what it is.';
-    caption.textContent = `${counted} of ${tiles().length} items counted. ${hint}`;
+function clearCaption() {
+    caption.textContent = '';
 }
 
 function toggle(box) {
@@ -109,9 +105,9 @@ export function initItemGrid({ gridElement, captionElement, onSelectionChange })
     grid.addEventListener('error', handleIconError, true);
     grid.addEventListener('pointerover', describeTileUnderEvent);
     grid.addEventListener('focusin', describeTileUnderEvent);
-    grid.addEventListener('pointerleave', showDefaultCaption);
+    grid.addEventListener('pointerleave', clearCaption);
     grid.addEventListener('focusout', (e) => {
-        if (!grid.contains(e.relatedTarget)) showDefaultCaption();
+        if (!grid.contains(e.relatedTarget)) clearCaption();
     });
 }
 
@@ -123,7 +119,7 @@ export function renderItemGrid(items) {
     gridVersion++;
     grid.innerHTML = visible.map(tileHtml).join('');
     tiles().forEach(updateLabel);
-    showDefaultCaption();
+    clearCaption();
 }
 
 /** The selected items' data, with `pieces` set to how many the player still needs. */
@@ -141,7 +137,7 @@ export function setAllItems(select) {
         updateLabel(box);
     });
 
-    showDefaultCaption();
+    clearCaption();
     onChange();
 }
 
@@ -169,7 +165,7 @@ export function restoreSelection(snapshot) {
         updateLabel(box);
     });
 
-    showDefaultCaption();
+    clearCaption();
     onChange();
     return true;
 }
@@ -206,5 +202,5 @@ export function lockItems(allowedNames) {
     }
 
     tiles().forEach(updateLabel);
-    showDefaultCaption();
+    clearCaption();
 }

@@ -172,7 +172,6 @@ check('Dom comes back, selected, from delve level 6', await page.$eval('.item-bo
 
 await page.selectOption('#boss-select', 'demonic_gorilla');
 check('Zenyte shard starts at 1/4', await text('.item-box[data-name="Zenyte shard"] .item-badge') === '1/4');
-check('caption explains numbered tiles up front', (await text('#item-caption')).includes('numbered tiles'));
 for (let i = 0; i < 3; i++) await page.click('.item-box[data-name="Zenyte shard"]');
 check('tapping a numbered tile counts up to 4/4, still counted', await text('.item-box[data-name="Zenyte shard"] .item-badge') === '4/4'
     && await page.$eval('.item-box[data-name="Zenyte shard"]', b => b.classList.contains('selected')));
